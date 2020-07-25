@@ -8,6 +8,8 @@
 %}
 
 %%
+.string                    { return T_STRING; }
+
 push                       { return PUSH; }
 mov                        { return MOV; }
 add                        { return ADD; }

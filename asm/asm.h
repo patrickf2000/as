@@ -26,6 +26,8 @@ typedef enum
     EDI
 } Reg32;
 
+void amd64_write_string(const char *str, FILE *file);
+
 void amd64_push_reg64(Reg64 reg, FILE *file);
 
 void amd64_mov_reg32_imm(Reg32 reg, int imm, FILE *file);

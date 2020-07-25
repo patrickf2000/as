@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <elf.h>
 
-#include "elf.h"
+#include "elf_bin.h"
 
 // Write an ELF header
-void elf_write_header(FILE *file)
+void elf_write_header(FILE *file, int start)
 {
     Elf64_Ehdr header;
    
@@ -26,7 +26,7 @@ void elf_write_header(FILE *file)
     header.e_type = ET_EXEC;             //Object file type
     header.e_machine = EM_X86_64;        //Architecture
     header.e_version = 1;                //Current version
-    header.e_entry = 4194424;            //Entry point
+    header.e_entry = 4194424 + start;    //Entry point
     header.e_phoff = 64;                 //Program header offset
     header.e_shoff = 0;                  //Section header offset
     header.e_flags = 0;                  //No flags
@@ -41,17 +41,17 @@ void elf_write_header(FILE *file)
 }
 
 // Write a program header
-void elf_write_pheader(FILE *file)
+void elf_write_pheader(FILE *file, int start)
 {
     Elf64_Phdr program_header;
     
-    program_header.p_type = PT_LOAD;        // Loadable program segment
-    program_header.p_flags = PF_X | PF_R;   // Flags
-    program_header.p_offset = 120;          // Offset relative to start of file (file size)
-    program_header.p_vaddr = 4194424;       // Virtual start
-    program_header.p_paddr = 0;             // Ignore
-    program_header.p_filesz = 132;          // File size
-    program_header.p_memsz = 132;           // Segment size (= file size)
+    program_header.p_type = PT_LOAD;            // Loadable program segment
+    program_header.p_flags = PF_X | PF_R;       // Flags
+    program_header.p_offset = 120 + start;      // Offset relative to start of file (file size)
+    program_header.p_vaddr = 4194424 + start;   // Virtual start
+    program_header.p_paddr = 0;                 // Ignore
+    program_header.p_filesz = 132;              // File size
+    program_header.p_memsz = 132;               // Segment size (= file size)
     program_header.p_align = 1;
     
     fwrite(&program_header, sizeof(program_header), 1, file);

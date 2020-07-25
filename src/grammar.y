@@ -54,6 +54,7 @@ data:
                                  {
                                      sym_table_add(sym_table, $1, start);
                                      start += strlen($3) - 2;
+                                     if (strstr($3, "\\n") != NULL) start -= 1;
                                  } 
                                  else 
                                  {

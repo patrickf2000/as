@@ -43,6 +43,29 @@ void amd64_add_rr32(Reg32 dest, Reg32 src, FILE *file)
     fputc(mask, file);
 }
 
+// Add a 32-bit register and an immediate
+void amd64_add_r32_imm(Reg32 reg, int imm, FILE *file)
+{
+    // Write the instruction
+    fputc(0x83, file);
+    
+    // The register
+    switch (reg)
+    {
+        case RAX: fputc(0xC0, file); break;
+        case RCX: fputc(0xC1, file); break;
+        case RDX: fputc(0xC2, file); break;
+        case RBX: fputc(0xC3, file); break;
+        case RSP: fputc(0xC4, file); break;
+        case RBP: fputc(0xC5, file); break;
+        case RSI: fputc(0xC6, file); break;
+        case RDI: fputc(0xC7, file); break;
+    }
+    
+    // Write the immediate value
+    fputc(imm, file);
+}
+
 void amd64_sub_ri(Reg64 r, int imm, FILE *file)
 {
     // Write the instruction

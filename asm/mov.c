@@ -103,7 +103,7 @@ void amd64_mov_m_int(Reg64 dest, int dsp, int imm, FILE *file)
 void amd64_mov_dsp16(Reg64 mem, Reg32 r, int dsp, FILE *file)
 {
     // Write the registers
-    // Binary format: 10 <dest> <src>
+    // Binary format: 1 <dest> <src>
     int reg1, reg2;
     
     // The destination

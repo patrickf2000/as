@@ -10,6 +10,14 @@
 %%
 .string                    { return T_STRING; }
 
+cmp                        { return CMP; }
+jmp                        { yylval.itype = JMP; return JUMP; }
+je                         { yylval.itype = JE;  return JUMP; }
+jne                        { yylval.itype = JNE; return JUMP; }
+jg                         { yylval.itype = JG;  return JUMP; }
+jl                         { yylval.itype = JL;  return JUMP; }
+jge                        { yylval.itype = JGE; return JUMP; }
+jle                        { yylval.itype = JLE; return JUMP; }
 push                       { return PUSH; }
 mov                        { return MOV; }
 add                        { return ADD; }
@@ -48,5 +56,11 @@ rsi                        { yylval.itype = RSI; return REG64; }
 [ \t]                      {}
 [-]?[0-9]+                 {yylval.itype = atoi(yytext); return INTEGER;}
 [-]?([0-9]*[.])?[0-9]+     {yylval.ftype = atof(yytext); return FLOAT;}
+[A-Za-z]*([0-9]+)?:		   {
+                              char *lbl = strdup(yytext);
+                              lbl[strlen(lbl)-1] = '\0';
+                              yylval.stype = lbl; 
+                              return LABEL;
+                           }
 [A-Za-z]*([0-9]+)?		   {yylval.stype = strdup(yytext); return ID;}
 %%

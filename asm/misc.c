@@ -1,5 +1,17 @@
 #include "asm.h"
 
+// Writes the 64-bit prefix
+void amd64_64prefix(int size64, int dest64, int src64, FILE *file)
+{
+    int mask = 0b01001101;
+    
+    if (!size64) mask &= 0b01000101;
+    if (!src64) mask &= 0b01001001;
+    if (!dest64) mask &= 0b01001100;
+    
+    fputc(mask, file);
+}
+
 // Compare 32-bit register and immediate
 // Foramt: 83 <reg> <imm>
 void amd_cmp_reg32_imm(Reg32 op1, int op2, FILE *file)

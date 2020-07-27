@@ -35,6 +35,15 @@ esp                        { yylval.itype = ESP; return REG32; }
 edi                        { yylval.itype = EDI; return REG32; }
 esi                        { yylval.itype = ESI; return REG32; }
 
+r8d                        { yylval.itype = R8D;  return REG32; }
+r9d                        { yylval.itype = R9D;  return REG32; }
+r10d                       { yylval.itype = R10D; return REG32; }
+r11d                       { yylval.itype = R11D; return REG32; }
+r12d                       { yylval.itype = R12D; return REG32; }
+r13d                       { yylval.itype = R13D; return REG32; }
+r14d                       { yylval.itype = R14D; return REG32; }
+r15d                       { yylval.itype = R15D; return REG32; }
+
 rax                        { yylval.itype = RAX; return REG64; }
 rbx                        { yylval.itype = RBX; return REG64; }
 rcx                        { yylval.itype = RCX; return REG64; }
@@ -43,6 +52,15 @@ rbp                        { yylval.itype = RBP; return REG64; }
 rsp                        { yylval.itype = RSP; return REG64; }
 rdi                        { yylval.itype = RDI; return REG64; }
 rsi                        { yylval.itype = RSI; return REG64; }
+
+r8                         { yylval.itype = R8;  return REG64; }
+r9                         { yylval.itype = R9;  return REG64; }
+r10                        { yylval.itype = R10; return REG64; }
+r11                        { yylval.itype = R11; return REG64; }
+r12                        { yylval.itype = R12; return REG64; }
+r13                        { yylval.itype = R13; return REG64; }
+r14                        { yylval.itype = R14; return REG64; }
+r15                        { yylval.itype = R15; return REG64; }
 
 ;.*\n                      {}
 

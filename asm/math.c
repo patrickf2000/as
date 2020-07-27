@@ -4,6 +4,11 @@
 // Format 01 (11 <src> <dest>)
 void amd64_add_rr32(Reg32 dest, Reg32 src, FILE *file)
 {
+    // Check the prefix
+    int dest_sz = dest > EDI;
+    int src_sz = src > EDI;
+    amd64_64prefix(0, dest_sz, src_sz, file);
+
     // Write the instruction
     fputc(0x01, file);
     
@@ -14,27 +19,43 @@ void amd64_add_rr32(Reg32 dest, Reg32 src, FILE *file)
     // The destination
     switch (dest)
     {
-        case RAX: reg1 = 0b11111000; break;
-        case RCX: reg1 = 0b11111001; break;
-        case RDX: reg1 = 0b11111011; break;
-        case RBX: reg1 = 0b11111011; break;
-        case RSP: reg1 = 0b11111100; break;
-        case RBP: reg1 = 0b11111101; break;
-        case RSI: reg1 = 0b11111110; break;
-        case RDI: reg1 = 0b11111111; break;
+        case EAX: 
+        case R8D: reg1 = 0b11111000; break;
+        case ECX: 
+        case R10D: reg1 = 0b11111001; break;
+        case EDX: 
+        case R11D: reg1 = 0b11111011; break;
+        case EBX: 
+        case R9D: reg1 = 0b11111011; break;
+        case ESP: 
+        case R12D: reg1 = 0b11111100; break;
+        case EBP: 
+        case R13D: reg1 = 0b11111101; break;
+        case ESI: 
+        case R14D: reg1 = 0b11111110; break;
+        case EDI: 
+        case R15D: reg1 = 0b11111111; break;
     }
     
     // The source
     switch (src)
     {
-        case RAX: reg2 = 0b11000111; break;
-        case RCX: reg2 = 0b11001111; break;
-        case RDX: reg2 = 0b11011111; break;
-        case RBX: reg2 = 0b11011111; break;
-        case RSP: reg2 = 0b11100111; break;
-        case RBP: reg2 = 0b11101111; break;
-        case RSI: reg2 = 0b11110111; break;
-        case RDI: reg2 = 0b11111111; break;
+        case EAX: 
+        case R8D: reg2 = 0b11000111; break;
+        case ECX: 
+        case R10D: reg2 = 0b11001111; break;
+        case EDX: 
+        case R11D: reg2 = 0b11011111; break;
+        case EBX: 
+        case R9D: reg2 = 0b11011111; break;
+        case ESP: 
+        case R12D: reg2 = 0b11100111; break;
+        case EBP: 
+        case R13D: reg2 = 0b11101111; break;
+        case ESI: 
+        case R14D: reg2 = 0b11110111; break;
+        case EDI: 
+        case R15D: reg2 = 0b11111111; break;
     }
     
     // Do the math and write

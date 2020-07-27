@@ -4,18 +4,37 @@
 // Format: <op> <imm>
 void amd64_mov_reg32_imm(Reg32 reg, int imm, FILE *file)
 {
+    // Check the registers- if its one of the 64-bit ones, we need a prefix
+    if (reg > EDI)
+        amd64_64prefix(0, 1, 0, file);
+
     // Write the instruction
     // The instruction is different per register
     switch (reg)
     {
-        case RAX: fputc(0xB8, file); break;
-        case RCX: fputc(0xB9, file); break;
-        case RDX: fputc(0xBA, file); break;
-        case RBX: fputc(0xBB, file); break;
-        case RSP: fputc(0xBC, file); break;
-        case RBP: fputc(0xBD, file); break;
-        case RSI: fputc(0xBE, file); break;
-        case RDI: fputc(0xBF, file); break;
+        case EAX: 
+        case R8D: fputc(0xB8, file); break;
+        
+        case ECX:
+        case R10D: fputc(0xB9, file); break;
+        
+        case EDX:
+        case R11D: fputc(0xBA, file); break;
+        
+        case EBX:
+        case R9D: fputc(0xBB, file); break;
+        
+        case ESP:
+        case R12D: fputc(0xBC, file); break;
+        
+        case EBP:
+        case R13D: fputc(0xBD, file); break;
+        
+        case ESI:
+        case R14D: fputc(0xBE, file); break;
+        
+        case EDI: 
+        case R15D: fputc(0xBF, file); break;
     }
     
     // Write the immediate value
@@ -25,9 +44,13 @@ void amd64_mov_reg32_imm(Reg32 reg, int imm, FILE *file)
 // Move one register to another
 void amd64_mov_rr(Reg64 r1, Reg64 r2, FILE *file)
 {
-    //First write the instruction
-    fputc(0x48, file);    // The 64-bit prefix
-    fputc(0x89, file);    // The instruction
+    //Write the prefix
+    int dest_sz = r1 > RDI;
+    int src_sz = r2 > RDI;
+    amd64_64prefix(1, dest_sz, src_sz, file);
+    
+    //Write the instruction
+    fputc(0x89, file);
     
     //Now decode the registers
     // Binary format: 11 <source> <dest>
@@ -37,27 +60,43 @@ void amd64_mov_rr(Reg64 r1, Reg64 r2, FILE *file)
     // The destination
     switch (r1)
     {
-        case RAX: reg1 = 0b11111000; break;
-        case RCX: reg1 = 0b11111001; break;
-        case RDX: reg1 = 0b11111011; break;
-        case RBX: reg1 = 0b11111011; break;
-        case RSP: reg1 = 0b11111100; break;
-        case RBP: reg1 = 0b11111101; break;
-        case RSI: reg1 = 0b11111110; break;
-        case RDI: reg1 = 0b11111111; break;
+        case RAX: 
+        case R8: reg1 = 0b11111000; break;
+        case RCX: 
+        case R10: reg1 = 0b11111001; break;
+        case RDX: 
+        case R11: reg1 = 0b11111011; break;
+        case RBX:
+        case R9: reg1 = 0b11111011; break;
+        case RSP: 
+        case R12: reg1 = 0b11111100; break;
+        case RBP: 
+        case R13: reg1 = 0b11111101; break;
+        case RSI: 
+        case R14: reg1 = 0b11111110; break;
+        case RDI: 
+        case R15: reg1 = 0b11111111; break;
     }
     
     // The source
     switch (r2)
     {
-        case RAX: reg2 = 0b11000111; break;
-        case RCX: reg2 = 0b11001111; break;
-        case RDX: reg2 = 0b11011111; break;
-        case RBX: reg2 = 0b11011111; break;
-        case RSP: reg2 = 0b11100111; break;
-        case RBP: reg2 = 0b11101111; break;
-        case RSI: reg2 = 0b11110111; break;
-        case RDI: reg2 = 0b11111111; break;
+        case RAX: 
+        case R8: reg2 = 0b11000111; break;
+        case RCX: 
+        case R10: reg2 = 0b11001111; break;
+        case RDX: 
+        case R11: reg2 = 0b11011111; break;
+        case RBX: 
+        case R9: reg2 = 0b11011111; break;
+        case RSP: 
+        case R12: reg2 = 0b11100111; break;
+        case RBP: 
+        case R13: reg2 = 0b11101111; break;
+        case RSI: 
+        case R14: reg2 = 0b11110111; break;
+        case RDI: 
+        case R15: reg2 = 0b11111111; break;
     }
     
     // Do the math and write

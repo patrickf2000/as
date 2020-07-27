@@ -11,7 +11,16 @@ typedef enum
     RSP,
     RBP,
     RSI,
-    RDI
+    RDI,
+    
+    R8,
+    R9,
+    R10,
+    R11,
+    R12,
+    R13,
+    R14,
+    R15
 } Reg64;
 
 typedef enum
@@ -23,7 +32,16 @@ typedef enum
     ESP,
     EBP,
     ESI,
-    EDI
+    EDI,
+    
+    R8D,
+    R9D,
+    R10D,
+    R11D,
+    R12D,
+    R13D,
+    R14D,
+    R15D
 } Reg32;
 
 typedef enum
@@ -52,7 +70,7 @@ void amd64_add_rr32(Reg32 dest, Reg32 src, FILE *file);
 void amd64_add_r32_imm(Reg32 reg, int imm, FILE *file);
 void amd64_sub_ri(Reg64 r, int imm, FILE *file);
 
+void amd64_64prefix(int size64, int dest64, int src64, FILE *file);
 void amd_cmp_reg32_imm(Reg32 op1, int op2, FILE *file);
-
 void amd64_jmp(Jmp jtype, int loco, FILE *file);
 void amd64_syscall(FILE *file);

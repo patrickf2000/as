@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include <sym_table.h>
-#include <elf_bin.h>
+#include <elf/elf_bin.h>
 
 extern int parse(const char *path, FILE *f, int pass1, SymbolTable *st);
 

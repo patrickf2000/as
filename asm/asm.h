@@ -57,6 +57,9 @@ typedef enum
 
 void amd64_write_string(const char *str, FILE *file);
 
+void amd_cmp_reg32_imm(Reg32 op1, int op2, FILE *file);
+void amd64_jmp(Jmp jtype, int loco, FILE *file);
+
 void amd64_push_reg64(Reg64 reg, FILE *file);
 
 void amd64_mov_reg32_imm(Reg32 reg, int imm, FILE *file);
@@ -71,6 +74,4 @@ void amd64_add_r32_imm(Reg32 reg, int imm, FILE *file);
 void amd64_sub_ri(Reg64 r, int imm, FILE *file);
 
 void amd64_64prefix(int size64, int dest64, int src64, FILE *file);
-void amd_cmp_reg32_imm(Reg32 op1, int op2, FILE *file);
-void amd64_jmp(Jmp jtype, int loco, FILE *file);
 void amd64_syscall(FILE *file);

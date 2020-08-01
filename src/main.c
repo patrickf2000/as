@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
     }
     
     char *out_path = "a.out";
+    int build_elf = 1;
     
     for (int i = 1; i<argc; i++) {
         if (strcmp(argv[i], "-o") == 0) {
@@ -27,6 +28,22 @@ int main(int argc, char *argv[])
             
             out_path = strdup(argv[i+1]);
             ++i;
+        } else if (strcmp(argv[i], "-f") == 0) {
+            if (i+1 > argc) {
+                puts("Error: No output type specified.");
+                return 1;
+            }
+            
+            if (strcmp(argv[i+1], "bin") == 0) {
+                build_elf = 0;
+            } else if (strcmp(argv[i+1], "elf") == 0) {
+                build_elf = 1;
+            } else {
+                puts("Error: Invalid output type specified.");
+                return 1;
+            }
+            
+            ++i;
         }
     }
 
@@ -36,8 +53,10 @@ int main(int argc, char *argv[])
     SymbolTable *sym_table = sym_table_init_default();
     int start = parse(argv[1], file, 1, sym_table);
     
-    elf_write_header(file, start);
-    elf_write_pheader(file, start);
+    if (build_elf) {
+        elf_write_header(file, start);
+        elf_write_pheader(file, start);
+    }
     
     // Pass 2
     parse(argv[1], file, 0, sym_table);
@@ -45,7 +64,7 @@ int main(int argc, char *argv[])
     fclose(file);
     
     //Set permissions
-    chmod(out_path, 0777);
+    if (build_elf) chmod(out_path, 0777);
 	
 	return 0;
 }

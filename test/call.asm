@@ -1,3 +1,10 @@
+;OUTPUT
+;Hello!
+;How are you?
+;END
+
+;RET 3
+
 msg .string "Hello!\n"
 msg2 .string "How are you?\n"
 
@@ -9,7 +16,7 @@ puts:
     syscall
     ret
 
-main:
+_start:
     mov rax, msg
     mov rbx, 7
     call puts

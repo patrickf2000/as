@@ -1,3 +1,10 @@
+;OUTPUT
+;Hello!
+;How are you today?
+;END
+
+;RET 0
+
 STR0 .string "Hello!\n"
 STR1 .string "How are you today?\n"
 

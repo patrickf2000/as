@@ -1,3 +1,15 @@
+;OUTPUT
+;Hi!
+;Hello!
+;END
+
+;RET 4
+
+; This is a forward and backwards label test
+; We jump forward to the second label, then
+; back to the first label. Then we jump all the way
+; to the end.
+
 str1 .string "Hello!\n"
 str2 .string "Hi!\n"
 

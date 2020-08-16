@@ -1,3 +1,18 @@
+;OUTPUT
+;Hi
+;Hi
+;Hi
+;Hi
+;Hi
+;Hi
+;Hi
+;Hi
+;Hi
+;Hi
+;END
+
+;RET 3
+
 str1 .string "Hi\n"
 
 mov ebx, 0

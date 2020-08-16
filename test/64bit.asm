@@ -1,3 +1,7 @@
+;OUTPUT
+;END
+
+;RET 14
 
 mov r14d, 5
 mov r15d, 9

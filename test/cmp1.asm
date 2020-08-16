@@ -1,3 +1,9 @@
+;OUTPUT
+;Not equal
+;END
+
+;RET 4
+
 eq .string "Equal!\n"
 neq .string "Not equal\n"
 

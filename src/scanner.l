@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <asm.h>
+#include <asm/asm.h>
 
 #include "parser.yy.h"
 %}
@@ -11,6 +11,8 @@
 .string                    { return T_STRING; }
 
 cmp                        { return CMP; }
+call                       { return CALL; }
+ret                        { return RET; }
 jmp                        { yylval.itype = JMP; return JUMP; }
 je                         { yylval.itype = JE;  return JUMP; }
 jne                        { yylval.itype = JNE; return JUMP; }
@@ -20,11 +22,24 @@ jge                        { yylval.itype = JGE; return JUMP; }
 jle                        { yylval.itype = JLE; return JUMP; }
 push                       { return PUSH; }
 mov                        { return MOV; }
+syscall                    { return SYSCALL; }
+leave                      { return LEAVE; }
+
 add                        { return ADD; }
 sub                        { return SUB; }
-syscall                    { return SYSCALL; }
+
+xor                        { return XOR; }
 
 dword                      { return DWORD; }
+
+al                         { yylval.itype = AL; return REG16H; }
+cl                         { yylval.itype = CL; return REG16H; }
+dl                         { yylval.itype = DL; return REG16H; }
+bl                         { yylval.itype = BL; return REG16H; }
+ah                         { yylval.itype = AH; return REG16H; }
+ch                         { yylval.itype = CH; return REG16H; }
+dh                         { yylval.itype = DH; return REG16H; }
+bh                         { yylval.itype = BH; return REG16H; }
 
 eax                        { yylval.itype = EAX; return REG32; }
 ebx                        { yylval.itype = EBX; return REG32; }
@@ -68,17 +83,19 @@ r15                        { yylval.itype = R15; return REG64; }
 "]"                        { return ']'; }
 ","                        { return ','; }
 "-"                        { return '-'; }
+"+"                        { return '+'; }
 
 \n                         { return NL; }
-\"(\\.|[^"\\])*\"          {yylval.stype = strdup(yytext); return STRING;}
+\"(\\.|[^"\\])*\"          { yylval.stype = strdup(yytext); return STRING;}
 [ \t]                      {}
-[-]?[0-9]+                 {yylval.itype = atoi(yytext); return INTEGER;}
-[-]?([0-9]*[.])?[0-9]+     {yylval.ftype = atof(yytext); return FLOAT;}
-[A-Za-z]*([0-9]+)?:		   {
+0x[A-Fa-f0-9]*             { yylval.itype = (int)strtol(yytext, NULL, 16); return HEX; }
+[-]?[0-9]+                 { yylval.itype = atoi(yytext); return INTEGER;}
+[-]?([0-9]*[.])?[0-9]+     { yylval.ftype = atof(yytext); return FLOAT;}
+[_]?[A-Za-z]*([0-9]+)?:		   {
                               char *lbl = strdup(yytext);
                               lbl[strlen(lbl)-1] = '\0';
                               yylval.stype = lbl; 
                               return LABEL;
                            }
-[A-Za-z]*([0-9]+)?		   {yylval.stype = strdup(yytext); return ID;}
+[A-Za-z]*([0-9]+)?	       { yylval.stype = strdup(yytext); return ID;}
 %%

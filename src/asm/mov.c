@@ -1,3 +1,5 @@
+#include <inttypes.h>
+
 #include "asm.h"
 
 // Move integer immediate to 32-bit register
@@ -41,8 +43,75 @@ void amd64_mov_reg32_imm(Reg32 reg, int imm, FILE *file)
     fwrite(&imm, sizeof(int), 1, file);
 }
 
-// Move one register to another
-void amd64_mov_rr(Reg64 r1, Reg64 r2, FILE *file)
+// Move integer immediate to 64-bit register
+// Format: <prefix> <op> <imm>
+void amd64_mov_reg64_imm(Reg64 reg, int imm, int extend, FILE *file)
+{
+    // Check the registers- if its one of the 64-bit ones, we need a prefix
+    if (reg > RDI)
+        amd64_64prefix(1, 1, 0, file);
+    else if (extend)
+        amd64_64prefix(1, 0, 0, file);
+
+    // Write the instruction
+    // The instruction is different per register
+    switch (reg)
+    {
+        case RAX: 
+        case R8: fputc(0xB8, file); break;
+        
+        case RCX:
+        case R9: fputc(0xB9, file); break;
+        
+        case RDX:
+        case R10: fputc(0xBA, file); break;
+        
+        case RBX:
+        case R11: fputc(0xBB, file); break;
+        
+        case RSP:
+        case R12: fputc(0xBC, file); break;
+        
+        case RBP:
+        case R13: fputc(0xBD, file); break;
+        
+        case RSI:
+        case R14: fputc(0xBE, file); break;
+        
+        case RDI: 
+        case R15: fputc(0xBF, file); break;
+    }
+    
+    // Write the immediate value
+    if (extend)
+    {
+        int64_t imm64 = (int64_t)imm;
+        fwrite(&imm64, sizeof(int64_t), 1, file);
+    }
+    else
+    {
+        fwrite(&imm, sizeof(int), 1, file);
+    }
+}
+
+// Move one register to another (32-bit)
+void amd64_mov_rr32(Reg32 r1, Reg32 r2, FILE *file)
+{
+    //Write the prefix
+    int dest_sz = r1 > RDI;
+    int src_sz = r2 > RDI;
+    if (dest_sz || src_sz)
+        amd64_64prefix(0, dest_sz, src_sz, file);
+    
+    //Write the instruction
+    fputc(0x89, file);
+    
+    //Now decode the registers
+    amd64_rr(r1, r2, file);
+}
+
+// Move one register to another (64-bit)
+void amd64_mov_rr64(Reg64 r1, Reg64 r2, FILE *file)
 {
     //Write the prefix
     int dest_sz = r1 > RDI;
@@ -53,56 +122,7 @@ void amd64_mov_rr(Reg64 r1, Reg64 r2, FILE *file)
     fputc(0x89, file);
     
     //Now decode the registers
-    // Binary format: 11 <source> <dest>
-    int mask = 0b11111111;
-    int reg1, reg2;
-    
-    // The destination
-    switch (r1)
-    {
-        case RAX: 
-        case R8: reg1 = 0b11111000; break;
-        case RCX: 
-        case R10: reg1 = 0b11111001; break;
-        case RDX: 
-        case R11: reg1 = 0b11111011; break;
-        case RBX:
-        case R9: reg1 = 0b11111011; break;
-        case RSP: 
-        case R12: reg1 = 0b11111100; break;
-        case RBP: 
-        case R13: reg1 = 0b11111101; break;
-        case RSI: 
-        case R14: reg1 = 0b11111110; break;
-        case RDI: 
-        case R15: reg1 = 0b11111111; break;
-    }
-    
-    // The source
-    switch (r2)
-    {
-        case RAX: 
-        case R8: reg2 = 0b11000111; break;
-        case RCX: 
-        case R10: reg2 = 0b11001111; break;
-        case RDX: 
-        case R11: reg2 = 0b11011111; break;
-        case RBX: 
-        case R9: reg2 = 0b11011111; break;
-        case RSP: 
-        case R12: reg2 = 0b11100111; break;
-        case RBP: 
-        case R13: reg2 = 0b11101111; break;
-        case RSI: 
-        case R14: reg2 = 0b11110111; break;
-        case RDI: 
-        case R15: reg2 = 0b11111111; break;
-    }
-    
-    // Do the math and write
-    mask = mask & reg1;
-    mask = mask & reg2;
-    fputc(mask, file);
+    amd64_rr(r1, r2, file);
 }
 
 // Move an integer immediate to a memory location
@@ -193,6 +213,75 @@ void amd64_mov_m_reg32(Reg64 dest, int dsp, Reg32 src, FILE *file)
     
     // The registers
     amd64_mov_dsp16(dest, src, dsp, file);
+}
+
+// Move a 64-bit register to memory location
+// Format: <prefix> 89
+void amd64_mov_m_reg64(Reg64 dest, int dsp, Reg64 src, FILE *file)
+{
+    // Write the prefix
+    // TODO: This needs to be properly generated
+    fputc(0x48, file);
+    
+    // Write the instruction
+    fputc(0x89, file);
+    
+    // And the registers
+    amd64_mov_dsp16(dest, src, dsp, file);
+}
+
+// Move memory location to 8-bit half register using reg+reg indexing
+void amd64_mov_r8_mrr(Reg16H dest, Reg64 src1, Reg64 src2, FILE *file)
+{
+    // Write the instruction
+    fputc(0x8A, file);
+
+    // Write the destination
+    switch (dest)
+    {
+        case AL: fputc(0x04, file); break;
+        case CL: fputc(0x0C, file); break;
+        case DL: fputc(0x14, file); break;
+        case BL: fputc(0x1C, file); break;
+        case AH: fputc(0x24, file); break;
+        case CH: fputc(0x2C, file); break;
+        case DH: fputc(0x34, file); break;
+        case BH: fputc(0x3C, file); break;
+    }
+    
+    // The registers
+    unsigned char reg1 = 0;
+    unsigned char reg2 = 0;
+    
+    // Index
+    switch (src1)
+    {
+        case RAX: reg1 = 0b00111000; break;
+        case RCX: reg1 = 0b00111001; break;
+        case RDX: reg1 = 0b00111011; break;
+        case RBX: reg1 = 0b00111011; break;
+        case RSP: reg1 = 0b00111100; break;
+        case RBP: reg1 = 0b00111101; break;
+        case RSI: reg1 = 0b00111110; break;
+        case RDI: reg1 = 0b00111111; break;
+    }
+    
+    // Base
+    switch (src2)
+    {
+        case RAX: reg2 = 0b00000111; break;
+        case RCX: reg2 = 0b00001111; break;
+        case RDX: reg2 = 0b00010111; break;
+        case RBX: reg2 = 0b00011111; break;
+        case RSP: reg2 = 0b00100111; break;
+        case RBP: reg2 = 0b00101111; break;
+        case RSI: reg2 = 0b00110111; break;
+        case RDI: reg2 = 0b00111111; break;
+    }
+    
+    // Write
+    unsigned char base = reg1 & reg2;
+    fputc(base, file);
 }
 
 // Move memory location to a register

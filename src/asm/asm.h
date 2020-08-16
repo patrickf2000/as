@@ -46,6 +46,19 @@ typedef enum
 
 typedef enum
 {
+    AL,
+    BL,
+    CL,
+    DL,
+    
+    AH,
+    BH,
+    CH,
+    DH
+} Reg16H;
+
+typedef enum
+{
     JMP,
     JE,
     JNE,
@@ -57,21 +70,32 @@ typedef enum
 
 void amd64_write_string(const char *str, FILE *file);
 
-void amd_cmp_reg32_imm(Reg32 op1, int op2, FILE *file);
+void amd64_cmp_reg16h_imm(Reg16H op1, int op2, FILE *file);
+void amd64_cmp_reg32_imm(Reg32 op1, int op2, FILE *file);
 void amd64_jmp(Jmp jtype, int loco, FILE *file);
+void amd64_call(int loco, FILE *file);
+void amd64_ret(FILE *file);
 
 void amd64_push_reg64(Reg64 reg, FILE *file);
 
 void amd64_mov_reg32_imm(Reg32 reg, int imm, FILE *file);
-void amd64_mov_rr(Reg64 r1, Reg64 r2, FILE *file);
+void amd64_mov_reg64_imm(Reg64 reg, int imm, int extend, FILE *file);
+void amd64_mov_rr32(Reg32 r1, Reg32 r2, FILE *file);
+void amd64_mov_rr64(Reg64 r1, Reg64 r2, FILE *file);
 void amd64_mov_m_int(Reg64 dest, int dsp, int imm, FILE *file);
 void amd64_mov_m_reg32(Reg64 dest, int dsp, Reg32 src, FILE *file);
+void amd64_mov_m_reg64(Reg64 dest, int dsp, Reg64 src, FILE *file);
+void amd64_mov_r8_mrr(Reg16H dest, Reg64 src1, Reg64 src2, FILE *file);
 void amd64_mov_reg32_mem(Reg32 dest, Reg64 src, int dsp, FILE *file);
 void amd64_mov_reg64_mem(Reg64 dest, Reg64 src, int dsp, FILE *file);
+
+void amd64_xor_rr32(Reg32 dest, Reg32 src, FILE *file);
 
 void amd64_add_rr32(Reg32 dest, Reg32 src, FILE *file);
 void amd64_add_r32_imm(Reg32 reg, int imm, FILE *file);
 void amd64_sub_ri(Reg64 r, int imm, FILE *file);
 
 void amd64_64prefix(int size64, int dest64, int src64, FILE *file);
+void amd64_rr(Reg64 r1, Reg64 r2, FILE *file);
 void amd64_syscall(FILE *file);
+void amd64_leave(FILE *file);

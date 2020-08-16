@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <asm.h>
+#include <asm/asm.h>
 
 // Write string data to the file
 void amd64_write_string(const char *str, FILE *file)

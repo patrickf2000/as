@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <asm.h>
+#include <asm/asm.h>
 #include <sym_table.h>
 
 extern FILE *yyin;
@@ -27,11 +27,12 @@ void yyerror(const char *s);
 }
 
 %token T_STRING
-%token CMP PUSH MOV ADD SUB SYSCALL
+%token CMP CALL RET PUSH MOV ADD SUB SYSCALL LEAVE
+%token XOR
 %token DWORD
 %token NL
 
-%token <itype> INTEGER REG32 REG64 JUMP
+%token <itype> INTEGER HEX REG16H REG32 REG64 JUMP
 %token <ftype> FLOAT
 %token <stype> STRING LABEL
 %token <stype> ID
@@ -43,11 +44,15 @@ statement:
       data
     | label
     | cmp
+    | call
+    | ret
     | jmp
     | push
     | add
     | sub
+    | xor
 	| syscall
+    | leave
     | mov
     | empty
 	;
@@ -75,11 +80,37 @@ data:
     ;
     
 label:
-    LABEL NL        { if (is_pass1) sym_table_add(sym_table, $1, lc); }
+    LABEL NL        {
+                        if (is_pass1) 
+                        {
+                            if (strcmp($1, "_start") == 0)
+                                start = lc;
+                            
+                            sym_table_add(sym_table, $1, lc);
+                        }
+                    }
     ;
     
 cmp:
-      CMP REG32 ',' INTEGER NL        { lc += 3; if (!is_pass1) amd_cmp_reg32_imm($2, $4, file); }
+      CMP REG16H ',' INTEGER NL       { lc += 3; if (!is_pass1) amd64_cmp_reg16h_imm($2, $4, file); }
+    | CMP REG16H ',' HEX NL           { lc += 3; if (!is_pass1) amd64_cmp_reg16h_imm($2, $4, file); }
+    | CMP REG32 ',' INTEGER NL        { lc += 3; if (!is_pass1) amd64_cmp_reg32_imm($2, $4, file); }
+    ;
+    
+call:
+      CALL ID NL    {
+                      lc += 5;
+                      if (!is_pass1)
+                      {
+                          int loco = sym_table_get(sym_table, $2);
+                          int pos = loco - lc;
+                          amd64_call(pos, file);
+                      }
+                    }
+    ;
+    
+ret:
+      RET NL        { lc += 1; if (!is_pass1) amd64_ret(file); }
     ;
     
 jmp:
@@ -107,25 +138,37 @@ sub:
       SUB REG64 ',' INTEGER NL        { lc += 4; if (!is_pass1) amd64_sub_ri($2, $4, file); }
     ;
     
+xor:
+      XOR REG32 ',' REG32 NL        { lc += 2; if (!is_pass1) amd64_xor_rr32($2, $4, file); }
+    ;
+    
 syscall:
       SYSCALL NL        { lc += 2; if (!is_pass1) amd64_syscall(file); }
     ;
     
+leave:
+      LEAVE NL          { lc += 1; if (!is_pass1) amd64_leave(file); }
+    ;
+    
 mov:
-      MOV REG64 ',' REG64 NL                            { lc += 3; if (!is_pass1) amd64_mov_rr($2, $4, file); }
+      MOV REG32 ',' REG32 NL                            { lc += 2; if (!is_pass1) amd64_mov_rr32($2, $4, file); }
+    | MOV REG64 ',' REG64 NL                            { lc += 3; if (!is_pass1) amd64_mov_rr64($2, $4, file); }
     | MOV REG32 ',' INTEGER NL                          { lc += 5; if (!is_pass1) amd64_mov_reg32_imm($2, $4, file); }
-    | MOV REG64 ',' INTEGER NL                          { lc += 5; if (!is_pass1) amd64_mov_reg32_imm($2, $4, file); }
+    | MOV REG64 ',' INTEGER NL                          { lc += 5; if (!is_pass1) amd64_mov_reg64_imm($2, $4, 0, file); }
     | MOV REG64 ',' ID NL                               { 
                                                           if (!is_pass1) 
                                                           {
                                                               int loco = sym_table_get(sym_table, $4) + code_start;
-                                                              amd64_mov_reg32_imm($2, loco, file);
+                                                              amd64_mov_reg64_imm($2, loco, 1, file);
                                                           }
-                                                          lc += 5;
+                                                          
+                                                          lc += 10;
                                                         }
+    | MOV REG16H ',' '[' REG64 '+' REG64 ']' NL         { lc += 3; if (!is_pass1) amd64_mov_r8_mrr($2, $5, $7, file); }
     | MOV REG32 ',' '[' REG64 INTEGER ']' NL            { lc += 3; if (!is_pass1) amd64_mov_reg32_mem($2, $5, $6, file); }
     | MOV REG64 ',' '[' REG64 INTEGER ']' NL            { lc += 4; if (!is_pass1) amd64_mov_reg64_mem($2, $5, $6, file); }
     | MOV '[' REG64 INTEGER ']' ',' REG32 NL            { lc += 3; if (!is_pass1) amd64_mov_m_reg32($3, $4, $7, file); }
+    | MOV '[' REG64 INTEGER ']' ',' REG64 NL            { lc += 4; if (!is_pass1) amd64_mov_m_reg64($3, $4, $7, file); }
     | MOV DWORD '[' REG64 INTEGER ']' ',' INTEGER NL    { lc += 7; if (!is_pass1) amd64_mov_m_int($4, $5, $8, file); }
     ;
     

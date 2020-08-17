@@ -26,4 +26,4 @@ set(PARSER_SRC
     sym_table.c
 )
 
-add_executable(asm86 ${PARSER_SRC} ${ASM_SRC} ${ELF_SRC})
+add_executable(asmx86 ${PARSER_SRC} ${ASM_SRC} ${ELF_SRC})

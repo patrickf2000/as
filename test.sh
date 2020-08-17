@@ -14,7 +14,7 @@ for entry in test/*
 do
 	name=`basename $entry .asm`
 	
-	./build/src/asm86 $entry -o ./build/test/$name
+	./build/src/asmx86 $entry -o ./build/test/$name
 	./test.py $entry ./build/test/$name
 	
 	if [[ $? != 0 ]] ; then

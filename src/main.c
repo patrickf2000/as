@@ -55,11 +55,24 @@ int main(int argc, char *argv[])
     
     if (build_elf) {
         elf_write_header(file, start);
-        elf_write_pheader(file, start);
+        elf_write_null_header(file, start);
+        elf_write_shstrtab(file, start);
+        elf_write_symtable(file, start);
+        elf_write_strtab(file, start);
+        elf_write_text(file, start);
+        //elf_write_pheader(file, start);
+        
+        elf_write_shstrtable(file);
+        elf_write_symbols(file);
+        elf_write_strtable(file);
     }
     
     // Pass 2
     parse(argv[1], file, 0, sym_table);
+    
+    //buffer
+    for (int i = 0; i<15; i++)
+        fputc(0, file);
     
     fclose(file);
     

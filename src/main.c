@@ -51,16 +51,15 @@ int main(int argc, char *argv[])
     
     // Pass 1
     SymbolTable *sym_table = sym_table_init_default();
-    int start = parse(argv[1], file, 1, sym_table);
+    int size = parse(argv[1], file, 1, sym_table);
     
     if (build_elf) {
-        elf_write_header(file, start);
-        elf_write_null_header(file, start);
-        elf_write_shstrtab(file, start);
-        elf_write_symtable(file, start);
-        elf_write_strtab(file, start);
-        elf_write_text(file, start);
-        //elf_write_pheader(file, start);
+        elf_write_header(file);
+        elf_write_null_header(file);
+        elf_write_shstrtab(file);
+        elf_write_symtable(file);
+        elf_write_strtab(file);
+        elf_write_text(file, size);
         
         elf_write_shstrtable(file);
         elf_write_symbols(file);

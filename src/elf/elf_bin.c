@@ -5,7 +5,7 @@
 #include "elf_bin.h"
 
 // Write an ELF header
-void elf_write_header(FILE *file, int start)
+void elf_write_header(FILE *file)
 {
     Elf64_Ehdr header;
    
@@ -28,14 +28,10 @@ void elf_write_header(FILE *file, int start)
     header.e_machine = EM_X86_64;        //Architecture
     header.e_version = 1;                //Current version
     header.e_entry = 0;
-    //header.e_entry = 4194424 + start;    //Entry point
-    //header.e_phoff = 64;                 //Program header offset
     header.e_phoff = 0;                 //Program header offset
     header.e_shoff = 64;                  //Section header offset
     header.e_flags = 0;                  //No flags
     header.e_ehsize = 64;                //Header size
-    //header.e_phentsize = 56;             //Program header size
-    //header.e_phnum = 1;                  //1 program header
     header.e_phentsize = 0;              //Program header size
     header.e_phnum = 0;                  //1 program header
     header.e_shentsize = 64;
@@ -45,25 +41,8 @@ void elf_write_header(FILE *file, int start)
     fwrite(&header, sizeof(header), 1, file);
 }
 
-// Write a program header
-void elf_write_pheader(FILE *file, int start)
-{
-    Elf64_Phdr program_header;
-    
-    program_header.p_type = PT_LOAD;            // Loadable program segment
-    program_header.p_flags = PF_X | PF_R;       // Flags
-    program_header.p_offset = 120 + start;      // Offset relative to start of file (file size)
-    program_header.p_vaddr = 4194424 + start;   // Virtual start
-    program_header.p_paddr = 0;                 // Ignore
-    program_header.p_filesz = 132;              // File size
-    program_header.p_memsz = 132;               // Segment size (= file size)
-    program_header.p_align = 1;
-    
-    fwrite(&program_header, sizeof(program_header), 1, file);
-}
-
 // Write the empty section header
-void elf_write_null_header(FILE *file, int start)
+void elf_write_null_header(FILE *file)
 {
     Elf64_Shdr nullh;
 
@@ -82,7 +61,7 @@ void elf_write_null_header(FILE *file, int start)
 }
 
 //Write the section header string table
-void elf_write_shstrtab(FILE *file, int start)
+void elf_write_shstrtab(FILE *file)
 {
     Elf64_Shdr header;
 
@@ -114,7 +93,7 @@ void elf_write_shstrtable(FILE *file)
 }
 
 // Write the symbol table
-void elf_write_symtable(FILE *file, int start)
+void elf_write_symtable(FILE *file)
 {
     // The section header
     Elf64_Shdr header;
@@ -180,7 +159,7 @@ void elf_write_symbols(FILE *file)
 }
 
 // Write the string table
-void elf_write_strtab(FILE *file, int start)
+void elf_write_strtab(FILE *file)
 {
     Elf64_Shdr header;
 
@@ -208,7 +187,7 @@ void elf_write_strtable(FILE *file)
 }
 
 // Write the .text header
-void elf_write_text(FILE *file, int start)
+void elf_write_text(FILE *file, int size)
 {
     Elf64_Shdr header;
 
@@ -217,7 +196,7 @@ void elf_write_text(FILE *file, int start)
     header.sh_flags = SHF_ALLOC | SHF_EXECINSTR;		/* Section flags */
     header.sh_addr = 0;		/* Section virtual addr at execution */
     header.sh_offset = 531;		/* Section file offset */
-    header.sh_size = 22;		/* Section size in bytes */
+    header.sh_size = size;		/* Section size in bytes */
     header.sh_link = 0;		/* Link to another section */
     header.sh_info = 0;		/* Additional section information */
     header.sh_addralign = 16;		/* Section alignment */

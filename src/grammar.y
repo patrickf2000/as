@@ -190,7 +190,7 @@ int parse(const char *path, FILE *f, int pass1, SymbolTable *st)
 	yyin = fopen(path, "r");
 	yyparse();
     
-    return start;
+    return lc + 1;
 }
 
 //Handle syntax errors

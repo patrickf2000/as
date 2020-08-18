@@ -1,11 +1,12 @@
 // Handles the symbol table
+#include <stdlib.h>
 
 #include <elf/elf_bin.h>
 
 // Write the symbol table
-int elf_write_symtable(FILE *file, int offset)
+int elf_write_symtable(FILE *file, int offset, int count)
 {
-    int size = sizeof(Elf64_Sym) * 4;
+    int size = sizeof(Elf64_Sym) * count;
 
     // The section header
     Elf64_Shdr header;
@@ -26,9 +27,11 @@ int elf_write_symtable(FILE *file, int offset)
     return offset + size;
 }
 
-void elf_write_symbols(FILE *file)
+// Generate the default symbol table
+Elf64_SymTab *elf_generate_symtab()
 {
-    // The symbols
+    // The symbol variable
+    Elf64_Sym *symbols = malloc(sizeof(Elf64_Sym)*4);
     Elf64_Sym symbol;
     
     // The null symbol
@@ -38,8 +41,7 @@ void elf_write_symbols(FILE *file)
     symbol.st_shndx = STN_UNDEF;
     symbol.st_value = 0;
     symbol.st_size = 0;
-    
-    fwrite(&symbol, sizeof(symbol), 1, file);
+    symbols[0] = symbol;
     
     // The file symbol
     symbol.st_name = 1;
@@ -48,8 +50,7 @@ void elf_write_symbols(FILE *file)
     symbol.st_shndx = 0;
     symbol.st_value = 0;
     symbol.st_size = 0;
-    
-    fwrite(&symbol, sizeof(symbol), 1, file);
+    symbols[1] = symbol;
     
     // The section symbol
     symbol.st_name = 0;
@@ -58,8 +59,7 @@ void elf_write_symbols(FILE *file)
     symbol.st_shndx = 4;
     symbol.st_value = 0;
     symbol.st_size = 0;
-    
-    fwrite(&symbol, sizeof(symbol), 1, file);
+    symbols[2] = symbol;
     
     // The _start symbol
     symbol.st_name = 11;
@@ -68,6 +68,18 @@ void elf_write_symbols(FILE *file)
     symbol.st_shndx = 4;
     symbol.st_value = 0;
     symbol.st_size = 0;
+    symbols[3] = symbol;
     
-    fwrite(&symbol, sizeof(symbol), 1, file);
+    // Build and return the table
+    Elf64_SymTab *symtab = malloc(sizeof(Elf64_SymTab));
+    symtab->symbols = symbols;
+    symtab->size = 4;
+    
+    return symtab;
+}
+
+// Write the symbol table
+void elf_write_symbols(FILE *file, Elf64_SymTab *symtab)
+{
+    fwrite(symtab->symbols, sizeof(Elf64_Sym), symtab->size, file);
 }

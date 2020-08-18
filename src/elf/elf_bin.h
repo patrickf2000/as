@@ -9,6 +9,14 @@
 //
 // The header functions return the new location.
 
+// The types
+typedef struct
+{
+    Elf64_Sym *symbols;
+    int size;
+} Elf64_SymTab;
+
+// The functions
 void elf_add_strtab(char *str, char *strtab);
 void elf_write_strtable(FILE *file, char *table);
 void elf_write_header(FILE *file);
@@ -17,7 +25,8 @@ void elf_write_null_header(FILE *file);
 int elf_write_shstrtab(FILE *file, int offset, char *table);
 int elf_write_strtab(FILE *file, int offset, char *table);
 
-int elf_write_symtable(FILE *file, int offset);
-void elf_write_symbols(FILE *file);
+int elf_write_symtable(FILE *file, int offset, int count);
+Elf64_SymTab *elf_generate_symtab();
+void elf_write_symbols(FILE *file, Elf64_SymTab *symtab);
 
 int elf_write_text(FILE *file, int offset, int size);

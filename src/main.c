@@ -4,7 +4,7 @@
 #include <sys/stat.h>
 
 #include <sym_table.h>
-#include <elf/elf_bin.h>
+#include <elf/elf_builder.h>
 
 extern int parse(const char *path, FILE *f, int pass1, SymbolTable *st);
 
@@ -46,17 +46,6 @@ int main(int argc, char *argv[])
             ++i;
         }
     }
-    
-    // Build the section string table
-    char *shstrtable = malloc(sizeof(char)*1);
-    elf_add_strtab(".shstrtab", shstrtable);
-    elf_add_strtab(".symtab", shstrtable);
-    elf_add_strtab(".strtab", shstrtable);
-    elf_add_strtab(".text", shstrtable);
-    
-    char *strtab = malloc(sizeof(char)*1);
-    elf_add_strtab("first.asm", strtab);
-    elf_add_strtab("_start", strtab);
 
     // Generate the file
     FILE *file = fopen(out_path, "w");
@@ -66,20 +55,9 @@ int main(int argc, char *argv[])
     int size = parse(argv[1], file, 1, sym_table);
     int loco = 0;
     
+    // Build the ELF
     if (build_elf) {
-        int offset = 6 * 64;
-        
-        elf_write_header(file);
-        elf_write_null_header(file);
-        
-        offset = elf_write_shstrtab(file, offset, shstrtable);
-        offset = elf_write_symtable(file, offset);
-        offset = elf_write_strtab(file, offset, strtab);
-        offset = elf_write_text(file, offset, size);
-        
-        elf_write_strtable(file, shstrtable);
-        elf_write_symbols(file);
-        elf_write_strtable(file, strtab);
+        build_obj(file, size);
     }
     
     // Pass 2

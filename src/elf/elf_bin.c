@@ -1,35 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <elf.h>
-#include <string.h>
-#include <malloc.h>
 
 #include "elf_bin.h"
-
-// A utility function for building a string table
-void elf_add_strtab(char *str, char *strtab)
-{
-    int old_start = strlen(strtab);
-    
-    int new_len = strlen(str) + strlen(strtab) + 1;
-    strtab = realloc(strtab, sizeof(char)*new_len);
-    
-    strtab[old_start] = '|';   
-    
-    strcat(strtab, str);
-}
-
-// A utility function to write a string table
-void elf_write_strtable(FILE *file, char *table)
-{
-    for (int i = 0; i<strlen(table); i++)
-    {
-        if (table[i] == '|') fputc(0, file);
-        else fputc(table[i], file);
-    }
-    
-    fputc(0, file);
-}
 
 // Write an ELF header
 void elf_write_header(FILE *file)

@@ -27,13 +27,13 @@ void build_obj(FILE *file, int code_size)
     elf_write_header(file);
     elf_write_null_header(file);
         
-    offset = elf_write_shstrtab(file, offset, shstrtable);
-    offset = elf_write_symtable(file, offset, symtab->size);
-    offset = elf_write_strtab(file, offset, strtab);
-    offset = elf_write_text(file, offset, code_size);
+    offset = elf_header_shstrtab(file, offset, shstrtable);
+    offset = elf_header_symtab(file, offset, symtab->size);
+    offset = elf_header_strtab(file, offset, strtab);
+    offset = elf_header_text(file, offset, code_size);
         
     elf_write_strtable(file, shstrtable);
-    elf_write_symbols(file, symtab);
+    elf_write_symtab(file, symtab);
     elf_write_strtable(file, strtab);
 }
 

@@ -1,9 +1,36 @@
 #include <string.h>
+#include <stdlib.h>
+#include <malloc.h>
 
 #include <elf/elf_bin.h>
 
+// A utility function for building a string table
+void elf_add_strtab(char *str, char *strtab)
+{
+    int old_start = strlen(strtab);
+    
+    int new_len = strlen(str) + strlen(strtab) + 1;
+    strtab = realloc(strtab, sizeof(char)*new_len);
+    
+    strtab[old_start] = '|';   
+    
+    strcat(strtab, str);
+}
+
+// A utility function to write a string table
+void elf_write_strtable(FILE *file, char *table)
+{
+    for (int i = 0; i<strlen(table); i++)
+    {
+        if (table[i] == '|') fputc(0, file);
+        else fputc(table[i], file);
+    }
+    
+    fputc(0, file);
+}
+
 //Write the section header string table data
-int elf_write_shstrtab(FILE *file, int offset, char *table)
+int elf_header_shstrtab(FILE *file, int offset, char *table)
 {
     int size = strlen(table) + 1;
 
@@ -27,7 +54,7 @@ int elf_write_shstrtab(FILE *file, int offset, char *table)
 }
 
 // Write the string table
-int elf_write_strtab(FILE *file, int offset, char *table)
+int elf_header_strtab(FILE *file, int offset, char *table)
 {
     int size = strlen(table) + 1;
 

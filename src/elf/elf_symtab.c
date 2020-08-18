@@ -4,7 +4,7 @@
 #include <elf/elf_bin.h>
 
 // Write the symbol table
-int elf_write_symtable(FILE *file, int offset, int count)
+int elf_header_symtab(FILE *file, int offset, int count)
 {
     int size = sizeof(Elf64_Sym) * count;
 
@@ -79,7 +79,7 @@ Elf64_SymTab *elf_generate_symtab()
 }
 
 // Write the symbol table
-void elf_write_symbols(FILE *file, Elf64_SymTab *symtab)
+void elf_write_symtab(FILE *file, Elf64_SymTab *symtab)
 {
     fwrite(symtab->symbols, sizeof(Elf64_Sym), symtab->size, file);
 }

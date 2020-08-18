@@ -3,7 +3,7 @@
 #include <elf/elf_bin.h>
 
 // Write the .text header
-int elf_write_text(FILE *file, int offset, int size)
+int elf_header_text(FILE *file, int offset, int size)
 {
     Elf64_Shdr header;
 

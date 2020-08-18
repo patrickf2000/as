@@ -15,10 +15,9 @@ void elf_write_header(FILE *file);
 void elf_write_null_header(FILE *file);
 
 int elf_write_shstrtab(FILE *file, int offset, char *table);
+int elf_write_strtab(FILE *file, int offset, char *table);
 
 int elf_write_symtable(FILE *file, int offset);
 void elf_write_symbols(FILE *file);
-
-int elf_write_strtab(FILE *file, int offset, char *table);
 
 int elf_write_text(FILE *file, int offset, int size);

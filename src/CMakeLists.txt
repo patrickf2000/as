@@ -18,6 +18,9 @@ set(ASM_SRC
 set(ELF_SRC
     elf/elf_bin.c
     elf/elf_shstrtab.c
+    elf/elf_strtab.c
+    elf/elf_symtab.c
+    elf/elf_text.c
 )
 
 set(PARSER_SRC

@@ -1,8 +1,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <elf.h>
+#include <string.h>
+#include <malloc.h>
 
 #include "elf_bin.h"
+
+// A utility function for building a string table
+void elf_add_strtab(char *str, char *strtab)
+{
+    int old_start = strlen(strtab);
+    
+    int new_len = strlen(str) + strlen(strtab) + 1;
+    strtab = realloc(strtab, sizeof(char)*new_len);
+    
+    strtab[old_start] = '|';   
+    
+    strcat(strtab, str);
+}
+
+// A utility function to write a string table
+void elf_write_strtable(FILE *file, char *table)
+{
+    for (int i = 0; i<strlen(table); i++)
+    {
+        if (table[i] == '|') fputc(0, file);
+        else fputc(table[i], file);
+    }
+    
+    fputc(0, file);
+}
 
 // Write an ELF header
 void elf_write_header(FILE *file)
@@ -59,118 +86,4 @@ void elf_write_null_header(FILE *file)
 
     fwrite(&nullh, sizeof(nullh), 1, file);
 }
-
-// Write the symbol table
-void elf_write_symtable(FILE *file)
-{
-    // The section header
-    Elf64_Shdr header;
-
-    header.sh_name = 11;		/* Section name (string tbl index) */
-    header.sh_type = SHT_SYMTAB;		/* Section type */
-    header.sh_flags = 0;		/* Section flags */
-    header.sh_addr = 0;		/* Section virtual addr at execution */
-    header.sh_offset = 417;		/* Section file offset */
-    header.sh_size = sizeof(Elf64_Sym) * 4;		/* Section size in bytes */
-    header.sh_link = 3;		/* Link to another section */
-    header.sh_info = 3;		/* Additional section information */
-    header.sh_addralign = 8;		/* Section alignment */
-    header.sh_entsize = sizeof(Elf64_Sym);		/* Entry size if section holds table */
-
-    fwrite(&header, sizeof(header), 1, file);
-}
-
-void elf_write_symbols(FILE *file)
-{
-    // The symbols
-    Elf64_Sym symbol;
-    
-    // The null symbol
-    symbol.st_name = 0;
-    symbol.st_info = ELF64_ST_INFO(STB_LOCAL, STT_NOTYPE);
-    symbol.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
-    symbol.st_shndx = STN_UNDEF;
-    symbol.st_value = 0;
-    symbol.st_size = 0;
-    
-    fwrite(&symbol, sizeof(symbol), 1, file);
-    
-    // The file symbol
-    symbol.st_name = 1;
-    symbol.st_info = ELF64_ST_INFO(STB_LOCAL, STT_FILE);
-    symbol.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
-    symbol.st_shndx = 0;
-    symbol.st_value = 0;
-    symbol.st_size = 0;
-    
-    fwrite(&symbol, sizeof(symbol), 1, file);
-    
-    // The section symbol
-    symbol.st_name = 0;
-    symbol.st_info = ELF64_ST_INFO(STB_LOCAL, STT_SECTION);
-    symbol.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
-    symbol.st_shndx = 4;
-    symbol.st_value = 0;
-    symbol.st_size = 0;
-    
-    fwrite(&symbol, sizeof(symbol), 1, file);
-    
-    // The _start symbol
-    symbol.st_name = 11;
-    symbol.st_info = ELF64_ST_INFO(STB_GLOBAL, STT_NOTYPE);
-    symbol.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
-    symbol.st_shndx = 4;
-    symbol.st_value = 0;
-    symbol.st_size = 0;
-    
-    fwrite(&symbol, sizeof(symbol), 1, file);
-}
-
-// Write the string table
-void elf_write_strtab(FILE *file)
-{
-    Elf64_Shdr header;
-
-    header.sh_name = 19;		/* Section name (string tbl index) */
-    header.sh_type = SHT_STRTAB;		/* Section type */
-    header.sh_flags = 0;		/* Section flags */
-    header.sh_addr = 0;		/* Section virtual addr at execution */
-    header.sh_offset = 513;		/* Section file offset */
-    header.sh_size = 18;		/* Section size in bytes */
-    header.sh_link = 0;		/* Link to another section */
-    header.sh_info = 0;		/* Additional section information */
-    header.sh_addralign = 1;		/* Section alignment */
-    header.sh_entsize = 0;		/* Entry size if section holds table */
-
-    fwrite(&header, sizeof(header), 1, file);
-}
-
-void elf_write_strtable(FILE *file)
-{
-    fputc(0, file);  
-    fputs("first.asm", file);
-    fputc(0, file);  
-    fputs("_start", file);
-    fputc(0, file);
-}
-
-// Write the .text header
-void elf_write_text(FILE *file, int size)
-{
-    Elf64_Shdr header;
-
-    header.sh_name = 27;		/* Section name (string tbl index) */
-    header.sh_type = SHT_PROGBITS;		/* Section type */
-    header.sh_flags = SHF_ALLOC | SHF_EXECINSTR;		/* Section flags */
-    header.sh_addr = 0;		/* Section virtual addr at execution */
-    header.sh_offset = 531;		/* Section file offset */
-    header.sh_size = size;		/* Section size in bytes */
-    header.sh_link = 0;		/* Link to another section */
-    header.sh_info = 0;		/* Additional section information */
-    header.sh_addralign = 16;		/* Section alignment */
-    header.sh_entsize = 0;		/* Entry size if section holds table */
-
-    fwrite(&header, sizeof(header), 1, file);
-}
-
 

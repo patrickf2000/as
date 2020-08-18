@@ -49,10 +49,14 @@ int main(int argc, char *argv[])
     
     // Build the section string table
     char *shstrtable = malloc(sizeof(char)*1);
-    elf_add_shstrtab(".shstrtab", shstrtable);
-    elf_add_shstrtab(".symtab", shstrtable);
-    elf_add_shstrtab(".strtab", shstrtable);
-    elf_add_shstrtab(".text", shstrtable);
+    elf_add_strtab(".shstrtab", shstrtable);
+    elf_add_strtab(".symtab", shstrtable);
+    elf_add_strtab(".strtab", shstrtable);
+    elf_add_strtab(".text", shstrtable);
+    
+    char *strtab = malloc(sizeof(char)*1);
+    elf_add_strtab("first.asm", strtab);
+    elf_add_strtab("_start", strtab);
 
     // Generate the file
     FILE *file = fopen(out_path, "w");
@@ -60,18 +64,22 @@ int main(int argc, char *argv[])
     // Pass 1
     SymbolTable *sym_table = sym_table_init_default();
     int size = parse(argv[1], file, 1, sym_table);
+    int loco = 0;
     
     if (build_elf) {
+        int offset = 6 * 64;
+        
         elf_write_header(file);
         elf_write_null_header(file);
-        elf_write_shstrtab(file);
-        elf_write_symtable(file);
-        elf_write_strtab(file);
-        elf_write_text(file, size);
         
-        elf_write_shstrtable(file, shstrtable);
+        offset = elf_write_shstrtab(file, offset, shstrtable);
+        offset = elf_write_symtable(file, offset);
+        offset = elf_write_strtab(file, offset, strtab);
+        offset = elf_write_text(file, offset, size);
+        
+        elf_write_strtable(file, shstrtable);
         elf_write_symbols(file);
-        elf_write_strtable(file);
+        elf_write_strtable(file, strtab);
     }
     
     // Pass 2

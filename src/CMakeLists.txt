@@ -17,6 +17,7 @@ set(ASM_SRC
 
 set(ELF_SRC
     elf/elf_bin.c
+    elf/elf_shstrtab.c
 )
 
 set(PARSER_SRC

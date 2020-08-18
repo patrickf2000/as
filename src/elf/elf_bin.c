@@ -60,38 +60,6 @@ void elf_write_null_header(FILE *file)
     fwrite(&nullh, sizeof(nullh), 1, file);
 }
 
-//Write the section header string table
-void elf_write_shstrtab(FILE *file)
-{
-    Elf64_Shdr header;
-
-    header.sh_name = 1;		/* Section name (string tbl index) */
-    header.sh_type = SHT_STRTAB;		/* Section type */
-    header.sh_flags = 0;		/* Section flags */
-    header.sh_addr = 0;		/* Section virtual addr at execution */
-    header.sh_offset = 384;		/* Section file offset */
-    header.sh_size = 33;		/* Section size in bytes */
-    header.sh_link = 0;		/* Link to another section */
-    header.sh_info = 0;		/* Additional section information */
-    header.sh_addralign = 1;		/* Section alignment */
-    header.sh_entsize = 0;		/* Entry size if section holds table */
-
-    fwrite(&header, sizeof(header), 1, file);
-}
-
-void elf_write_shstrtable(FILE *file)
-{
-    fputc(0, file);    
-    fputs(".shstrtab", file);
-    fputc(0, file);
-    fputs(".symtab", file);
-    fputc(0, file);
-    fputs(".strtab", file);
-    fputc(0, file);
-    fputs(".text", file);
-    fputc(0, file);
-}
-
 // Write the symbol table
 void elf_write_symtable(FILE *file)
 {

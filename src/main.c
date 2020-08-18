@@ -46,7 +46,15 @@ int main(int argc, char *argv[])
             ++i;
         }
     }
+    
+    // Build the section string table
+    char *shstrtable = malloc(sizeof(char)*1);
+    elf_add_shstrtab(".shstrtab", shstrtable);
+    elf_add_shstrtab(".symtab", shstrtable);
+    elf_add_shstrtab(".strtab", shstrtable);
+    elf_add_shstrtab(".text", shstrtable);
 
+    // Generate the file
     FILE *file = fopen(out_path, "w");
     
     // Pass 1
@@ -61,7 +69,7 @@ int main(int argc, char *argv[])
         elf_write_strtab(file);
         elf_write_text(file, size);
         
-        elf_write_shstrtable(file);
+        elf_write_shstrtable(file, shstrtable);
         elf_write_symbols(file);
         elf_write_strtable(file);
     }

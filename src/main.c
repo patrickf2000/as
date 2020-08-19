@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 
 #include <sym_table.h>
+#include <parser/parser.h>
 #include <elf/elf_builder.h>
 
 extern int parse(const char *path, FILE *f, int pass1, SymbolTable *st);
@@ -46,9 +47,12 @@ int main(int argc, char *argv[])
             ++i;
         }
     }
+    
+    // Split the file into multiple sections
+    split_file(argv[1]);
 
     // Generate the file
-    FILE *file = fopen(out_path, "w");
+    /*FILE *file = fopen(out_path, "w");
     
     // Pass 1
     SymbolTable *sym_table = sym_table_init_default();
@@ -70,7 +74,7 @@ int main(int argc, char *argv[])
     fclose(file);
     
     //Set permissions
-    if (build_elf) chmod(out_path, 0777);
+    if (build_elf) chmod(out_path, 0777);*/
 	
 	return 0;
 }

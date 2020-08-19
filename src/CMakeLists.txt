@@ -23,11 +23,20 @@ set(ELF_SRC
     elf/elf_text.c
 )
 
-set(PARSER_SRC
+SET(PARSER_SRC
+    parser/split.c
+)
+
+set(MAIN_SRC
 	${BISON_parser_OUTPUTS}
 	${FLEX_scanner_OUTPUTS}
 	main.c
     sym_table.c
 )
 
-add_executable(asmx86 ${PARSER_SRC} ${ASM_SRC} ${ELF_SRC})
+add_executable(asmx86 
+    ${MAIN_SRC}
+    ${ASM_SRC}
+    ${ELF_SRC}
+    ${PARSER_SRC}
+)

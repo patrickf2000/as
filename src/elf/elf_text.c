@@ -3,11 +3,11 @@
 #include <elf/elf_bin.h>
 
 // Write the .text header
-int elf_header_text(FILE *file, int offset, int size)
+int elf_header_text(FILE *file, int name_pos, int offset, int size)
 {
     Elf64_Shdr header;
 
-    header.sh_name = 27;		/* Section name (string tbl index) */
+    header.sh_name = name_pos;		/* Section name (string tbl index) */
     header.sh_type = SHT_PROGBITS;		/* Section type */
     header.sh_flags = SHF_ALLOC | SHF_EXECINSTR;		/* Section flags */
     header.sh_addr = 0;		/* Section virtual addr at execution */

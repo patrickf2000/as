@@ -5,7 +5,7 @@
 #include <elf/elf_bin.h>
 
 // A utility function for building a string table
-void elf_add_strtab(char *str, char *strtab)
+int elf_add_strtab(char *str, char *strtab)
 {
     int old_start = strlen(strtab);
     
@@ -15,6 +15,8 @@ void elf_add_strtab(char *str, char *strtab)
     strtab[old_start] = '|';   
     
     strcat(strtab, str);
+    
+    return old_start + 1;
 }
 
 // A utility function to write a string table
@@ -30,13 +32,13 @@ void elf_write_strtable(FILE *file, char *table)
 }
 
 //Write the section header string table data
-int elf_header_shstrtab(FILE *file, int offset, char *table)
+int elf_header_shstrtab(FILE *file, int name_pos, int offset, char *table)
 {
     int size = strlen(table) + 1;
 
     Elf64_Shdr header;
 
-    header.sh_name = 1;		            // Section name (string tbl index)
+    header.sh_name = name_pos;          // Section name (string tbl index)
     header.sh_type = SHT_STRTAB;		// Section type
     header.sh_flags = 0;		        // Section flags
     header.sh_addr = 0;		            // Section virtual addr at execution
@@ -54,13 +56,13 @@ int elf_header_shstrtab(FILE *file, int offset, char *table)
 }
 
 // Write the string table
-int elf_header_strtab(FILE *file, int offset, char *table)
+int elf_header_strtab(FILE *file, int name_pos, int offset, char *table)
 {
     int size = strlen(table) + 1;
 
     Elf64_Shdr header;
 
-    header.sh_name = 19;		/* Section name (string tbl index) */
+    header.sh_name = name_pos;		/* Section name (string tbl index) */
     header.sh_type = SHT_STRTAB;		/* Section type */
     header.sh_flags = 0;		/* Section flags */
     header.sh_addr = 0;		/* Section virtual addr at execution */

@@ -9,10 +9,10 @@ void build_obj(FILE *file, int code_size)
 {
     // Build the section string table
     char *shstrtable = malloc(sizeof(char)*1);
-    elf_add_strtab(".shstrtab", shstrtable);
-    elf_add_strtab(".symtab", shstrtable);
-    elf_add_strtab(".strtab", shstrtable);
-    elf_add_strtab(".text", shstrtable);
+    int shstrtab_name = elf_add_strtab(".shstrtab", shstrtable);
+    int symtab_name = elf_add_strtab(".symtab", shstrtable);
+    int strtab_name = elf_add_strtab(".strtab", shstrtable);
+    int text_name = elf_add_strtab(".text", shstrtable);
     
     char *strtab = malloc(sizeof(char)*1);
     elf_add_strtab("first.asm", strtab);
@@ -27,10 +27,10 @@ void build_obj(FILE *file, int code_size)
     elf_write_header(file);
     elf_write_null_header(file);
         
-    offset = elf_header_shstrtab(file, offset, shstrtable);
-    offset = elf_header_symtab(file, offset, symtab->size);
-    offset = elf_header_strtab(file, offset, strtab);
-    offset = elf_header_text(file, offset, code_size);
+    offset = elf_header_shstrtab(file, shstrtab_name, offset, shstrtable);
+    offset = elf_header_symtab(file, symtab_name, offset, symtab->size);
+    offset = elf_header_strtab(file, strtab_name, offset, strtab);
+    offset = elf_header_text(file, text_name, offset, code_size);
         
     elf_write_strtable(file, shstrtable);
     elf_write_symtab(file, symtab);

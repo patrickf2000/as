@@ -4,14 +4,14 @@
 #include <elf/elf_bin.h>
 
 // Write the symbol table
-int elf_header_symtab(FILE *file, int offset, int count)
+int elf_header_symtab(FILE *file, int name_pos, int offset, int count)
 {
     int size = sizeof(Elf64_Sym) * count;
 
     // The section header
     Elf64_Shdr header;
 
-    header.sh_name = 11;		/* Section name (string tbl index) */
+    header.sh_name = name_pos;		/* Section name (string tbl index) */
     header.sh_type = SHT_SYMTAB;		/* Section type */
     header.sh_flags = 0;		/* Section flags */
     header.sh_addr = 0;		/* Section virtual addr at execution */

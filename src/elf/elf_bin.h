@@ -20,13 +20,13 @@ typedef struct
 void elf_write_header(FILE *file);
 void elf_write_null_header(FILE *file);
 
-void elf_add_strtab(char *str, char *strtab);
+int elf_add_strtab(char *str, char *strtab);
 void elf_write_strtable(FILE *file, char *table);
-int elf_header_shstrtab(FILE *file, int offset, char *table);
-int elf_header_strtab(FILE *file, int offset, char *table);
+int elf_header_shstrtab(FILE *file, int name_pos, int offset, char *table);
+int elf_header_strtab(FILE *file, int name_pos, int offset, char *table);
 
-int elf_header_symtab(FILE *file, int offset, int count);
+int elf_header_symtab(FILE *file, int name_pos, int offset, int count);
 Elf64_SymTab *elf_generate_symtab();
 void elf_write_symtab(FILE *file, Elf64_SymTab *symtab);
 
-int elf_header_text(FILE *file, int offset, int size);
+int elf_header_text(FILE *file, int name_pos, int offset, int size);

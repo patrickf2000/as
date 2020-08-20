@@ -4,6 +4,7 @@
 
 #include <parser/parser.h>
 #include <utils/str_table.h>
+#include <elf/elf_bin.h>
 
 // Parses a string constant (removes quotes and escape sequences)
 void parse_string(char *str)
@@ -38,7 +39,7 @@ void parse_string(char *str)
 }
 
 // Generates the .data section
-char *generate_data(const char *in_path, Elf64_SymTab *symtab)
+DataInfo *generate_data(const char *in_path)
 {
     // Set things up
     // File-specific stuff
@@ -56,7 +57,9 @@ char *generate_data(const char *in_path, Elf64_SymTab *symtab)
     char c = 0;
     
     //String table stuff
-    char *table = calloc(1, sizeof(buf));
+    DataInfo *info = calloc(1, sizeof(DataInfo));
+    info->names = calloc(1, sizeof(char));
+    info->values = calloc(1, sizeof(char));
     
     while ((c = fgetc(file)) != EOF)
     {
@@ -69,7 +72,8 @@ char *generate_data(const char *in_path, Elf64_SymTab *symtab)
             parse_string(val);
             
             // Add to the tables
-            str_table_add(val, table);
+            str_table_add(name, info->names);
+            str_table_add(val, info->values);
             
             // Reset all parts
             memset(buf, 0, 255);
@@ -98,12 +102,13 @@ char *generate_data(const char *in_path, Elf64_SymTab *symtab)
         }
     }
     
-    // Clean up and return
+    // Clean up
     fclose(file);
     free(buf);
     free(name);
     free(val);
     free(type);
     
-    return table;
+    // Create the table and return
+    return info;
 }

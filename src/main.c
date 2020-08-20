@@ -51,9 +51,7 @@ int main(int argc, char *argv[])
     // Split the file into multiple sections
     split_file(argv[1]);
     
-    Elf64_SymTab *symtab = elf_generate_symtab();
-    char *data = generate_data("data.asm", symtab);
-    printf("Data: %s\n", data);
+    DataInfo *data = generate_data("data.asm");
 
     // Generate the file
     FILE *file = fopen(out_path, "w");
@@ -64,7 +62,7 @@ int main(int argc, char *argv[])
     
     // Build the ELF
     if (build_elf) {
-        build_obj(file, symtab, data, size);
+        build_obj(file, data, size);
     }
     
     // Pass 2

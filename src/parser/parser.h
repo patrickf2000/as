@@ -2,5 +2,11 @@
 
 #include <elf/elf_bin.h>
 
+typedef struct
+{
+    char *names;
+    char *values;
+} DataInfo;
+
 void split_file(const char *in_path);
-char *generate_data(const char *in_path, Elf64_SymTab *symtab);
+DataInfo *generate_data(const char *in_path);

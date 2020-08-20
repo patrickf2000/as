@@ -6,13 +6,15 @@
 #include <utils/str_table.h>
 
 // Builds a relocatable object file
-void build_obj(FILE *file, Elf64_SymTab *symtab, int code_size)
+void build_obj(FILE *file, Elf64_SymTab *symtab, char *data, int code_size)
 {
     // Build the section string table
     char *shstrtable = calloc(1, sizeof(char));
     int shstrtab_name = str_table_add(".shstrtab", shstrtable);
     int symtab_name = str_table_add(".symtab", shstrtable);
     int strtab_name = str_table_add(".strtab", shstrtable);
+    int rela_text_name = str_table_add(".rela.text", shstrtable);
+    int data_name = str_table_add(".data", shstrtable);
     int text_name = str_table_add(".text", shstrtable);
     
     char *strtab = calloc(1,sizeof(char));
@@ -20,7 +22,7 @@ void build_obj(FILE *file, Elf64_SymTab *symtab, int code_size)
     str_table_add("_start", strtab);
     
     // Build the rest
-    int offset = 6 * 64;
+    int offset = 8 * 64;
         
     elf_write_header(file);
     elf_write_null_header(file);
@@ -28,6 +30,8 @@ void build_obj(FILE *file, Elf64_SymTab *symtab, int code_size)
     offset = elf_header_shstrtab(file, shstrtab_name, offset, shstrtable);
     offset = elf_header_symtab(file, symtab_name, offset, symtab->size);
     offset = elf_header_strtab(file, strtab_name, offset, strtab);
+    offset = elf_header_rela_text(file, rela_text_name, offset, data);
+    offset = elf_header_sec_data(file, data_name, offset, data);
     offset = elf_header_text(file, text_name, offset, code_size);
         
     str_table_write(file, shstrtable);

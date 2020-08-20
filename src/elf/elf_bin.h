@@ -27,4 +27,7 @@ int elf_header_symtab(FILE *file, int name_pos, int offset, int count);
 Elf64_SymTab *elf_generate_symtab();
 void elf_write_symtab(FILE *file, Elf64_SymTab *symtab);
 
+int elf_header_rela_text(FILE *file, int name_pos, int offset, char *data);
+int elf_header_sec_data(FILE *file, int name_pos, int offset, char *data);
+
 int elf_header_text(FILE *file, int name_pos, int offset, int size);

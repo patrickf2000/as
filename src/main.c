@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     
     // Build the ELF
     if (build_elf) {
-        build_obj(file, symtab, size);
+        build_obj(file, symtab, data, size);
     }
     
     // Pass 2

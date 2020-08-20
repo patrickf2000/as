@@ -35,7 +35,7 @@ void elf_write_header(FILE *file)
     header.e_phentsize = 0;              //Program header size
     header.e_phnum = 0;                  //1 program header
     header.e_shentsize = 64;
-    header.e_shnum = 5;
+    header.e_shnum = 7;
     header.e_shstrndx = 1;
     
     fwrite(&header, sizeof(header), 1, file);

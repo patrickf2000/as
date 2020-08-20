@@ -56,7 +56,7 @@ Elf64_SymTab *elf_generate_symtab()
     symbol.st_name = 0;
     symbol.st_info = ELF64_ST_INFO(STB_LOCAL, STT_SECTION);
     symbol.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
-    symbol.st_shndx = 4;
+    symbol.st_shndx = 6;
     symbol.st_value = 0;
     symbol.st_size = 0;
     symbols[2] = symbol;
@@ -65,7 +65,7 @@ Elf64_SymTab *elf_generate_symtab()
     symbol.st_name = 11;
     symbol.st_info = ELF64_ST_INFO(STB_GLOBAL, STT_NOTYPE);
     symbol.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
-    symbol.st_shndx = 4;
+    symbol.st_shndx = 6;
     symbol.st_value = 0;
     symbol.st_size = 0;
     symbols[3] = symbol;

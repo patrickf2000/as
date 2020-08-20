@@ -20,8 +20,6 @@ typedef struct
 void elf_write_header(FILE *file);
 void elf_write_null_header(FILE *file);
 
-int elf_add_strtab(char *str, char *strtab);
-void elf_write_strtable(FILE *file, char *table);
 int elf_header_shstrtab(FILE *file, int name_pos, int offset, char *table);
 int elf_header_strtab(FILE *file, int name_pos, int offset, char *table);
 

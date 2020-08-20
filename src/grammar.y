@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include <asm/asm.h>
-#include <sym_table.h>
+#include <utils/sym_table.h>
 
 extern FILE *yyin;
 FILE *file;

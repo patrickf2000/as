@@ -3,7 +3,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include <sym_table.h>
+#include <utils/sym_table.h>
 #include <parser/parser.h>
 #include <elf/elf_builder.h>
 
@@ -50,31 +50,36 @@ int main(int argc, char *argv[])
     
     // Split the file into multiple sections
     split_file(argv[1]);
+    
+    Elf64_SymTab *symtab = elf_generate_symtab();
+    char *data = generate_data("data.asm", symtab);
+    printf("Data: %s\n", data);
 
     // Generate the file
-    /*FILE *file = fopen(out_path, "w");
+    FILE *file = fopen(out_path, "w");
     
     // Pass 1
     SymbolTable *sym_table = sym_table_init_default();
-    int size = parse(argv[1], file, 1, sym_table);
-    int loco = 0;
+    int size = parse("text.asm", file, 1, sym_table);
     
     // Build the ELF
     if (build_elf) {
-        build_obj(file, size);
+        build_obj(file, symtab, size);
     }
     
     // Pass 2
-    parse(argv[1], file, 0, sym_table);
+    parse("text.asm", file, 0, sym_table);
     
     //buffer
     for (int i = 0; i<15; i++)
         fputc(0, file);
     
+    // Clean things up
     fclose(file);
+    free(data);
     
     //Set permissions
-    if (build_elf) chmod(out_path, 0777);*/
+    if (build_elf) chmod(out_path, 0777);
 	
 	return 0;
 }

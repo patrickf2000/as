@@ -25,13 +25,18 @@ set(ELF_SRC
 
 SET(PARSER_SRC
     parser/split.c
+    parser/data.c
+)
+
+set(UTILS_SRC
+    utils/str_table.c
+    utils/sym_table.c
 )
 
 set(MAIN_SRC
 	${BISON_parser_OUTPUTS}
 	${FLEX_scanner_OUTPUTS}
 	main.c
-    sym_table.c
 )
 
 add_executable(asmx86 
@@ -39,4 +44,5 @@ add_executable(asmx86
     ${ASM_SRC}
     ${ELF_SRC}
     ${PARSER_SRC}
+    ${UTILS_SRC}
 )

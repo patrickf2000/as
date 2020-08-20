@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <sym_table.h>
+#include <utils/sym_table.h>
 
 SymbolTable *sym_table_init(int size)
 {

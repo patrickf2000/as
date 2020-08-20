@@ -12,7 +12,8 @@ void split_file(const char *in_path)
     FILE *writer = NULL;
     
     char c = 0;
-    char *buf = malloc(sizeof(char)*255);
+    char *buf = calloc(255, sizeof(char));
+    char *path = calloc(100, sizeof(char));
     int index = 0;
     
     int last_was_sec = 0;
@@ -28,7 +29,7 @@ void split_file(const char *in_path)
             else if (last_was_sec)
             {
                 int len = strlen(buf) + 2;
-                char *path = malloc(sizeof(char)*len);
+                //char *path = malloc(sizeof(char)*len);
                 
                 for (int i = 1; i<strlen(buf); i++)
                     path[i-1] = buf[i];
@@ -55,6 +56,7 @@ void split_file(const char *in_path)
             }
             
             memset(buf, 0, 255);
+            memset(path, 0, 100);
             index = 0;
         } else {
             buf[index] = c;
@@ -68,4 +70,5 @@ void split_file(const char *in_path)
         fclose(writer);
         
     free(buf);
+    free(path);
 }

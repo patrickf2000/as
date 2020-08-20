@@ -7,7 +7,7 @@
 #include <parser/parser.h>
 #include <elf/elf_builder.h>
 
-extern int parse(const char *path, FILE *f, int pass1, SymbolTable *st);
+//extern int parse(const char *path, FILE *f, int pass1, SymbolTable *st);
 
 int main(int argc, char *argv[]) 
 {
@@ -57,20 +57,20 @@ int main(int argc, char *argv[])
     FILE *file = fopen(out_path, "w");
     
     // Pass 1
-    SymbolTable *sym_table = sym_table_init_default();
-    int size = parse("text.asm", file, 1, sym_table);
+    /*SymbolTable *sym_table = sym_table_init_default();
+    int size = parse("text.asm", file, 1, sym_table);*/
     
     // Build the ELF
     if (build_elf) {
-        build_obj(file, data, size);
+        build_obj(file, data);
     }
     
     // Pass 2
-    parse("text.asm", file, 0, sym_table);
+    //parse("text.asm", file, 0, sym_table);
     
     //buffer
-    for (int i = 0; i<15; i++)
-        fputc(0, file);
+    /*for (int i = 0; i<15; i++)
+        fputc(0, file);*/
     
     // Clean things up
     fclose(file);

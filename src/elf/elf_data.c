@@ -15,7 +15,7 @@ int elf_header_rela_text(FILE *file, int name_pos, int offset, char *data)
     header.sh_offset = offset;		                // Section file offset
     header.sh_size = size;		                    // Section size in bytes
     header.sh_link = 2;		                        // Link to symbol table
-    header.sh_info = 6;		                        // Link to text
+    header.sh_info = 5;		                        // Link to text
     header.sh_addralign = 8;		                // Section alignment
     header.sh_entsize = sizeof(Elf64_Rela);         // Entry size if section holds table
 
@@ -29,7 +29,7 @@ void elf_write_rela_text(FILE *file, char *data)
 {
     Elf64_Rela rela;
     rela.r_offset = 0;
-    rela.r_info = ELF64_R_INFO(6,1);
+    rela.r_info = ELF64_R_INFO(5,1);
     rela.r_addend = 0;
     
     fwrite(&rela, sizeof(rela), 1, file);

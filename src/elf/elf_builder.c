@@ -30,34 +30,8 @@ void build_obj(FILE *file, DataInfo *data)
     
     Elf64_SymTab *symtab = elf_generate_symtab();
     
-    // Add the data symbols to the table
-    int length = strlen(data->names);
-    char *buf = calloc(length, sizeof(char));
-    int index = 0;
-    
-    for (int i = 1; i<length; i++)
-    {
-        if (data->names[i] == '|' || i + 1 == length)
-        {
-            if (i + 1 == length)
-                buf[index] = data->names[i];
-            
-            int pos = str_table_add(buf, strtab);
-            elf_add_data_symbol(symtab, pos, 0);
-        
-            index = 0;
-            memset(buf, 0, length);
-        }
-        else
-        {
-            buf[index] = data->names[i];
-            ++index;
-        }
-    }
-    
-    elf_add_start_symbol(symtab);
-    
-    free(buf);
+    strtab = elf_insert_data_symbols(symtab, data->names, data->values, strtab);
+    int start_pos = elf_add_start_symbol(symtab);
     
     // Build the rest
     int offset = 8 * 64;
@@ -67,7 +41,7 @@ void build_obj(FILE *file, DataInfo *data)
     elf_write_null_header(file);
         
     offset = elf_header_shstrtab(file, shstrtab_name, offset, shstrtable);
-    offset = elf_header_symtab(file, symtab_name, offset, symtab->size);
+    offset = elf_header_symtab(file, symtab_name, offset, symtab->size, start_pos);
     offset = elf_header_strtab(file, strtab_name, offset, strtab);
     offset = elf_header_sec_data(file, data_name, offset, data->values);
     offset = elf_header_text(file, text_name, offset, code_size);

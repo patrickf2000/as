@@ -1,10 +1,11 @@
 // Handles the symbol table
 #include <stdlib.h>
+#include <string.h>
 
 #include <elf/elf_bin.h>
 
 // Write the symbol table
-int elf_header_symtab(FILE *file, int name_pos, int offset, int count)
+int elf_header_symtab(FILE *file, int name_pos, int offset, int count, int start_pos)
 {
     int size = sizeof(Elf64_Sym) * count;
 
@@ -18,13 +19,19 @@ int elf_header_symtab(FILE *file, int name_pos, int offset, int count)
     header.sh_offset = offset;		/* Section file offset */
     header.sh_size = size;		/* Section size in bytes */
     header.sh_link = 3;		/* Link to another section */
-    header.sh_info = 5;		/* Additional section information */
+    header.sh_info = start_pos;		/* Additional section information */
     header.sh_addralign = 8;		/* Section alignment */
     header.sh_entsize = sizeof(Elf64_Sym);		/* Entry size if section holds table */
 
     fwrite(&header, sizeof(header), 1, file);
     
     return offset + size;
+}
+
+// Write the symbol table
+void elf_write_symtab(FILE *file, Elf64_SymTab *symtab)
+{
+    fwrite(symtab->symbols, sizeof(Elf64_Sym), symtab->size, file);
 }
 
 // Generate the default symbol table
@@ -98,7 +105,7 @@ void elf_add_data_symbol(Elf64_SymTab *table, int name_pos, int value)
 }
 
 // Adds the start entry
-void elf_add_start_symbol(Elf64_SymTab *table)
+int elf_add_start_symbol(Elf64_SymTab *table)
 {
     // Reallocate
     int size = table->size + 1;
@@ -114,10 +121,71 @@ void elf_add_start_symbol(Elf64_SymTab *table)
     symbol.st_value = 0;
     symbol.st_size = 0;
     table->symbols[size-1] = symbol;
+    
+    return size - 1;
 }
 
-// Write the symbol table
-void elf_write_symtab(FILE *file, Elf64_SymTab *symtab)
+int get_str_pos(char *values, int last_pos)
 {
-    fwrite(symtab->symbols, sizeof(Elf64_Sym), symtab->size, file);
+    if (last_pos == 0)
+        return 0;
+        
+    int pos = 0;
+        
+    for (int i = 0; i<strlen(values); i++)
+    {
+        if (values[i] == '|')
+        {
+            if (pos == last_pos)
+                return i+1;
+            else
+                ++pos;
+        }
+    }
+    
+    return 0;
+}
+
+// Insert data symbols
+// This involes adding everything to the symbol table and calculating offsets
+char *elf_insert_data_symbols(Elf64_SymTab *symtab, char *names, char *values, char *strtab)
+{
+    int length = strlen(names);
+    int old_length = strlen(strtab);
+    int index = old_length;
+    int last_pos = 0;
+    int last_str_pos = -1;
+    
+    strtab = realloc(strtab, sizeof(char) + old_length + length);
+    
+    for (int i = 0; i<length; i++)
+    {
+        if (names[i] == '|')
+        {
+            strtab[index] = '|';
+            ++index;
+            
+            int pos = get_str_pos(values, last_str_pos);
+            
+            elf_add_data_symbol(symtab, last_pos, pos);
+            last_pos = index;
+            ++last_str_pos;
+        }
+        else if (i + 1 == length)
+        {
+            strtab[index] = names[i];
+            
+            int pos = get_str_pos(values, last_str_pos);
+            
+            elf_add_data_symbol(symtab, last_pos, pos);
+            last_pos = index;
+        }
+        else
+        {
+            strtab[index] = names[i];
+            ++index;
+        }
+    }
+    
+    return strtab;
 }

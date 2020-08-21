@@ -6,15 +6,11 @@
 #include <utils/str_table.h>
 #include <utils/sym_table.h>
 
-extern int parse(const char *path, FILE *f, int pass1, SymbolTable *st);
+extern int parse(const char *path, FILE *f, int pass1, SymbolTable *st, Elf64_RelaTab *rt);
 
 // Builds a relocatable object file
 void build_obj(FILE *file, DataInfo *data)
 {
-    // Pass 1
-    SymbolTable *sym_table = sym_table_init_default();
-    int code_size = parse("text.asm", file, 1, sym_table);
-
     // Build the section string table
     char *shstrtable = calloc(1, sizeof(char));
     int shstrtab_name = str_table_add(".shstrtab", shstrtable);
@@ -28,10 +24,20 @@ void build_obj(FILE *file, DataInfo *data)
     str_table_add("first.asm", strtab);
     str_table_add("_start", strtab);
     
+    // Create the symbol tables
+    SymbolTable *sym_table = sym_table_init_default();
     Elf64_SymTab *symtab = elf_generate_symtab();
     
-    strtab = elf_insert_data_symbols(symtab, data->names, data->values, strtab);
+    Elf64_RelaTab *rela_tab = malloc(sizeof(Elf64_RelaTab));
+    rela_tab->size = 0;
+    
+    // Add the symbols
+    strtab = elf_insert_data_symbols(symtab, sym_table, data->names, data->values, strtab);
     int start_pos = elf_add_start_symbol(symtab);
+    
+    // Pass 1
+    int code_size = parse("text.asm", file, 1, sym_table, rela_tab);
+    int rela_size = rela_tab->size;
     
     // Build the rest
     int offset = 8 * 64;
@@ -45,7 +51,7 @@ void build_obj(FILE *file, DataInfo *data)
     offset = elf_header_strtab(file, strtab_name, offset, strtab);
     offset = elf_header_sec_data(file, data_name, offset, data->values);
     offset = elf_header_text(file, text_name, offset, code_size);
-    offset = elf_header_rela_text(file, rela_text_name, offset, data->values);
+    offset = elf_header_rela_text(file, rela_text_name, offset, rela_size);
     
     // Write the first several sections    
     str_table_write(file, shstrtable);
@@ -54,13 +60,14 @@ void build_obj(FILE *file, DataInfo *data)
     elf_write_sec_data(file, data->values);
     
     // Write the code
-    parse("text.asm", file, 0, sym_table);
+    parse("text.asm", file, 0, sym_table, rela_tab);
     
     // Write the rela.text section
-    elf_write_rela_text(file, data->names);
+    elf_write_rela_text(file, rela_tab);
     
     free(shstrtable);
     free(strtab);
+    free(rela_tab);
 }
 
 // Builds a simple ELF with only a header and program header

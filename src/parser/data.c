@@ -54,6 +54,7 @@ DataInfo *generate_data(const char *in_path)
     // Various index variables
     int index = 0;
     int part = 0;
+    int in_quote = 0;
     char c = 0;
     
     //String table stuff
@@ -83,7 +84,11 @@ DataInfo *generate_data(const char *in_path)
             index = 0;
             part = 0;
         }
-        else if (c == ' ' && index > 0)
+        else if (c == '\"')
+        {
+            in_quote = !in_quote;
+        }
+        else if (c == ' ' && index > 0 && !in_quote)
         {
             switch (part)
             {

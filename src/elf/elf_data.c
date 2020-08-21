@@ -1,11 +1,12 @@
 #include <string.h>
+#include <stdlib.h>
 
 #include <elf/elf_bin.h>
 
 // Generates a header for the .rela.text section
-int elf_header_rela_text(FILE *file, int name_pos, int offset, char *data)
+int elf_header_rela_text(FILE *file, int name_pos, int offset, int size)
 {
-    int size = sizeof(Elf64_Rela) * 1;
+    size *= sizeof(Elf64_Rela);
     Elf64_Shdr header;
 
     header.sh_name = name_pos;		                // Section name (string tbl index)
@@ -24,15 +25,43 @@ int elf_header_rela_text(FILE *file, int name_pos, int offset, char *data)
     return offset + size;
 }
 
-// Writes the .rela.text section
-void elf_write_rela_text(FILE *file, char *data)
+// Adds a .rela.text item to the table
+void elf_rela_add(Elf64_RelaTab *table, int code_offset, int data_offset)
 {
-    Elf64_Rela rela;
-    rela.r_offset = 12;
-    rela.r_info = ELF64_R_INFO(2,1);
-    rela.r_addend = 0;
+    // Resize the table
+    int size = 1;
     
-    fwrite(&rela, sizeof(Elf64_Rela), 1, file);
+    if (table->size == 0)
+    {
+        table->symbols = malloc(sizeof(Elf64_Rela));
+        table->size = size;
+    }
+    else
+    {
+        size = table->size + 1;
+        table->symbols = realloc(table->symbols, sizeof(Elf64_Rela) * size);
+        table->size = size;
+    }
+    
+    // Create and add the symbol
+    Elf64_Rela rela;
+    rela.r_offset = code_offset;
+    rela.r_info = ELF64_R_INFO(2,1);
+    rela.r_addend = data_offset;
+    table->symbols[size-1] = rela;
+}
+
+// Writes the .rela.text section
+void elf_write_rela_text(FILE *file, Elf64_RelaTab *table)
+{
+    if (table->size == 0)
+        return;
+        
+    for (int i = 0; i<table->size; i++)
+    {
+        Elf64_Rela rela = table->symbols[i];
+        fwrite(&rela, sizeof(Elf64_Rela), 1, file);
+    }
 }
 
 // Generates a header for the .data section

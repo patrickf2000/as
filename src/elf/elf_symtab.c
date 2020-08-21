@@ -137,7 +137,7 @@ int get_str_pos(char *values, int last_pos)
         if (values[i] == '|')
         {
             if (pos == last_pos)
-                return i+1;
+                return i;
             else
                 ++pos;
         }
@@ -148,14 +148,16 @@ int get_str_pos(char *values, int last_pos)
 
 // Insert data symbols
 // This involes adding everything to the symbol table and calculating offsets
-char *elf_insert_data_symbols(Elf64_SymTab *symtab, char *names, char *values, char *strtab)
+char *elf_insert_data_symbols(Elf64_SymTab *symtab, SymbolTable *dataPos, char *names, char *values, char *strtab)
 {
     int length = strlen(names);
     int old_length = strlen(strtab);
     int index = old_length;
+    int c_index = 0;
     int last_pos = 0;
     int last_str_pos = -1;
     
+    char *buf = calloc(100, sizeof(char));
     strtab = realloc(strtab, sizeof(char) + old_length + length);
     
     for (int i = 0; i<length; i++)
@@ -166,16 +168,22 @@ char *elf_insert_data_symbols(Elf64_SymTab *symtab, char *names, char *values, c
             ++index;
             
             int pos = get_str_pos(values, last_str_pos);
+            sym_table_add(dataPos, buf, pos);
             
             elf_add_data_symbol(symtab, last_pos, pos);
             last_pos = index;
             ++last_str_pos;
+            
+            c_index = 0;
+            memset(buf, 0, 100);
         }
         else if (i + 1 == length)
         {
             strtab[index] = names[i];
+            buf[c_index] = names[i];
             
             int pos = get_str_pos(values, last_str_pos);
+            sym_table_add(dataPos, buf, pos);
             
             elf_add_data_symbol(symtab, last_pos, pos);
             last_pos = index;
@@ -184,8 +192,13 @@ char *elf_insert_data_symbols(Elf64_SymTab *symtab, char *names, char *values, c
         {
             strtab[index] = names[i];
             ++index;
+            
+            buf[c_index] = names[i];
+            ++c_index;
         }
     }
+    
+    free(buf);
     
     return strtab;
 }

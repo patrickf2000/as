@@ -4,12 +4,15 @@
 
 #include <asm/asm.h>
 #include <utils/sym_table.h>
+#include <elf/elf_bin.h>
 
 extern FILE *yyin;
 FILE *file;
 int is_pass1 = 0;
 
 SymbolTable *sym_table;
+Elf64_RelaTab *rela_tab;
+
 int start = 0;
 int lc = 0;
 const int code_start = 4194424;
@@ -158,18 +161,17 @@ mov:
     | MOV REG64 ',' ID NL                               { 
                                                           if (is_pass1) 
                                                           {
-                                                              lc += 2;
-                                                              sym_table_add(sym_table, $4, lc);
-                                                              printf("SYM %s is at %d\n", $4, lc);
-                                                              lc += 8;
+                                                              int code_offset = lc + 2;
+                                                              int data_offset = sym_table_get(sym_table, $4);
+                                                              
+                                                              elf_rela_add(rela_tab, code_offset, data_offset);
                                                           }
                                                           else
                                                           {
-                                                              /*int loco = sym_table_get(sym_table, $4) + code_start;
-                                                              amd64_mov_reg64_imm($2, loco, 1, file);*/
                                                               amd64_mov_reg64_imm($2, 0, 1, file);
-                                                              lc += 10;
+                                                              
                                                           }
+                                                          lc += 10;
                                                         }
     | MOV REG16H ',' '[' REG64 '+' REG64 ']' NL         { lc += 3; if (!is_pass1) amd64_mov_r8_mrr($2, $5, $7, file); }
     | MOV REG32 ',' '[' REG64 INTEGER ']' NL            { lc += 3; if (!is_pass1) amd64_mov_reg32_mem($2, $5, $6, file); }
@@ -185,9 +187,10 @@ empty:
 %%
 
 //Our parsing function
-int parse(const char *path, FILE *f, int pass1, SymbolTable *st)
+int parse(const char *path, FILE *f, int pass1, SymbolTable *st, Elf64_RelaTab *rt)
 {
     sym_table = st;
+    rela_tab = rt;
 
     file = f;
     is_pass1 = pass1;
@@ -197,7 +200,7 @@ int parse(const char *path, FILE *f, int pass1, SymbolTable *st)
 	yyin = fopen(path, "r");
 	yyparse();
     
-    return lc + 1;
+    return lc;
 }
 
 //Handle syntax errors

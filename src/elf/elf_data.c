@@ -28,11 +28,11 @@ int elf_header_rela_text(FILE *file, int name_pos, int offset, char *data)
 void elf_write_rela_text(FILE *file, char *data)
 {
     Elf64_Rela rela;
-    rela.r_offset = 0;
-    rela.r_info = ELF64_R_INFO(5,1);
+    rela.r_offset = 12;
+    rela.r_info = ELF64_R_INFO(2,1);
     rela.r_addend = 0;
     
-    fwrite(&rela, sizeof(rela), 1, file);
+    fwrite(&rela, sizeof(Elf64_Rela), 1, file);
 }
 
 // Generates a header for the .data section

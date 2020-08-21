@@ -18,7 +18,7 @@ int elf_header_symtab(FILE *file, int name_pos, int offset, int count)
     header.sh_offset = offset;		/* Section file offset */
     header.sh_size = size;		/* Section size in bytes */
     header.sh_link = 3;		/* Link to another section */
-    header.sh_info = 6;		/* Additional section information */
+    header.sh_info = 5;		/* Additional section information */
     header.sh_addralign = 8;		/* Section alignment */
     header.sh_entsize = sizeof(Elf64_Sym);		/* Entry size if section holds table */
 
@@ -56,7 +56,7 @@ Elf64_SymTab *elf_generate_symtab()
     symbol.st_name = 0;
     symbol.st_info = ELF64_ST_INFO(STB_LOCAL, STT_SECTION);
     symbol.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
-    symbol.st_shndx = 5;
+    symbol.st_shndx = 4;
     symbol.st_value = 0;
     symbol.st_size = 0;
     symbols[2] = symbol;
@@ -65,24 +65,15 @@ Elf64_SymTab *elf_generate_symtab()
     symbol.st_name = 0;
     symbol.st_info = ELF64_ST_INFO(STB_LOCAL, STT_SECTION);
     symbol.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
-    symbol.st_shndx = 6;
+    symbol.st_shndx = 5;
     symbol.st_value = 0;
     symbol.st_size = 0;
     symbols[3] = symbol;
     
-    // The _start symbol
-    symbol.st_name = 11;
-    symbol.st_info = ELF64_ST_INFO(STB_GLOBAL, STT_NOTYPE);
-    symbol.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
-    symbol.st_shndx = 6;
-    symbol.st_value = 0;
-    symbol.st_size = 0;
-    symbols[4] = symbol;
-    
     // Build and return the table
     Elf64_SymTab *symtab = malloc(sizeof(Elf64_SymTab));
     symtab->symbols = symbols;
-    symtab->size = 5;
+    symtab->size = 4;
     
     return symtab;
 }
@@ -100,8 +91,27 @@ void elf_add_data_symbol(Elf64_SymTab *table, int name_pos, int value)
     symbol.st_name = name_pos;
     symbol.st_info = ELF64_ST_INFO(STB_LOCAL, STT_NOTYPE);
     symbol.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
-    symbol.st_shndx = 5;
+    symbol.st_shndx = 4;
     symbol.st_value = value;
+    symbol.st_size = 0;
+    table->symbols[size-1] = symbol;
+}
+
+// Adds the start entry
+void elf_add_start_symbol(Elf64_SymTab *table)
+{
+    // Reallocate
+    int size = table->size + 1;
+    table->symbols = realloc(table->symbols, sizeof(Elf64_Sym) * size);
+    table->size = size;
+    
+    // Add the symbol
+    Elf64_Sym symbol;
+    symbol.st_name = 11;
+    symbol.st_info = ELF64_ST_INFO(STB_GLOBAL, STT_FUNC);
+    symbol.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
+    symbol.st_shndx = 5;
+    symbol.st_value = 0;
     symbol.st_size = 0;
     table->symbols[size-1] = symbol;
 }

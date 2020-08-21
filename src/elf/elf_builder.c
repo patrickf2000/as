@@ -55,6 +55,8 @@ void build_obj(FILE *file, DataInfo *data)
         }
     }
     
+    elf_add_start_symbol(symtab);
+    
     free(buf);
     
     // Build the rest
@@ -68,17 +70,25 @@ void build_obj(FILE *file, DataInfo *data)
     offset = elf_header_symtab(file, symtab_name, offset, symtab->size);
     offset = elf_header_strtab(file, strtab_name, offset, strtab);
     offset = elf_header_sec_data(file, data_name, offset, data->values);
-    offset = elf_header_text(file, text_name, offset, code_size);
+    offset = elf_header_text(file, text_name, offset, code_size-1);
     offset = elf_header_rela_text(file, rela_text_name, offset, data->values);
     
     // Write the first several sections    
     str_table_write(file, shstrtable);
     elf_write_symtab(file, symtab);
     str_table_write(file, strtab);
-    str_table_write(file, data->values);
+    //str_table_write(file, data->values);
+    
+    //Write the data section
+    for (int i = 1; i<strlen(data->values); i++)
+    {
+        if (data->values[i] == '|') fputc(0, file);
+        else fputc(data->values[i], file);
+    }
+    
+    fputc(0, file);
     
     // Write the code
-    printf("Size: %d\n", code_size);
     parse("text.asm", file, 0, sym_table);
     
     // Write the buffer
@@ -86,7 +96,7 @@ void build_obj(FILE *file, DataInfo *data)
         fputc(0, file);*/
     
     // Write the rela.text section
-    elf_write_rela_text(file, data->values);
+    elf_write_rela_text(file, data->names);
     
     free(shstrtable);
     free(strtab);

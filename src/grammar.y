@@ -133,7 +133,7 @@ push:
     ;
     
 add:
-      ADD REG32 ',' REG32 NL        { lc += 2; if (!is_pass1) amd64_add_rr32($2, $4, file); }
+      ADD REG32 ',' REG32 NL        { lc += 3; if (!is_pass1) amd64_add_rr32($2, $4, file); }
     | ADD REG32 ',' INTEGER NL      { lc += 3; if (!is_pass1) amd64_add_r32_imm($2, $4, file); }
     ;
     
@@ -154,9 +154,17 @@ leave:
     ;
     
 mov:
-      MOV REG32 ',' REG32 NL                            { lc += 2; if (!is_pass1) amd64_mov_rr32($2, $4, file); }
+      MOV REG32 ',' REG32 NL                            { 
+                                                            lc += 2; 
+                                                            if ($2 > EDI || $4 > EDI) ++lc;
+                                                            if (!is_pass1) amd64_mov_rr32($2, $4, file); 
+                                                        }
     | MOV REG64 ',' REG64 NL                            { lc += 3; if (!is_pass1) amd64_mov_rr64($2, $4, file); }
-    | MOV REG32 ',' INTEGER NL                          { lc += 5; if (!is_pass1) amd64_mov_reg32_imm($2, $4, file); }
+    | MOV REG32 ',' INTEGER NL                          { 
+                                                            lc += 5; 
+                                                            if ($2 > EDI || $4 > EDI) ++lc;
+                                                            if (!is_pass1) amd64_mov_reg32_imm($2, $4, file); 
+                                                        }
     | MOV REG64 ',' INTEGER NL                          { lc += 5; if (!is_pass1) amd64_mov_reg64_imm($2, $4, 0, file); }
     | MOV REG64 ',' ID NL                               { 
                                                           if (is_pass1) 

@@ -50,27 +50,15 @@ int main(int argc, char *argv[])
     
     // Split the file into multiple sections
     split_file(argv[1]);
-    
     DataInfo *data = generate_data("data.asm");
 
     // Generate the file
     FILE *file = fopen(out_path, "w");
     
-    // Pass 1
-    /*SymbolTable *sym_table = sym_table_init_default();
-    int size = parse("text.asm", file, 1, sym_table);*/
-    
     // Build the ELF
     if (build_elf) {
         build_obj(file, data);
     }
-    
-    // Pass 2
-    //parse("text.asm", file, 0, sym_table);
-    
-    //buffer
-    /*for (int i = 0; i<15; i++)
-        fputc(0, file);*/
     
     // Clean things up
     fclose(file);

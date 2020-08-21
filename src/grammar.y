@@ -158,17 +158,18 @@ mov:
     | MOV REG64 ',' ID NL                               { 
                                                           if (is_pass1) 
                                                           {
+                                                              lc += 2;
                                                               sym_table_add(sym_table, $4, lc);
                                                               printf("SYM %s is at %d\n", $4, lc);
+                                                              lc += 8;
                                                           }
                                                           else
                                                           {
                                                               /*int loco = sym_table_get(sym_table, $4) + code_start;
                                                               amd64_mov_reg64_imm($2, loco, 1, file);*/
                                                               amd64_mov_reg64_imm($2, 0, 1, file);
+                                                              lc += 10;
                                                           }
-                                                          
-                                                          lc += 10;
                                                         }
     | MOV REG16H ',' '[' REG64 '+' REG64 ']' NL         { lc += 3; if (!is_pass1) amd64_mov_r8_mrr($2, $5, $7, file); }
     | MOV REG32 ',' '[' REG64 INTEGER ']' NL            { lc += 3; if (!is_pass1) amd64_mov_reg32_mem($2, $5, $6, file); }

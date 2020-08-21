@@ -70,30 +70,17 @@ void build_obj(FILE *file, DataInfo *data)
     offset = elf_header_symtab(file, symtab_name, offset, symtab->size);
     offset = elf_header_strtab(file, strtab_name, offset, strtab);
     offset = elf_header_sec_data(file, data_name, offset, data->values);
-    offset = elf_header_text(file, text_name, offset, code_size-1);
+    offset = elf_header_text(file, text_name, offset, code_size);
     offset = elf_header_rela_text(file, rela_text_name, offset, data->values);
     
     // Write the first several sections    
     str_table_write(file, shstrtable);
     elf_write_symtab(file, symtab);
     str_table_write(file, strtab);
-    //str_table_write(file, data->values);
-    
-    //Write the data section
-    for (int i = 1; i<strlen(data->values); i++)
-    {
-        if (data->values[i] == '|') fputc(0, file);
-        else fputc(data->values[i], file);
-    }
-    
-    fputc(0, file);
+    elf_write_sec_data(file, data->values);
     
     // Write the code
     parse("text.asm", file, 0, sym_table);
-    
-    // Write the buffer
-    /*for (int i = 0; i<10; i++)
-        fputc(0, file);*/
     
     // Write the rela.text section
     elf_write_rela_text(file, data->names);

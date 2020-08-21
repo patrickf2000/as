@@ -32,5 +32,6 @@ void elf_write_symtab(FILE *file, Elf64_SymTab *symtab);
 int elf_header_rela_text(FILE *file, int name_pos, int offset, char *data);
 void elf_write_rela_text(FILE *file, char *data);
 int elf_header_sec_data(FILE *file, int name_pos, int offset, char *data);
+void elf_write_sec_data(FILE *file, char *data);
 
 int elf_header_text(FILE *file, int name_pos, int offset, int size);

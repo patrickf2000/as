@@ -56,3 +56,16 @@ int elf_header_sec_data(FILE *file, int name_pos, int offset, char *data)
     
     return offset + size;
 }
+
+// Writes the data section
+void elf_write_sec_data(FILE *file, char *data)
+{
+    for (int i = 1; i<strlen(data); i++)
+    {
+        if (data[i] == '|') fputc(0, file);
+        else fputc(data[i], file);
+    }
+    
+    fputc(0, file);
+}
+

@@ -7,6 +7,7 @@
 #include <utils/sym_table.h>
 
 extern int parse(const char *path, FILE *f, int pass1, SymbolTable *st, Elf64_RelaTab *rt);
+extern int parse_start_pos();
 
 // Builds a relocatable object file
 void build_obj(FILE *file, DataInfo *data)
@@ -33,11 +34,14 @@ void build_obj(FILE *file, DataInfo *data)
     
     // Add the symbols
     strtab = elf_insert_data_symbols(symtab, sym_table, data->names, data->values, strtab);
-    int start_pos = elf_add_start_symbol(symtab);
     
     // Pass 1
     int code_size = parse("text.asm", file, 1, sym_table, rela_tab);
     int rela_size = rela_tab->size;
+    
+    // Add the start location
+    int start_pos = parse_start_pos();
+    start_pos = elf_add_start_symbol(symtab, start_pos);
     
     // Build the rest
     int offset = 8 * 64;

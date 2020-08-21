@@ -105,7 +105,7 @@ void elf_add_data_symbol(Elf64_SymTab *table, int name_pos, int value)
 }
 
 // Adds the start entry
-int elf_add_start_symbol(Elf64_SymTab *table)
+int elf_add_start_symbol(Elf64_SymTab *table, int start_pos)
 {
     // Reallocate
     int size = table->size + 1;
@@ -118,7 +118,7 @@ int elf_add_start_symbol(Elf64_SymTab *table)
     symbol.st_info = ELF64_ST_INFO(STB_GLOBAL, STT_FUNC);
     symbol.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
     symbol.st_shndx = 5;
-    symbol.st_value = 0;
+    symbol.st_value = start_pos;
     symbol.st_size = 0;
     table->symbols[size-1] = symbol;
     

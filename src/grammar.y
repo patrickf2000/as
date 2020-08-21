@@ -211,6 +211,12 @@ int parse(const char *path, FILE *f, int pass1, SymbolTable *st, Elf64_RelaTab *
     return lc;
 }
 
+// Returns the start position
+int parse_start_pos()
+{
+    return start;
+}
+
 //Handle syntax errors
 void yyerror(const char *s)
 {

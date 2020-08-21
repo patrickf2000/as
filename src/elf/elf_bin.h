@@ -35,7 +35,7 @@ int elf_header_symtab(FILE *file, int name_pos, int offset, int count, int start
 void elf_write_symtab(FILE *file, Elf64_SymTab *symtab);
 Elf64_SymTab *elf_generate_symtab();
 void elf_add_data_symbol(Elf64_SymTab *table, int name_pos, int value);
-int elf_add_start_symbol(Elf64_SymTab *table);
+int elf_add_start_symbol(Elf64_SymTab *table, int start_pos);
 char *elf_insert_data_symbols(Elf64_SymTab *symtab, SymbolTable *dataPos, char *names, char *values, char *strtab);
 
 int elf_header_rela_text(FILE *file, int name_pos, int offset, int size);

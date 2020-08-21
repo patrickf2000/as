@@ -13,9 +13,13 @@
 
 ;RET 3
 
-str1 .string "Hi\n"
+section .data
+    str1 .string "Hi\n"
 
-mov ebx, 0
+section .text
+
+_start:
+    mov ebx, 0
 
 lp:
     mov rax, 1
@@ -29,6 +33,6 @@ lp:
     cmp ebx, 10
     jl lp
     
-mov rax, 60
-mov rdi, 3
-syscall
+    mov rax, 60
+    mov rdi, 3
+    syscall

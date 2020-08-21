@@ -3,14 +3,17 @@
 ;END
 
 ;RET 4
+section .data
+    eq .string "Equal!\n"
+    neq .string "Not equal\n"
 
-eq .string "Equal!\n"
-neq .string "Not equal\n"
+section .text
 
-mov eax, 2
-cmp eax, 10
-je equal
-jmp nequal
+_start:
+    mov eax, 2
+    cmp eax, 10
+    je equal
+    jmp nequal
 
 equal:
     mov rax, 1

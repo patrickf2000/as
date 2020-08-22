@@ -9,7 +9,7 @@ int str_table_add(char *str, char *strtab)
 {
     int old_start = strlen(strtab);
     
-    int new_len = strlen(str) + strlen(strtab) + 1;
+    int new_len = strlen(str) + strlen(strtab) + 2;
     strtab = realloc(strtab, sizeof(char)*new_len);
     
     strtab[old_start] = '|';   

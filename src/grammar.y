@@ -1,17 +1,24 @@
 %{
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include <asm/asm.h>
-#include <utils/sym_table.h>
 #include <elf/elf_bin.h>
+#include <utils/sym_table.h>
+#include <utils/str_table.h>
 
 extern FILE *yyin;
 FILE *file;
 int is_pass1 = 0;
+int is_sym_pass = 0;
 
 SymbolTable *sym_table;
 Elf64_RelaTab *rela_tab;
+Elf64_SymTab *elf_sym_table;
+
+char *elf_strtab;
+int strtab_start = 0;
 
 int start = 0;
 int lc = 0;
@@ -84,12 +91,20 @@ data:
     
 label:
     LABEL NL        {
-                        if (is_pass1) 
+                        if (is_pass1 && !is_sym_pass) 
                         {
                             if (strcmp($1, "_start") == 0)
                                 start = lc;
                             
                             sym_table_add(sym_table, $1, lc);
+                        }
+                        else if (is_sym_pass)
+                        {
+                            if (strcmp($1, "_start") != 0)
+                            {
+                                int pos = strtab_start + str_table_add($1, elf_strtab);
+                                elf_add_symbol(elf_sym_table, pos, lc, 0);
+                            }
                         }
                     }
     ;
@@ -167,14 +182,14 @@ mov:
                                                         }
     | MOV REG64 ',' INTEGER NL                          { lc += 5; if (!is_pass1) amd64_mov_reg64_imm($2, $4, 0, file); }
     | MOV REG64 ',' ID NL                               { 
-                                                          if (is_pass1) 
+                                                          if (is_pass1 && !is_sym_pass) 
                                                           {
                                                               int code_offset = lc + 2;
                                                               int data_offset = sym_table_get(sym_table, $4);
                                                               
                                                               elf_rela_add(rela_tab, code_offset, data_offset);
                                                           }
-                                                          else
+                                                          else if (!is_pass1 && !is_sym_pass)
                                                           {
                                                               amd64_mov_reg64_imm($2, 0, 1, file);
                                                               
@@ -194,6 +209,27 @@ empty:
 
 %%
 
+char *symbol_parse(const char *path, char *strtab, Elf64_SymTab *table)
+{
+    is_pass1 = 1;
+    is_sym_pass = 1;
+    
+    strtab_start = strlen(strtab);
+    elf_strtab = calloc(1,sizeof(char));
+    
+    elf_sym_table = table;
+
+    yyin = fopen(path, "r");
+    yyparse();
+    
+    int length = strlen(strtab) + strlen(elf_strtab) + 1;
+    char *new_strtab = calloc(length, sizeof(char));
+    strcat(new_strtab, strtab);
+    strcat(new_strtab, elf_strtab);
+    
+    return new_strtab;
+}
+
 //Our parsing function
 int parse(const char *path, FILE *f, int pass1, SymbolTable *st, Elf64_RelaTab *rt)
 {
@@ -202,6 +238,7 @@ int parse(const char *path, FILE *f, int pass1, SymbolTable *st, Elf64_RelaTab *
 
     file = f;
     is_pass1 = pass1;
+    is_sym_pass = 0;
     lc = 0;
     start = 0;
     

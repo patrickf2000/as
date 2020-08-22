@@ -66,8 +66,6 @@ DataInfo *generate_data(const char *in_path)
     {
         if (c == '\n' && index > 0)
         {
-            int length = strlen(buf);
-        
             // Copy the value
             strcpy(val, buf);
             parse_string(val);

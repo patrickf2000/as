@@ -6,6 +6,7 @@
 #include <utils/str_table.h>
 #include <utils/sym_table.h>
 
+extern char *symbol_parse(const char *path, char *strtab, Elf64_SymTab *table);
 extern int parse(const char *path, FILE *f, int pass1, SymbolTable *st, Elf64_RelaTab *rt);
 extern int parse_start_pos();
 
@@ -36,6 +37,7 @@ void build_obj(FILE *file, DataInfo *data)
     strtab = elf_insert_data_symbols(symtab, sym_table, data->names, data->values, strtab);
     
     // Pass 1
+    strtab = symbol_parse("text.asm", strtab, symtab);
     int code_size = parse("text.asm", file, 1, sym_table, rela_tab);
     int rela_size = rela_tab->size;
     

@@ -86,19 +86,25 @@ Elf64_SymTab *elf_generate_symtab()
 }
 
 // A .data symbol to the symbol table
-void elf_add_data_symbol(Elf64_SymTab *table, int name_pos, int value)
+void elf_add_symbol(Elf64_SymTab *table, int name_pos, int value, int is_data)
 {
+    if (name_pos == 0)
+        return;
+    
     // Reallocate
     int size = table->size + 1;
     table->symbols = realloc(table->symbols, sizeof(Elf64_Sym) * size);
     table->size = size;
+    
+    int index = 5;
+    if (is_data) index = 4;
     
     // Add the symbol
     Elf64_Sym symbol;
     symbol.st_name = name_pos;
     symbol.st_info = ELF64_ST_INFO(STB_LOCAL, STT_NOTYPE);
     symbol.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
-    symbol.st_shndx = 4;
+    symbol.st_shndx = index;
     symbol.st_value = value;
     symbol.st_size = 0;
     table->symbols[size-1] = symbol;
@@ -170,7 +176,7 @@ char *elf_insert_data_symbols(Elf64_SymTab *symtab, SymbolTable *dataPos, char *
             int pos = get_str_pos(values, last_str_pos);
             sym_table_add(dataPos, buf, pos);
             
-            elf_add_data_symbol(symtab, last_pos, pos);
+            elf_add_symbol(symtab, last_pos, pos, 1);
             last_pos = index;
             ++last_str_pos;
             
@@ -185,7 +191,7 @@ char *elf_insert_data_symbols(Elf64_SymTab *symtab, SymbolTable *dataPos, char *
             int pos = get_str_pos(values, last_str_pos);
             sym_table_add(dataPos, buf, pos);
             
-            elf_add_data_symbol(symtab, last_pos, pos);
+            elf_add_symbol(symtab, last_pos, pos, 1);
             last_pos = index;
         }
         else

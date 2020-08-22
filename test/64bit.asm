@@ -3,8 +3,6 @@
 
 ;RET 14
 
-section .data
-section .text
 _start:
     mov r14d, 5
     mov r15d, 9

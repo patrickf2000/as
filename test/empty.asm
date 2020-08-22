@@ -2,8 +2,6 @@
 ;END
 
 ;RET 17
-section .data
-section .text
 
 _start:
     push rbp

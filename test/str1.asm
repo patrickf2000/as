@@ -10,11 +10,8 @@
 ; back to the first label. Then we jump all the way
 ; to the end.
 
-section .data
-    str1 .string "Hello!\n"
-    str2 .string "Hi!\n"
-
-section .text
+str1 .string "Hello!\n"
+str2 .string "Hi!\n"
 
 _start:
     jmp label2

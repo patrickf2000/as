@@ -24,6 +24,15 @@ typedef struct
     int size;
 } Elf64_RelaTab;
 
+typedef enum
+{
+	DataVal,
+	DataName,
+	SymParse,
+	Build1,
+	Build2
+} PassType;
+
 // The functions
 void elf_write_header(FILE *file);
 void elf_write_null_header(FILE *file);

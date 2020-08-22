@@ -9,11 +9,11 @@
 extern char *data_val_parse(const char *path, char *data_values);
 extern char *data_name_parse(const char *path, char *data_name, SymbolTable *st);
 extern char *symbol_parse(const char *path, char *strtab, Elf64_SymTab *table);
-extern int parse(const char *path, FILE *f, int pass1, SymbolTable *st, Elf64_RelaTab *rt);
+extern int parse(const char *path, FILE *f, PassType pt, SymbolTable *st, Elf64_RelaTab *rt);
 extern int parse_start_pos();
 
 // Builds a relocatable object file
-void build_obj(FILE *file)
+void build_obj(FILE *file, const char *in_path)
 {
     // Build the section string table
     char *shstrtable = calloc(1, sizeof(char));
@@ -37,14 +37,16 @@ void build_obj(FILE *file)
     
     // Load the data
     char *data_values = calloc(1, sizeof(char)); 
-    data_values = data_val_parse("data.asm", data_values);
+    data_values = data_val_parse(in_path, data_values);
     
     char *data_names = calloc(1, sizeof(char)); 
-    data_names = data_name_parse("data.asm", data_names, sym_table);
+    data_names = data_name_parse(in_path, data_names, sym_table);
+    
+    strtab = elf_insert_data_symbols(symtab, sym_table, data_names, data_values, strtab);
     
     // Pass 1
-    strtab = symbol_parse("text.asm", strtab, symtab);
-    int code_size = parse("text.asm", file, 1, sym_table, rela_tab);
+    strtab = symbol_parse(in_path, strtab, symtab);
+    int code_size = parse(in_path, file, Build1, sym_table, rela_tab);
     int rela_size = rela_tab->size;
     
     // Add the start location
@@ -72,7 +74,7 @@ void build_obj(FILE *file)
     elf_write_sec_data(file, data_values);
     
     // Write the code
-    parse("text.asm", file, 0, sym_table, rela_tab);
+    parse(in_path, file, Build2, sym_table, rela_tab);
     
     // Write the rela.text section
     elf_write_rela_text(file, rela_tab);

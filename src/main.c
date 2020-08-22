@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     }
     
     // Split the file into multiple sections
-    split_file(argv[1]);
+    //split_file(argv[1]);
     //DataInfo *data = generate_data("data.asm");
 
     // Generate the file
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
     
     // Build the ELF
     if (build_elf) {
-        build_obj(file);
+        build_obj(file, argv[1]);
     }
     
     // Clean things up

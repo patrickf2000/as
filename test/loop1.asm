@@ -13,10 +13,7 @@
 
 ;RET 3
 
-section .data
-    str1 .string "Hi\n"
-
-section .text
+str1 .string "Hi\n"
 
 _start:
     mov ebx, 0

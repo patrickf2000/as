@@ -5,11 +5,8 @@
 
 ;RET 3
 
-section .data
-	msg .string "Hello!\n"
-	msg2 .string "How are you?\n"
-
-section .text
+msg .string "Hello!\n"
+msg2 .string "How are you?\n"
 
 puts:
     mov rsi, rax

@@ -4,11 +4,8 @@
 
 ;RET 4
 
-section .data
-    eq .string "Equal!\n"
-    neq .string "Not equal\n"
-
-section .text
+eq .string "Equal!\n"
+neq .string "Not equal\n"
 
 _start:
     mov eax, 2

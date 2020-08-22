@@ -6,12 +6,14 @@
 #include <utils/str_table.h>
 #include <utils/sym_table.h>
 
+extern char *data_val_parse(const char *path, char *data_values);
+extern char *data_name_parse(const char *path, char *data_name, SymbolTable *st);
 extern char *symbol_parse(const char *path, char *strtab, Elf64_SymTab *table);
 extern int parse(const char *path, FILE *f, int pass1, SymbolTable *st, Elf64_RelaTab *rt);
 extern int parse_start_pos();
 
 // Builds a relocatable object file
-void build_obj(FILE *file, DataInfo *data)
+void build_obj(FILE *file)
 {
     // Build the section string table
     char *shstrtable = calloc(1, sizeof(char));
@@ -33,8 +35,12 @@ void build_obj(FILE *file, DataInfo *data)
     Elf64_RelaTab *rela_tab = malloc(sizeof(Elf64_RelaTab));
     rela_tab->size = 0;
     
-    // Add the symbols
-    strtab = elf_insert_data_symbols(symtab, sym_table, data->names, data->values, strtab);
+    // Load the data
+    char *data_values = calloc(1, sizeof(char)); 
+    data_values = data_val_parse("data.asm", data_values);
+    
+    char *data_names = calloc(1, sizeof(char)); 
+    data_names = data_name_parse("data.asm", data_names, sym_table);
     
     // Pass 1
     strtab = symbol_parse("text.asm", strtab, symtab);
@@ -55,7 +61,7 @@ void build_obj(FILE *file, DataInfo *data)
     offset = elf_header_shstrtab(file, shstrtab_name, offset, shstrtable);
     offset = elf_header_symtab(file, symtab_name, offset, symtab->size, start_pos);
     offset = elf_header_strtab(file, strtab_name, offset, strtab);
-    offset = elf_header_sec_data(file, data_name, offset, data->values);
+    offset = elf_header_sec_data(file, data_name, offset, data_values);
     offset = elf_header_text(file, text_name, offset, code_size);
     offset = elf_header_rela_text(file, rela_text_name, offset, rela_size);
     
@@ -63,7 +69,7 @@ void build_obj(FILE *file, DataInfo *data)
     str_table_write(file, shstrtable);
     elf_write_symtab(file, symtab);
     str_table_write(file, strtab);
-    elf_write_sec_data(file, data->values);
+    elf_write_sec_data(file, data_values);
     
     // Write the code
     parse("text.asm", file, 0, sym_table, rela_tab);

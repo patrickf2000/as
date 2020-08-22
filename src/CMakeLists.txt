@@ -26,7 +26,6 @@ set(ELF_SRC
 
 SET(PARSER_SRC
     parser/split.c
-    parser/data.c
 )
 
 set(UTILS_SRC

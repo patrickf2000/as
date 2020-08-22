@@ -140,7 +140,7 @@ int get_str_pos(char *values, int last_pos)
         
     for (int i = 0; i<strlen(values); i++)
     {
-        if (values[i] == '|')
+        if (values[i] == '|' )
         {
             if (pos == last_pos)
                 return i;

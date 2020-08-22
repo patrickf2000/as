@@ -68,18 +68,27 @@ statement:
 	;
     
 data:
-      ID T_STRING STRING NL    { 
-                                 if (is_pass1) 
+      ID T_STRING STRING NL    {
+                                 int len = strlen(elf_strtab);
+                                 elf_strtab[len] = '|';
+                                     
+                                 if (!is_sym_pass) 
                                  {
-                                     sym_table_add(sym_table, $1, start);
+                                     char *str = strdup($3);
+                                     parse_string(str);
+                                     
+                                     strcat(elf_strtab, str);
                                  } 
                                  else 
                                  {
-                                     amd64_write_string($3, file);
+                                     strcat(elf_strtab, $1);
+                                     //int pos = strtab_start + str_table_add($1, elf_strtab);
+                                     //elf_add_symbol(elf_sym_table, pos, lc, 1);
+                                     sym_table_add(sym_table, $1, lc);
                                  }
                                  
                                  start += strlen($3) - 2;
-                                 int len = strlen($3) - 2;
+                                 len = strlen($3) - 2;
                                  if (strstr($3, "\\n") != NULL)
                                  {
                                      start -= 1;
@@ -208,6 +217,63 @@ empty:
     NL;
 
 %%
+
+// Parses a string constant (removes quotes and escape sequences)
+void parse_string(char *str)
+{
+    int length = strlen(str);
+    int index = 0;
+    
+    char *old_str = calloc(length, sizeof(char));
+    strcpy(old_str, str);
+    memset(str, 0, length);
+    
+    for (int i = 0; i<length; i++)
+    {
+        if (old_str[i] == '\"')
+        {
+            continue;
+        }
+        else if (old_str[i] == '\\' && old_str[i+1] == 'n')
+        {
+            str[index] = '\n';
+            ++i;
+            ++index;
+        }
+        else
+        {
+            str[index] = old_str[i];
+            ++index;
+        }
+    }
+    
+    free(old_str);
+}
+
+char *data_parse(const char *path, char *data_values)
+{
+    elf_strtab = calloc(1024,sizeof(char));
+
+    yyin = fopen(path, "r");
+    yyparse();
+    
+    return elf_strtab;
+}
+
+char *data_val_parse(const char *path, char *data_values)
+{
+    is_sym_pass = 0;
+    return data_parse(path, data_values);
+}
+
+char *data_name_parse(const char *path, char *data_name, SymbolTable *st)
+{
+    is_sym_pass = 1;
+    sym_table = st;
+    lc = 0;
+    
+    return data_parse(path, data_name);
+}
 
 char *symbol_parse(const char *path, char *strtab, Elf64_SymTab *table)
 {

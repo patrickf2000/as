@@ -50,19 +50,19 @@ int main(int argc, char *argv[])
     
     // Split the file into multiple sections
     split_file(argv[1]);
-    DataInfo *data = generate_data("data.asm");
+    //DataInfo *data = generate_data("data.asm");
 
     // Generate the file
     FILE *file = fopen(out_path, "w");
     
     // Build the ELF
     if (build_elf) {
-        build_obj(file, data);
+        build_obj(file);
     }
     
     // Clean things up
     fclose(file);
-    free(data);
+    //free(data);
     
     //Set permissions
     if (build_elf) chmod(out_path, 0777);

@@ -33,6 +33,9 @@ typedef enum
 	Build2
 } PassType;
 
+// Build functions
+void build_obj(FILE *file, const char *in_path);
+
 // The functions
 void elf_write_header(FILE *file);
 void elf_write_null_header(FILE *file);

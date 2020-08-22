@@ -21,7 +21,6 @@ int strtab_start = 0;
 
 int start = 0;
 int lc = 0;
-const int code_start = 4194424;
 
 int yylex();
 void yyerror(const char *s);
@@ -210,38 +209,6 @@ empty:
     NL;
 
 %%
-
-// Parses a string constant (removes quotes and escape sequences)
-void parse_string(char *str)
-{
-    int length = strlen(str);
-    int index = 0;
-    
-    char *old_str = calloc(length, sizeof(char));
-    strcpy(old_str, str);
-    memset(str, 0, length);
-    
-    for (int i = 0; i<length; i++)
-    {
-        if (old_str[i] == '\"')
-        {
-            continue;
-        }
-        else if (old_str[i] == '\\' && old_str[i+1] == 'n')
-        {
-            str[index] = '\n';
-            ++i;
-            ++index;
-        }
-        else
-        {
-            str[index] = old_str[i];
-            ++index;
-        }
-    }
-    
-    free(old_str);
-}
 
 char *data_parse(const char *path, char *data_values)
 {

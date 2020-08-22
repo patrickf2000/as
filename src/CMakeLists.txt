@@ -24,10 +24,6 @@ set(ELF_SRC
     elf/elf_text.c
 )
 
-SET(PARSER_SRC
-    parser/split.c
-)
-
 set(UTILS_SRC
     utils/str_table.c
     utils/sym_table.c
@@ -43,6 +39,5 @@ add_executable(asmx86
     ${MAIN_SRC}
     ${ASM_SRC}
     ${ELF_SRC}
-    ${PARSER_SRC}
     ${UTILS_SRC}
 )

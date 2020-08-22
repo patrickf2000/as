@@ -1,7 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <elf/elf_builder.h>
 #include <elf/elf_bin.h>
 #include <utils/str_table.h>
 #include <utils/sym_table.h>
@@ -82,10 +81,4 @@ void build_obj(FILE *file, const char *in_path)
     free(shstrtable);
     free(strtab);
     free(rela_tab);
-}
-
-// Builds a simple ELF with only a header and program header
-void build_simple_exe(FILE *file)
-{
-    //TODO-> Do this before merge
 }

@@ -1,5 +1,20 @@
 #!/bin/bash
 
+function run_test() {
+	for entry in $1
+	do
+		name=`basename $entry .asm`
+		
+		./build/src/asmx86 $entry -o ./build/test/$name.o
+	    ld ./build/test/$name.o -o ./build/test/$name
+		./test.py $entry ./build/test/$name
+		
+		if [[ $? != 0 ]] ; then
+			exit 1
+		fi
+	done
+}
+
 echo "Running all tests..."
 echo ""
 
@@ -10,17 +25,9 @@ fi
 
 mkdir -p ./build/test
 
-for entry in test/*.asm
-do
-	name=`basename $entry .asm`
-	
-	./build/src/asmx86 $entry -o ./build/test/$name.o
-    ld ./build/test/$name.o -o ./build/test/$name
-	./test.py $entry ./build/test/$name
-	
-	if [[ $? != 0 ]] ; then
-		exit 1
-	fi
-done
+run_test 'test/cmp/*.asm'
+run_test 'test/func/*.asm'
+run_test 'test/generic/*.asm'
+run_test 'test/mem/*.asm'
 
 echo "Done"

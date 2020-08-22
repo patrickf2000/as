@@ -176,7 +176,11 @@ push:
     ;
     
 add:
-      ADD REG32 ',' REG32 NL        { lc += 3; if (pass_type == Build2) amd64_add_rr32($2, $4, file); }
+      ADD REG32 ',' REG32 NL        { 
+                                        lc += 3; 
+                                        //if ($2 > EDI || $4 > EDI) ++lc;
+                                        if (pass_type == Build2) amd64_add_rr32($2, $4, file);
+                                    }
     | ADD REG32 ',' INTEGER NL      { lc += 3; if (pass_type == Build2) amd64_add_r32_imm($2, $4, file); }
     ;
     
@@ -205,7 +209,7 @@ mov:
     | MOV REG64 ',' REG64 NL                            { lc += 3; if (pass_type == Build2) amd64_mov_rr64($2, $4, file); }
     | MOV REG32 ',' INTEGER NL                          { 
                                                             lc += 5; 
-                                                            if ($2 > EDI || $4 > EDI) ++lc;
+                                                            if ($2 > EDI) ++lc;
                                                             if (pass_type == Build2) amd64_mov_reg32_imm($2, $4, file); 
                                                         }
     | MOV REG64 ',' INTEGER NL                          { lc += 5; if (pass_type == Build2) amd64_mov_reg64_imm($2, $4, 0, file); }

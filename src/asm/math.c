@@ -48,18 +48,25 @@ void amd64_add_rr32(Reg32 dest, Reg32 src, FILE *file)
     {
         case EAX: 
         case R8D: reg1 = 0b11111000; break;
+        
         case ECX: 
-        case R10D: reg1 = 0b11111001; break;
+        case R9D: reg1 = 0b11111001; break;
+        
         case EDX: 
-        case R11D: reg1 = 0b11111011; break;
+        case R10D: reg1 = 0b11111010; break;
+        
         case EBX: 
-        case R9D: reg1 = 0b11111011; break;
+        case R11D: reg1 = 0b11111011; break;
+        
         case ESP: 
         case R12D: reg1 = 0b11111100; break;
+        
         case EBP: 
         case R13D: reg1 = 0b11111101; break;
+        
         case ESI: 
         case R14D: reg1 = 0b11111110; break;
+        
         case EDI: 
         case R15D: reg1 = 0b11111111; break;
     }
@@ -69,18 +76,25 @@ void amd64_add_rr32(Reg32 dest, Reg32 src, FILE *file)
     {
         case EAX: 
         case R8D: reg2 = 0b11000111; break;
+        
         case ECX: 
-        case R10D: reg2 = 0b11001111; break;
+        case R9D: reg2 = 0b11001111; break;
+        
         case EDX: 
-        case R11D: reg2 = 0b11011111; break;
+        case R10D: reg2 = 0b11010111; break;
+        
         case EBX: 
-        case R9D: reg2 = 0b11011111; break;
+        case R11D: reg2 = 0b11011111; break;
+        
         case ESP: 
         case R12D: reg2 = 0b11100111; break;
+        
         case EBP: 
         case R13D: reg2 = 0b11101111; break;
+        
         case ESI: 
         case R14D: reg2 = 0b11110111; break;
+        
         case EDI: 
         case R15D: reg2 = 0b11111111; break;
     }

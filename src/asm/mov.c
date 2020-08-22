@@ -45,13 +45,13 @@ void amd64_mov_reg32_imm(Reg32 reg, int imm, FILE *file)
         case R8D: fputc(0xB8, file); break;
         
         case ECX:
-        case R10D: fputc(0xB9, file); break;
+        case R9D: fputc(0xB9, file); break;
         
         case EDX:
-        case R11D: fputc(0xBA, file); break;
+        case R10D: fputc(0xBA, file); break;
         
         case EBX:
-        case R9D: fputc(0xBB, file); break;
+        case R11D: fputc(0xBB, file); break;
         
         case ESP:
         case R12D: fputc(0xBC, file); break;

@@ -71,12 +71,12 @@ data:
       ID T_STRING STRING NL    {
                                  int len = strlen(elf_strtab);
                                  elf_strtab[len] = '|';
+                                 
+                                 char *str = strdup($3);
+                                 parse_string(str);
                                      
                                  if (!is_sym_pass) 
                                  {
-                                     char *str = strdup($3);
-                                     parse_string(str);
-                                     
                                      strcat(elf_strtab, str);
                                  } 
                                  else 
@@ -87,14 +87,14 @@ data:
                                      sym_table_add(sym_table, $1, lc);
                                  }
                                  
-                                 start += strlen($3) - 2;
-                                 len = strlen($3) - 2;
+                                 lc += strlen(str) + 1;
+                                 
+                                 /*len = strlen($3) - 2;
                                  if (strstr($3, "\\n") != NULL)
                                  {
-                                     start -= 1;
                                      len -= 1;
                                  }
-                                 lc += len;
+                                 lc += len;*/
                                }
     ;
     

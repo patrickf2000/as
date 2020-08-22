@@ -5,8 +5,11 @@
 
 ;RET 0
 
-STR0 .string "Hello!\n"
-STR1 .string "How are you today?\n"
+section .data
+	STR0 .string "Hello!\n"
+	STR1 .string "How are you today?\n"
+
+section .text
 
 strlen:
     xor ecx, ecx

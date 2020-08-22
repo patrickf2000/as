@@ -34,7 +34,8 @@ with open(test_file) as reader:
 			
 result = subprocess.run([bin_file], stdout=subprocess.PIPE)
 cmd_output = result.stdout.decode('utf-8').split('\n')
-cmd_output.remove('')
+if '' in cmd_output:
+	cmd_output.remove('')
 rc = result.returncode
 
 # Check output

@@ -3,6 +3,7 @@
 ;END
 
 ;RET 4
+
 section .data
     eq .string "Equal!\n"
     neq .string "Not equal\n"

@@ -131,6 +131,19 @@ void amd64_add_r64_mem(Reg64 reg, Reg64 src, int dsp, FILE *file)
     amd64_dsp16(src, reg, dsp, file);
 }
 
+// Add an immediate with a 32-bit memory location
+void amd64_add_dw_mem_imm(Reg64 dest, int dsp, int imm, FILE *file)
+{
+    // Write the instruction
+    fputc(0x83, file);
+    
+    // Encode the destination
+    amd64_mem_imm(dest, dsp, file);
+    
+    // Write the immediate
+    fputc(imm, file);
+}
+
 void amd64_sub_ri(Reg64 r, int imm, FILE *file)
 {
     // Write the instruction

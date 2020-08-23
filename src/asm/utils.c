@@ -141,6 +141,31 @@ void amd64_dsp16(Reg64 mem, Reg32 r, int dsp, FILE *file)
     fputc(dsp, file);
 }
 
+// Used for instructions that perform operations on immediates to memory
+void amd64_mem_imm(Reg64 dest, int dsp, FILE *file)
+{
+    // Determine the register
+    switch (dest)
+    {
+        case RAX: fputc(0x40, file); break;
+        case RCX: fputc(0x41, file); break;
+        case RDX: fputc(0x42, file); break;
+        case RBX: fputc(0x43, file); break;
+        case RSP: break; //TODO: Error
+        case RBP: fputc(0x45, file); break;
+        case RSI: fputc(0x46, file); break;
+        case RDI: fputc(0x47, file); break;
+    }
+    
+    // Determine the displacement
+    if (dsp < 0) {
+        dsp = dsp * -1;
+        dsp = 256 - dsp;
+    }
+    
+    fputc(dsp, file);
+}
+
 // Write the syscall instruction
 // 0F 05
 void amd64_syscall(FILE *file)

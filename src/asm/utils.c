@@ -75,7 +75,7 @@ void amd64_rr(Reg64 r1, Reg64 r2, FILE *file)
         case RCX: 
         case R9: reg2 = 0b11001111; break;
         case RDX: 
-        case R10: reg2 = 0b11011111; break;
+        case R10: reg2 = 0b11010111; break;
         case RBX: 
         case R11: reg2 = 0b11011111; break;
         case RSP: 
@@ -92,6 +92,53 @@ void amd64_rr(Reg64 r1, Reg64 r2, FILE *file)
     mask = mask & reg1;
     mask = mask & reg2;
     fputc(mask, file);
+}
+
+// Encodes registers that have either a source/destination effective address
+// with a displacement, and a source/destination 32-bit register
+void amd64_dsp16(Reg64 mem, Reg32 r, int dsp, FILE *file)
+{
+    // Write the registers
+    // Binary format: 1 <dest> <src>
+    int reg1, reg2;
+    
+    // The destination
+    switch (mem)
+    {
+        case RAX: reg1 = 0b1111000; break;
+        case RCX: reg1 = 0b1111001; break;
+        case RDX: reg1 = 0b1111011; break;
+        case RBX: reg1 = 0b1111011; break;
+        case RSP: reg1 = 0b1111100; break;
+        case RBP: reg1 = 0b1111101; break;
+        case RSI: reg1 = 0b1111110; break;
+        case RDI: reg1 = 0b1111111; break;
+    }
+    
+    // The source
+    switch (r)
+    {
+        case EAX: reg2 = 0b1000111; break;
+        case ECX: reg2 = 0b1001111; break;
+        case EDX: reg2 = 0b1010111; break;
+        case EBX: reg2 = 0b1011111; break;
+        case ESP: reg2 = 0b1100111; break;
+        case EBP: reg2 = 0b1101111; break;
+        case ESI: reg2 = 0b1110111; break;
+        case EDI: reg2 = 0b1111111; break;
+    }
+    
+    // Do the math and write
+    int mask = reg1 & reg2;
+    fputc(mask, file);
+    
+    // Determine the displacement
+    if (dsp < 0) {
+        dsp = dsp * -1;
+        dsp = 256 - dsp;
+    }
+    
+    fputc(dsp, file);
 }
 
 // Write the syscall instruction

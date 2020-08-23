@@ -128,6 +128,16 @@ void amd64_add_r32_imm(Reg32 reg, int imm, FILE *file)
     fputc(imm, file);
 }
 
+// Add a register and memory location
+void amd64_add_r32_mem(Reg32 reg, Reg64 src, int dsp, FILE *file)
+{
+    // Write the instruction
+    fputc(0x03, file);
+    
+    // The registers
+    amd64_dsp16(src, reg, dsp, file);
+}
+
 void amd64_sub_ri(Reg64 r, int imm, FILE *file)
 {
     // Write the instruction

@@ -30,5 +30,6 @@ run_test 'test/func/*.asm'
 run_test 'test/generic/*.asm'
 run_test 'test/mem/*.asm'
 run_test 'test/unit/add/*.asm'
+run_test 'test/unit/mov/*.asm'
 
 echo "Done"

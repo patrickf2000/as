@@ -184,53 +184,6 @@ void amd64_mov_m_int(Reg64 dest, int dsp, int imm, FILE *file)
     fwrite(&imm, sizeof(int), 1, file);
 }
 
-// Encodes registers that have either a source/destination effective address
-// with a displacement, and a source/destination 32-bit register
-void amd64_mov_dsp16(Reg64 mem, Reg32 r, int dsp, FILE *file)
-{
-    // Write the registers
-    // Binary format: 1 <dest> <src>
-    int reg1, reg2;
-    
-    // The destination
-    switch (mem)
-    {
-        case RAX: reg1 = 0b1111000; break;
-        case RCX: reg1 = 0b1111001; break;
-        case RDX: reg1 = 0b1111011; break;
-        case RBX: reg1 = 0b1111011; break;
-        case RSP: reg1 = 0b1111100; break;
-        case RBP: reg1 = 0b1111101; break;
-        case RSI: reg1 = 0b1111110; break;
-        case RDI: reg1 = 0b1111111; break;
-    }
-    
-    // The source
-    switch (r)
-    {
-        case EAX: reg2 = 0b1000111; break;
-        case ECX: reg2 = 0b1001111; break;
-        case EDX: reg2 = 0b1010111; break;
-        case EBX: reg2 = 0b1011111; break;
-        case ESP: reg2 = 0b1100111; break;
-        case EBP: reg2 = 0b1101111; break;
-        case ESI: reg2 = 0b1110111; break;
-        case EDI: reg2 = 0b1111111; break;
-    }
-    
-    // Do the math and write
-    int mask = reg1 & reg2;
-    fputc(mask, file);
-    
-    // Determine the displacement
-    if (dsp < 0) {
-        dsp = dsp * -1;
-        dsp = 256 - dsp;
-    }
-    
-    fputc(dsp, file);
-}
-
 // Move a 32-bit register to memory location
 // Format: 89 
 void amd64_mov_m_reg32(Reg64 dest, int dsp, Reg32 src, FILE *file)
@@ -239,7 +192,7 @@ void amd64_mov_m_reg32(Reg64 dest, int dsp, Reg32 src, FILE *file)
     fputc(0x89, file);
     
     // The registers
-    amd64_mov_dsp16(dest, src, dsp, file);
+    amd64_dsp16(dest, src, dsp, file);
 }
 
 // Move a 64-bit register to memory location
@@ -254,7 +207,7 @@ void amd64_mov_m_reg64(Reg64 dest, int dsp, Reg64 src, FILE *file)
     fputc(0x89, file);
     
     // And the registers
-    amd64_mov_dsp16(dest, src, dsp, file);
+    amd64_dsp16(dest, src, dsp, file);
 }
 
 // Move memory location to 8-bit half register using reg+reg indexing
@@ -319,7 +272,7 @@ void amd64_mov_reg32_mem(Reg32 dest, Reg64 src, int dsp, FILE *file)
     fputc(0x8B, file);
     
     // Write the registers
-    amd64_mov_dsp16(src, dest, dsp, file);
+    amd64_dsp16(src, dest, dsp, file);
 }
 
 // Move memory location to 64-bit register

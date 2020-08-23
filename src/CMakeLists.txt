@@ -8,6 +8,7 @@ ADD_FLEX_BISON_DEPENDENCY(scanner parser)
 set(ASM_SRC
     asm/cmp.c
     asm/data.c
+    asm/func.c
     asm/logic.c
     asm/math.c
     asm/mov.c

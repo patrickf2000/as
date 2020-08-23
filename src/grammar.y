@@ -141,6 +141,7 @@ cmp:
       CMP REG16H ',' INTEGER NL       { lc += 3; if (pass_type == Build2) amd64_cmp_reg16h_imm($2, $4, file); }
     | CMP REG16H ',' HEX NL           { lc += 3; if (pass_type == Build2) amd64_cmp_reg16h_imm($2, $4, file); }
     | CMP REG32 ',' INTEGER NL        { lc += 3; if (pass_type == Build2) amd64_cmp_reg32_imm($2, $4, file); }
+    | CMP REG64 ',' INTEGER NL        { lc += 4; if (pass_type == Build2) amd64_cmp_reg64_imm($2, $4, file); }
     ;
     
 call:

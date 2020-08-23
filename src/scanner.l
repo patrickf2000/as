@@ -9,6 +9,8 @@
 
 %%
 .string                    { return T_STRING; }
+global                     { return GLOBAL; }
+extern                     { return EXTERN; }
 
 cmp                        { return CMP; }
 call                       { return CALL; }

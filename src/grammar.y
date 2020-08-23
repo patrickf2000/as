@@ -46,7 +46,7 @@ Elf64_SymTab *elf_sym_table;
 char *elf_strtab;
 int strtab_start = 0;
 
-int start = 0;
+int start = -1;
 int lc = 0;
 
 int yylex();
@@ -61,7 +61,7 @@ void yyerror(const char *s);
 	float ftype;
 }
 
-%token T_STRING
+%token T_STRING GLOBAL EXTERN
 %token CMP CALL RET PUSH MOV ADD SUB SYSCALL LEAVE
 %token XOR
 %token DWORD
@@ -118,23 +118,44 @@ data:
     ;
     
 label:
-    LABEL NL        {
-                        if (pass_type == Build1) 
-                        {
-                            if (strcmp($1, "_start") == 0)
-                                start = lc;
-                            
-                            sym_table_add(sym_table, $1, lc);
-                        }
-                        else if (pass_type == SymParse)
-                        {
-                            if (strcmp($1, "_start") != 0)
+    LABEL NL            {
+                            if (pass_type == Build1) 
                             {
-                                int pos = strtab_start + str_table_add($1, elf_strtab);
-                                elf_add_symbol(elf_sym_table, pos, lc, 0);
+                                if (strcmp($1, "_start") == 0)
+                                    start = lc;
+                                
+                                sym_table_add(sym_table, $1, lc);
+                            }
+                            else if (pass_type == SymParse)
+                            {
+                                if (strcmp($1, "_start") != 0)
+                                {
+                                    int pos = strtab_start + str_table_add($1, elf_strtab);
+                                    elf_add_symbol(elf_sym_table, pos, lc, 0, 0);
+                                }
                             }
                         }
-                    }
+    | GLOBAL LABEL NL   {
+                            if (pass_type == Build1) 
+                            {
+                                sym_table_add(sym_table, $2, lc);
+                            }
+                            else if (pass_type == SymParse)
+                            {
+                                if (strcmp($2, "_start") != 0)
+                                {
+                                    int pos = strtab_start + str_table_add($2, elf_strtab);
+                                    elf_add_symbol(elf_sym_table, pos, lc, 0, 1);
+                                }
+                            }
+                        }
+    | EXTERN ID NL      {
+                            if (pass_type == SymParse)
+                            {
+                                int pos = strtab_start + str_table_add($2, elf_strtab);
+                                elf_add_symbol(elf_sym_table, pos, 0, 0, 2);
+                            }
+                        }
     ;
     
 cmp:
@@ -296,7 +317,7 @@ int parse(const char *path, FILE *f, PassType bt, SymbolTable *st, Elf64_RelaTab
     file = f;
     pass_type = bt;
     lc = 0;
-    start = 0;
+    start = -1;
     
 	yyin = fopen(path, "r");
 	yyparse();

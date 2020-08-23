@@ -77,7 +77,10 @@ void build_obj(FILE *file, const char *in_path)
     
     // Add the start location
     int start_pos = parse_start_pos();
-    start_pos = elf_add_start_symbol(symtab, start_pos);
+    if (start_pos == -1)
+        start_pos = symtab->size - 1;
+    else
+        start_pos = elf_add_start_symbol(symtab, start_pos);
     
     // Build the rest
     int offset = 8 * 64;

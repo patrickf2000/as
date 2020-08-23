@@ -6,6 +6,11 @@ function run_test() {
 		name=`basename $entry .asm`
 		
 		./build/src/asmx86 $entry -o ./build/test/$name.o
+        
+        if [[ $? != 0 ]] ; then
+            exit 1
+        fi
+        
 	    ld ./build/test/$name.o -o ./build/test/$name
 		./test.py $entry ./build/test/$name
 		

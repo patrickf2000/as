@@ -125,15 +125,15 @@ void amd64_mov_reg64_imm(Reg64 reg, int imm, int extend, FILE *file)
 void amd64_mov_rr32(Reg32 r1, Reg32 r2, FILE *file)
 {
     //Write the prefix
-    int dest_sz = r1 > RDI;
-    int src_sz = r2 > RDI;
+    int dest_sz = r1 > EDI;
+    int src_sz = r2 > EDI;
     if (dest_sz || src_sz)
         amd64_64prefix(0, dest_sz, src_sz, file);
     
     //Write the instruction
     fputc(0x89, file);
     
-    //Now decode the registers
+    //Now encode the registers
     amd64_rr(r1, r2, file);
 }
 
@@ -148,7 +148,7 @@ void amd64_mov_rr64(Reg64 r1, Reg64 r2, FILE *file)
     //Write the instruction
     fputc(0x89, file);
     
-    //Now decode the registers
+    //Now encode the registers
     amd64_rr(r1, r2, file);
 }
 

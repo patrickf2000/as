@@ -235,7 +235,8 @@ add:
     ;
     
 sub:
-      SUB REG64 ',' INTEGER NL        { lc += 4; if (pass_type == Build2) amd64_sub_ri($2, $4, file); }
+      SUB REG32 ',' INTEGER NL        { lc += 3; if (pass_type == Build2) amd64_sub_r32_imm($2, $4, file); }
+    | SUB REG64 ',' INTEGER NL        { lc += 4; if (pass_type == Build2) amd64_sub_r64_imm($2, $4, file); }
     ;
     
 xor:

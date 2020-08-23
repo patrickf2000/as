@@ -144,29 +144,42 @@ void amd64_add_dw_mem_imm(Reg64 dest, int dsp, int imm, FILE *file)
     fputc(imm, file);
 }
 
-void amd64_sub_ri(Reg64 r, int imm, FILE *file)
+// Subtract an immediate value from register contents
+void amd64_sub_ri(Reg64 reg, int imm, FILE *file)
 {
-    // Write the instruction
-    fputc(0x48, file);        // 64-bit prefix
-    fputc(0x83, file);        // Opcode
-    
-    // Write the destination register
-    int dest = 0b11101000;
-    
-    switch (r)
+    // Encode the register
+    switch (reg)
     {
-        case RAX: dest = 0b11101000; break;
-        case RBX: dest = 0b11101011; break;
-        case RCX: dest = 0b11101001; break;
-        case RDX: dest = 0b11101010; break;
-        case RSP: dest = 0b11101100; break;
-        case RBP: dest = 0b11101101; break;
-        case RSI: dest = 0b11101110; break;
-        case RDI: dest = 0b11101111; break;
+        case RAX: fputc(0xE8, file); break;
+        case RCX: fputc(0xE9, file); break;
+        case RDX: fputc(0xEA, file); break;
+        case RBX: fputc(0xEB, file); break;
+        case RSP: fputc(0xEC, file); break;
+        case RBP: fputc(0xED, file); break;
+        case RSI: fputc(0xEE, file); break;
+        case RDI: fputc(0xEF, file); break;
     }
-    
-    fputc(dest, file);
     
     // Write the immediate
     fputc(imm, file);
 }
+
+// Subtract an immediate from a 32-bit register value
+void amd64_sub_r32_imm(Reg32 reg, int imm, FILE *file)
+{
+    // Write the instruction
+    fputc(0x83, file);
+    
+    amd64_sub_ri(reg, imm, file);
+}
+
+// Subtract an immediate from a 64-bit register value
+void amd64_sub_r64_imm(Reg64 reg, int imm, FILE *file)
+{
+    // Write the instruction
+    fputc(0x48, file);        // The prefix
+    fputc(0x83, file);
+    
+    amd64_sub_ri(reg, imm, file);
+}
+

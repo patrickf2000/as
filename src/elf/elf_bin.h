@@ -73,12 +73,13 @@ int elf_header_strtab(FILE *file, int name_pos, int offset, char *table);
 int elf_header_symtab(FILE *file, int name_pos, int offset, int count, int start_pos);
 void elf_write_symtab(FILE *file, Elf64_SymTab *symtab);
 Elf64_SymTab *elf_generate_symtab();
-void elf_add_symbol(Elf64_SymTab *table, int name_pos, int value, int is_data, int type);
+int elf_add_symbol(Elf64_SymTab *table, int name_pos, int value, int is_data, int type);
 int elf_add_start_symbol(Elf64_SymTab *table, int start_pos);
 char *elf_insert_data_symbols(Elf64_SymTab *symtab, SymbolTable *dataPos, char *names, char *values, char *strtab);
 
 int elf_header_rela_text(FILE *file, int name_pos, int offset, int size);
 void elf_rela_add(Elf64_RelaTab *table, int code_offset, int data_offset);
+void elf_rela_add_func(Elf64_RelaTab *table, int code_offset, int symtab_pos);
 void elf_write_rela_text(FILE *file, Elf64_RelaTab *table);
 int elf_header_sec_data(FILE *file, int name_pos, int offset, char *data);
 void elf_write_sec_data(FILE *file, char *data);

@@ -78,7 +78,7 @@ Elf64_SymTab *elf_generate_symtab()
     symbols[0] = symbol;
     
     // The file symbol
-    symbol.st_name = 1;
+    symbol.st_name = 8;
     symbol.st_info = ELF64_ST_INFO(STB_LOCAL, STT_FILE);
     symbol.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
     symbol.st_shndx = SHN_ABS;
@@ -116,10 +116,10 @@ Elf64_SymTab *elf_generate_symtab()
 // Type: 0 -> Local symbol
 //       1 -> Global symbol
 //       2 -> Extern symbol
-void elf_add_symbol(Elf64_SymTab *table, int name_pos, int value, int is_data, int type)
+int elf_add_symbol(Elf64_SymTab *table, int name_pos, int value, int is_data, int type)
 {
     if (name_pos == 0)
-        return;
+        return -1;
     
     // Reallocate
     int size = table->size + 1;
@@ -130,7 +130,7 @@ void elf_add_symbol(Elf64_SymTab *table, int name_pos, int value, int is_data, i
     if (is_data) index = 4;
     
     int scope = STB_LOCAL;
-    if (type == 1) scope = STB_GLOBAL;
+    if (type == 1 || type == 2) scope = STB_GLOBAL;
     
     int shndx = index;
     if (type == 2) shndx = STN_UNDEF;
@@ -144,6 +144,8 @@ void elf_add_symbol(Elf64_SymTab *table, int name_pos, int value, int is_data, i
     symbol.st_value = value;
     symbol.st_size = 0;
     table->symbols[size-1] = symbol;
+    
+    return size-1;
 }
 
 // Adds the start entry
@@ -156,7 +158,7 @@ int elf_add_start_symbol(Elf64_SymTab *table, int start_pos)
     
     // Add the symbol
     Elf64_Sym symbol;
-    symbol.st_name = 11;
+    symbol.st_name = 1;
     symbol.st_info = ELF64_ST_INFO(STB_GLOBAL, STT_FUNC);
     symbol.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
     symbol.st_shndx = 5;

@@ -52,8 +52,8 @@ int elf_header_rela_text(FILE *file, int name_pos, int offset, int size)
     return offset + size;
 }
 
-// Adds a .rela.text item to the table
-void elf_rela_add(Elf64_RelaTab *table, int code_offset, int data_offset)
+// Checks the size of the .rela.text table and allocates more memory if needed
+int elf_rela_check(Elf64_RelaTab *table)
 {
     // Resize the table
     int size = 1;
@@ -70,6 +70,14 @@ void elf_rela_add(Elf64_RelaTab *table, int code_offset, int data_offset)
         table->size = size;
     }
     
+    return size;
+}
+
+// Adds a .rela.text item to the table
+void elf_rela_add(Elf64_RelaTab *table, int code_offset, int data_offset)
+{
+    int size = elf_rela_check(table);
+    
     // Create and add the symbol
     Elf64_Rela rela;
     rela.r_offset = code_offset;
@@ -78,12 +86,24 @@ void elf_rela_add(Elf64_RelaTab *table, int code_offset, int data_offset)
     table->symbols[size-1] = rela;
 }
 
+void elf_rela_add_func(Elf64_RelaTab *table, int code_offset, int symtab_pos)
+{
+    int size = elf_rela_check(table);
+    
+    // Create and add the symbol
+    Elf64_Rela rela;
+    rela.r_offset = code_offset;
+    rela.r_info = ELF64_R_INFO(symtab_pos,2);
+    rela.r_addend = -4;
+    table->symbols[size-1] = rela;
+}
+
 // Writes the .rela.text section
 void elf_write_rela_text(FILE *file, Elf64_RelaTab *table)
 {
     if (table->size == 0)
         return;
-        
+    
     for (int i = 0; i<table->size; i++)
     {
         Elf64_Rela rela = table->symbols[i];

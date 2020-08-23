@@ -32,6 +32,7 @@
 #include <utils/str_table.h>
 #include <utils/sym_table.h>
 
+extern void set_extern_symtab(SymbolTable *table);
 extern char *data_val_parse(const char *path, char *data_values);
 extern char *data_name_parse(const char *path, char *data_name, SymbolTable *st);
 extern char *symbol_parse(const char *path, char *strtab, Elf64_SymTab *table);
@@ -50,16 +51,25 @@ void build_obj(FILE *file, const char *in_path)
     int data_name = str_table_add(".data", shstrtable);
     int text_name = str_table_add(".text", shstrtable);
     
-    char *strtab = calloc(1,sizeof(char));
-    str_table_add("first.asm", strtab);
-    str_table_add("_start", strtab);
+    // Setup the initial string table
+    int length = strlen("_start") + strlen(in_path) + 3;
+    int start_end = strlen("_start") + 1;
+    
+    char *strtab = calloc(length,sizeof(char));
+    strtab[0] = '|';
+    strcat(strtab, "_start");
+    strtab[start_end] = '|';
+    strcat(strtab, in_path);
     
     // Create the symbol tables
     SymbolTable *sym_table = sym_table_init_default();
+    SymbolTable *extern_table = sym_table_init_default();
     Elf64_SymTab *symtab = elf_generate_symtab();
     
     Elf64_RelaTab *rela_tab = malloc(sizeof(Elf64_RelaTab));
     rela_tab->size = 0;
+    
+    set_extern_symtab(extern_table);
     
     // Load the data
     char *data_values = calloc(1, sizeof(char)); 

@@ -40,6 +40,7 @@ FILE *file;
 PassType pass_type;
 
 SymbolTable *sym_table;
+SymbolTable *extern_table;
 Elf64_RelaTab *rela_tab;
 Elf64_SymTab *elf_sym_table;
 
@@ -150,10 +151,16 @@ label:
                             }
                         }
     | EXTERN ID NL      {
-                            if (pass_type == SymParse)
+                            if (pass_type == Build1)
+                            {
+                                sym_table_add(sym_table, $2, -5);
+                            }
+                            else if (pass_type == SymParse)
                             {
                                 int pos = strtab_start + str_table_add($2, elf_strtab);
-                                elf_add_symbol(elf_sym_table, pos, 0, 0, 2);
+                                int sym_pos = elf_add_symbol(elf_sym_table, pos, 0, 0, 2);
+                                
+                                sym_table_add(extern_table, $2, sym_pos);
                             }
                         }
     ;
@@ -168,11 +175,31 @@ cmp:
 call:
       CALL ID NL    {
                       lc += 5;
-                      if (pass_type == Build2)
+                      
+                      if (pass_type == Build1)
                       {
                           int loco = sym_table_get(sym_table, $2);
-                          int pos = loco - lc;
-                          amd64_call(pos, file);
+                          
+                          if (loco == -5)
+                          {
+                              int pos = sym_table_get(extern_table, $2);
+                              
+                              elf_rela_add_func(rela_tab, lc-4, pos);
+                          }
+                      }
+                      else if (pass_type == Build2)
+                      {
+                          int loco = sym_table_get(sym_table, $2);
+                          
+                          if (loco == -5)
+                          {
+                              amd64_call(0, file);
+                          }
+                          else
+                          {
+                              int pos = loco - lc;
+                              amd64_call(pos, file);
+                          }
                       }
                     }
     ;
@@ -263,6 +290,11 @@ empty:
 
 %%
 
+void set_extern_symtab(SymbolTable *table)
+{
+    extern_table = table;
+}
+
 char *data_parse(const char *path, char *data_values)
 {
     elf_strtab = calloc(1024,sizeof(char));
@@ -296,6 +328,7 @@ char *symbol_parse(const char *path, char *strtab, Elf64_SymTab *table)
     elf_strtab = calloc(1,sizeof(char));
     
     elf_sym_table = table;
+    lc = 0;
 
     yyin = fopen(path, "r");
     yyparse();

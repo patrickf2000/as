@@ -29,6 +29,7 @@ leave                      { return LEAVE; }
 
 add                        { return ADD; }
 sub                        { return SUB; }
+imul                       { return IMUL; }
 
 xor                        { return XOR; }
 

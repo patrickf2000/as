@@ -63,7 +63,7 @@ void yyerror(const char *s);
 }
 
 %token T_STRING GLOBAL EXTERN
-%token CMP CALL RET PUSH MOV ADD SUB SYSCALL LEAVE
+%token CMP CALL RET PUSH MOV ADD SUB IMUL SYSCALL LEAVE
 %token XOR
 %token DWORD
 %token NL
@@ -86,6 +86,7 @@ statement:
     | push
     | add
     | sub
+    | imul
     | xor
 	| syscall
     | leave
@@ -239,6 +240,10 @@ sub:
     | SUB REG64 ',' REG64 NL          { lc += 3; if (pass_type == Build2) amd64_sub_rr64($2, $4, file); }
     | SUB REG32 ',' INTEGER NL        { lc += 3; if (pass_type == Build2) amd64_sub_r32_imm($2, $4, file); }
     | SUB REG64 ',' INTEGER NL        { lc += 4; if (pass_type == Build2) amd64_sub_r64_imm($2, $4, file); }
+    ;
+    
+imul:
+      IMUL REG64 ',' REG64 NL         { lc += 4; if (pass_type == Build2) amd64_imul_rr64($2, $4, file); }
     ;
     
 xor:

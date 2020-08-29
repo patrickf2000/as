@@ -131,6 +131,7 @@ void amd64_sub_rr32(Reg32 dest, Reg32 src, FILE *file);
 void amd64_sub_rr64(Reg64 dest, Reg64 src, FILE *file);
 void amd64_sub_r32_imm(Reg32 reg, int imm, FILE *file);
 void amd64_sub_r64_imm(Reg64 reg, int imm, FILE *file);
+void amd64_imul_rr64(Reg64 dest, Reg64 src, FILE *file);
 
 void amd64_64prefix(int size64, int dest64, int src64, FILE *file);
 void amd64_rr(Reg64 r1, Reg64 r2, FILE *file);

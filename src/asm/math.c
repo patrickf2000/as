@@ -207,7 +207,6 @@ void amd64_sub_r32_imm(Reg32 reg, int imm, FILE *file)
 void amd64_sub_r64_imm(Reg64 reg, int imm, FILE *file)
 {
     // Write the prefix
-    // Write the prefix
     if (reg > RDI)
         amd64_64prefix(1, 1, 0, file);
     else
@@ -219,3 +218,19 @@ void amd64_sub_r64_imm(Reg64 reg, int imm, FILE *file)
     amd64_sub_ri(reg, imm, file);
 }
 
+// Signed-multiply two 64-bit register values
+// Note: For multiplication, we have to reverse the dest and src registers
+void amd64_imul_rr64(Reg64 dest, Reg64 src, FILE *file)
+{
+    // Write the prefix
+    int dest_sz = dest > RDI;
+    int src_sz = src > RDI;
+    amd64_64prefix(1, src_sz, dest_sz, file);
+        
+    // Write the instruction
+    fputc(0x0F, file);
+    fputc(0xAF, file);
+    
+    // The registers
+    amd64_rr(src, dest, file);
+}

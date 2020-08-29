@@ -258,3 +258,21 @@ void amd64_imul_r64(Reg64 reg, FILE *file)
     // Encode the registers
     amd64_r1(reg, file);
 }
+
+// Signed multiply 64-bit register and immediates
+void amd64_imul_r64_imm(Reg64 dest, Reg64 src, int imm, FILE *file)
+{
+    // Write the prefix
+    int dest_sz = dest > RDI;
+    int src_sz = src > RDI;
+    amd64_64prefix(1, src_sz, dest_sz, file);
+    
+    // Write the instruction
+    fputc(0x69, file);
+    
+    // Encode the registers
+    amd64_rr(src, dest, file);
+    
+    // Write the immediate
+    fwrite(&imm, sizeof(int), 1, file);
+}

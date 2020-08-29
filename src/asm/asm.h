@@ -108,7 +108,7 @@ void amd64_ret(FILE *file);
 void amd64_push_reg64(Reg64 reg, FILE *file);
 
 void amd64_mov_reg32_imm(Reg32 reg, int imm, FILE *file);
-void amd64_mov_reg64_imm(Reg64 reg, int imm, int extend, FILE *file);
+void amd64_mov_reg64_imm(Reg64 reg, int imm, FILE *file);
 void amd64_mov_rr32(Reg32 r1, Reg32 r2, FILE *file);
 void amd64_mov_rr64(Reg64 r1, Reg64 r2, FILE *file);
 void amd64_mov_m_int(Reg64 dest, int dsp, int imm, FILE *file);
@@ -127,6 +127,8 @@ void amd64_add_r64_imm(Reg64 reg, int imm, FILE *file);
 void amd64_add_r32_mem(Reg32 reg, Reg64 src, int dsp, FILE *file);
 void amd64_add_r64_mem(Reg64 reg, Reg64 src, int dsp, FILE *file);
 void amd64_add_dw_mem_imm(Reg64 dest, int dsp, int imm, FILE *file);
+void amd64_sub_rr32(Reg32 dest, Reg32 src, FILE *file);
+void amd64_sub_rr64(Reg64 dest, Reg64 src, FILE *file);
 void amd64_sub_r32_imm(Reg32 reg, int imm, FILE *file);
 void amd64_sub_r64_imm(Reg64 reg, int imm, FILE *file);
 

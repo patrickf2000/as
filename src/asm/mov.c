@@ -72,12 +72,12 @@ void amd64_mov_reg32_imm(Reg32 reg, int imm, FILE *file)
 
 // Move integer immediate to 64-bit register
 // Format: <prefix> <op> <imm>
-void amd64_mov_reg64_imm(Reg64 reg, int imm, int extend, FILE *file)
+void amd64_mov_reg64_imm(Reg64 reg, int imm, FILE *file)
 {
     // Check the registers- if its one of the 64-bit ones, we need a prefix
     if (reg > RDI)
         amd64_64prefix(1, 1, 0, file);
-    else if (extend)
+    else
         amd64_64prefix(1, 0, 0, file);
 
     // Write the instruction
@@ -110,15 +110,8 @@ void amd64_mov_reg64_imm(Reg64 reg, int imm, int extend, FILE *file)
     }
     
     // Write the immediate value
-    if (extend)
-    {
-        int64_t imm64 = (int64_t)imm;
-        fwrite(&imm64, sizeof(int64_t), 1, file);
-    }
-    else
-    {
-        fwrite(&imm, sizeof(int), 1, file);
-    }
+    int64_t imm64 = (int64_t)imm;
+    fwrite(&imm64, sizeof(int64_t), 1, file);
 }
 
 // Move one register to another (32-bit)

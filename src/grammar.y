@@ -235,7 +235,9 @@ add:
     ;
     
 sub:
-      SUB REG32 ',' INTEGER NL        { lc += 3; if (pass_type == Build2) amd64_sub_r32_imm($2, $4, file); }
+      SUB REG32 ',' REG32 NL          { lc += 3; if (pass_type == Build2) amd64_sub_rr32($2, $4, file); }
+    | SUB REG64 ',' REG64 NL          { lc += 3; if (pass_type == Build2) amd64_sub_rr64($2, $4, file); }
+    | SUB REG32 ',' INTEGER NL        { lc += 3; if (pass_type == Build2) amd64_sub_r32_imm($2, $4, file); }
     | SUB REG64 ',' INTEGER NL        { lc += 4; if (pass_type == Build2) amd64_sub_r64_imm($2, $4, file); }
     ;
     
@@ -263,7 +265,7 @@ mov:
                                                             if ($2 > EDI) ++lc;
                                                             if (pass_type == Build2) amd64_mov_reg32_imm($2, $4, file); 
                                                         }
-    | MOV REG64 ',' INTEGER NL                          { lc += 5; if (pass_type == Build2) amd64_mov_reg64_imm($2, $4, 0, file); }
+    | MOV REG64 ',' INTEGER NL                          { lc += 10; if (pass_type == Build2) amd64_mov_reg64_imm($2, $4, file); }
     | MOV REG64 ',' ID NL                               { 
                                                           if (pass_type == Build1) 
                                                           {
@@ -274,7 +276,7 @@ mov:
                                                           }
                                                           else if (pass_type == Build2)
                                                           {
-                                                              amd64_mov_reg64_imm($2, 0, 1, file);
+                                                              amd64_mov_reg64_imm($2, 0, file);
                                                               
                                                           }
                                                           lc += 10;

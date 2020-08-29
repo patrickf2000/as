@@ -27,9 +27,8 @@
 
 #include "asm.h"
 
-// Add two registers
-// Format 01 (11 <src> <dest>)
-void amd64_add_rr32(Reg32 dest, Reg32 src, FILE *file)
+// The common functions for math register-register operations
+void amd64_math_rr32(Reg32 dest, Reg32 src, unsigned char opcode, FILE *file)
 {
     // Check the prefix
     int dest_sz = dest > EDI;
@@ -37,13 +36,13 @@ void amd64_add_rr32(Reg32 dest, Reg32 src, FILE *file)
     amd64_64prefix(0, dest_sz, src_sz, file);
 
     // Write the instruction
-    fputc(0x01, file);
+    fputc(opcode, file);
     
     //Now encode the registers
     amd64_rr(dest, src, file);
 }
 
-void amd64_add_rr64(Reg64 dest, Reg64 src, FILE *file)
+void amd64_math_rr64(Reg64 dest, Reg64 src, unsigned char opcode, FILE *file)
 {
     // Check the prefix
     int dest_sz = dest > RDI;
@@ -51,10 +50,22 @@ void amd64_add_rr64(Reg64 dest, Reg64 src, FILE *file)
     amd64_64prefix(1, dest_sz, src_sz, file);
 
     // Write the instruction
-    fputc(0x01, file);
+    fputc(opcode, file);
     
     //Now encode the registers
     amd64_rr(dest, src, file);
+}
+
+// Add two registers
+// Format 01 (11 <src> <dest>)
+void amd64_add_rr32(Reg32 dest, Reg32 src, FILE *file)
+{
+    amd64_math_rr32(dest, src, 0x01, file);
+}
+
+void amd64_add_rr64(Reg64 dest, Reg64 src, FILE *file)
+{
+    amd64_math_rr64(dest, src, 0x01, file);
 }
 
 // Used by the two add register,immediate instructions
@@ -144,20 +155,39 @@ void amd64_add_dw_mem_imm(Reg64 dest, int dsp, int imm, FILE *file)
     fputc(imm, file);
 }
 
+// Subtract one register value from another
+void amd64_sub_rr32(Reg32 dest, Reg32 src, FILE *file)
+{
+    amd64_math_rr32(dest, src, 0x29, file);
+}
+
+void amd64_sub_rr64(Reg64 dest, Reg64 src, FILE *file)
+{
+    amd64_math_rr64(dest, src, 0x29, file);
+}
+
 // Subtract an immediate value from register contents
 void amd64_sub_ri(Reg64 reg, int imm, FILE *file)
 {
     // Encode the register
     switch (reg)
     {
-        case RAX: fputc(0xE8, file); break;
-        case RCX: fputc(0xE9, file); break;
-        case RDX: fputc(0xEA, file); break;
-        case RBX: fputc(0xEB, file); break;
-        case RSP: fputc(0xEC, file); break;
-        case RBP: fputc(0xED, file); break;
-        case RSI: fputc(0xEE, file); break;
-        case RDI: fputc(0xEF, file); break;
+        case RAX: 
+        case R8:  fputc(0xE8, file); break;
+        case RCX: 
+        case R9:  fputc(0xE9, file); break;
+        case RDX: 
+        case R10: fputc(0xEA, file); break;
+        case RBX: 
+        case R11: fputc(0xEB, file); break;
+        case RSP: 
+        case R12: fputc(0xEC, file); break;
+        case RBP: 
+        case R13: fputc(0xED, file); break;
+        case RSI: 
+        case R14: fputc(0xEE, file); break;
+        case RDI: 
+        case R15: fputc(0xEF, file); break;
     }
     
     // Write the immediate
@@ -176,8 +206,14 @@ void amd64_sub_r32_imm(Reg32 reg, int imm, FILE *file)
 // Subtract an immediate from a 64-bit register value
 void amd64_sub_r64_imm(Reg64 reg, int imm, FILE *file)
 {
+    // Write the prefix
+    // Write the prefix
+    if (reg > RDI)
+        amd64_64prefix(1, 1, 0, file);
+    else
+        amd64_64prefix(1, 0, 0, file);
+
     // Write the instruction
-    fputc(0x48, file);        // The prefix
     fputc(0x83, file);
     
     amd64_sub_ri(reg, imm, file);

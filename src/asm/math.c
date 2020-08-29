@@ -166,41 +166,17 @@ void amd64_sub_rr64(Reg64 dest, Reg64 src, FILE *file)
     amd64_math_rr64(dest, src, 0x29, file);
 }
 
-// Subtract an immediate value from register contents
-void amd64_sub_ri(Reg64 reg, int imm, FILE *file)
-{
-    // Encode the register
-    switch (reg)
-    {
-        case RAX: 
-        case R8:  fputc(0xE8, file); break;
-        case RCX: 
-        case R9:  fputc(0xE9, file); break;
-        case RDX: 
-        case R10: fputc(0xEA, file); break;
-        case RBX: 
-        case R11: fputc(0xEB, file); break;
-        case RSP: 
-        case R12: fputc(0xEC, file); break;
-        case RBP: 
-        case R13: fputc(0xED, file); break;
-        case RSI: 
-        case R14: fputc(0xEE, file); break;
-        case RDI: 
-        case R15: fputc(0xEF, file); break;
-    }
-    
-    // Write the immediate
-    fputc(imm, file);
-}
-
 // Subtract an immediate from a 32-bit register value
 void amd64_sub_r32_imm(Reg32 reg, int imm, FILE *file)
 {
     // Write the instruction
     fputc(0x83, file);
     
-    amd64_sub_ri(reg, imm, file);
+    // Encode the register
+    amd64_r1(reg, file);
+    
+    // Write the immediate
+    fputc(imm, file);
 }
 
 // Subtract an immediate from a 64-bit register value
@@ -215,7 +191,11 @@ void amd64_sub_r64_imm(Reg64 reg, int imm, FILE *file)
     // Write the instruction
     fputc(0x83, file);
     
-    amd64_sub_ri(reg, imm, file);
+    // Encode the register
+    amd64_r1(reg, file);
+    
+    // Write the immediate
+    fputc(imm, file);
 }
 
 // Signed-multiply two 32-bit register values
@@ -250,4 +230,31 @@ void amd64_imul_rr64(Reg64 dest, Reg64 src, FILE *file)
     
     // The registers
     amd64_rr(src, dest, file);
+}
+
+// Signed multiply register with eax value
+void amd64_imul_r32(Reg32 reg, FILE *file)
+{
+    // Write the prefix if needed
+    if (reg > EDI) amd64_64prefix(0, 1, 0, file);
+    
+    // Write the instruction
+    fputc(0xF7, file);
+    
+    // Encode the registers
+    amd64_r1(reg, file);
+}
+
+// Signed multiply register with rax value
+void amd64_imul_r64(Reg64 reg, FILE *file)
+{
+    // Write the prefix
+    int reg_sz = reg > RDI;
+    amd64_64prefix(1, reg_sz, 0, file);
+    
+    // Write the instruction
+    fputc(0xF7, file);
+    
+    // Encode the registers
+    amd64_r1(reg, file);
 }

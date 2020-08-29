@@ -94,6 +94,31 @@ void amd64_rr(Reg64 r1, Reg64 r2, FILE *file)
     fputc(mask, file);
 }
 
+// Encodes a single register instruction
+void amd64_r1(Reg64 reg, FILE *file)
+{
+    // Encode the register
+    switch (reg)
+    {
+        case RAX: 
+        case R8:  fputc(0xE8, file); break;
+        case RCX: 
+        case R9:  fputc(0xE9, file); break;
+        case RDX: 
+        case R10: fputc(0xEA, file); break;
+        case RBX: 
+        case R11: fputc(0xEB, file); break;
+        case RSP: 
+        case R12: fputc(0xEC, file); break;
+        case RBP: 
+        case R13: fputc(0xED, file); break;
+        case RSI: 
+        case R14: fputc(0xEE, file); break;
+        case RDI: 
+        case R15: fputc(0xEF, file); break;
+    }
+}
+
 // Encodes registers that have either a source/destination effective address
 // with a displacement, and a source/destination 32-bit register
 void amd64_dsp16(Reg64 mem, Reg32 r, int dsp, FILE *file)

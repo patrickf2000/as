@@ -13,7 +13,7 @@
 str1 .string "Hello!\n"
 str2 .string "Hi!\n"
 
-_start:
+global _start:
     jmp label2
 
 label1:

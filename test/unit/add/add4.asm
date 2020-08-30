@@ -3,7 +3,7 @@
 
 ;RET 0
 
-_start:
+global _start:
     ; Test 1
     mov eax, 6
     add eax, 5

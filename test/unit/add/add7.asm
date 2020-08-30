@@ -3,7 +3,7 @@
 
 ;RET 33
 
-_start:
+global _start:
     mov rax, 10
     add rax, 5
     

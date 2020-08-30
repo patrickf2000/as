@@ -3,7 +3,7 @@
 
 ;RET 10
 
-_start:
+global _start:
     push rbp
     mov rbp, rsp
     sub rsp, 16

@@ -3,7 +3,7 @@
 
 ;RET 144
 
-_start:
+global _start:
     mov eax, 2
     mov ebx, 3
     mov ecx, 4

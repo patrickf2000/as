@@ -3,7 +3,7 @@
 
 ;RET 2
 
-_start:
+global _start:
     mov r15, 10
     mov r14, 5
     mov r13, 3

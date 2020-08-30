@@ -8,7 +8,7 @@
 eq .string "Equal\n"
 neq .string "Not equal\n"
 
-_start:
+global _start:
     mov eax, 5
     cmp eax, 10
     je wrong

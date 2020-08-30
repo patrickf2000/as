@@ -31,7 +31,7 @@ println:
     
     ret
    
-_start:
+global _start:
     mov rdi, STR0
     call println
     

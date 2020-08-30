@@ -3,7 +3,7 @@
 
 ;RET 7
 
-_start:
+global _start:
     mov rax, 7
     mov rbx, rax
     mov rcx, rbx

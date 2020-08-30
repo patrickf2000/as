@@ -84,13 +84,7 @@ void build_obj(FILE *file, const char *in_path)
     strtab = symbol_parse(in_path, strtab, symtab);
     int code_size = parse(in_path, file, Build1, sym_table, rela_tab);
     int rela_size = rela_tab->size;
-    
-    // Add the start location
-    int start_pos = parse_start_pos();
-    if (start_pos == -1)
-        start_pos = symtab->size - 1;
-    else
-        start_pos = elf_add_start_symbol(symtab, start_pos);
+    int start_pos = elf_symtab_sort(symtab);
     
     // Build the rest
     int offset = 8 * 64;

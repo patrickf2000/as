@@ -11,7 +11,12 @@ function run_test() {
             exit 1
         fi
         
-	    ld ./build/test/$name.o -o ./build/test/$name
+        if [[ $2 == "link" ]] ; then
+            ld ./build/test/$name.o -o ./build/test/$name -lasx86 -L./build/stdlib
+        else
+	        ld ./build/test/$name.o -o ./build/test/$name
+        fi
+        
 		./test.py $entry ./build/test/$name
 		
 		if [[ $? != 0 ]] ; then
@@ -28,6 +33,8 @@ if [ ! -d ./build ] ; then
 	exit 1
 fi
 
+./stdlib.sh
+
 mkdir -p ./build/test
 
 run_test 'test/cmp/*.asm'
@@ -39,5 +46,6 @@ run_test 'test/unit/cmp/*.asm'
 run_test 'test/unit/mov/*.asm'
 run_test 'test/unit/sub/*.asm'
 run_test 'test/unit/mul/*.asm'
+run_test 'test/stdlib/*.asm' "link"
 
 echo "Done"

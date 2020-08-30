@@ -3,7 +3,7 @@
 
 ;RET 60
 
-_start:
+global _start:
     mov eax, 5
     mov ebx, 3
     imul eax, ebx

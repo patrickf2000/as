@@ -148,25 +148,60 @@ int elf_add_symbol(Elf64_SymTab *table, int name_pos, int value, int is_data, in
     return size-1;
 }
 
-// Adds the start entry
-int elf_add_start_symbol(Elf64_SymTab *table, int start_pos)
+// Sorts the symbol table so all global symbols are last
+int elf_symtab_sort(Elf64_SymTab *table)
 {
-    // Reallocate
-    int size = table->size + 1;
-    table->symbols = realloc(table->symbols, sizeof(Elf64_Sym) * size);
-    table->size = size;
+    int size = table->size;
+
+    // First, allocate two tables
+    Elf64_Sym *local_symbols = malloc(sizeof(Elf64_Sym)*size);
+    Elf64_Sym *global_symbols = malloc(sizeof(Elf64_Sym)*size);
     
-    // Add the symbol
-    Elf64_Sym symbol;
-    symbol.st_name = 1;
-    symbol.st_info = ELF64_ST_INFO(STB_GLOBAL, STT_FUNC);
-    symbol.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
-    symbol.st_shndx = 5;
-    symbol.st_value = start_pos;
-    symbol.st_size = 0;
-    table->symbols[size-1] = symbol;
+    int li = 0;    // Local symbol table index
+    int gi = 0;    // Global symbol table index
     
-    return size - 1;
+    // Iterate through the original table and sort out the symbols
+    for (int i = 0; i<size; i++)
+    {
+        Elf64_Sym current = table->symbols[i];
+        if (ELF64_ST_BIND(current.st_info) == STB_GLOBAL)
+        {
+            global_symbols[gi] = current;
+            ++gi;   
+        }
+        else
+        {
+            local_symbols[li] = current;
+            ++li;
+        }
+    }
+    
+    // Put the tables back together
+    int index = 0;
+    int global_start = 0;
+    
+    // Start with the local symbols
+    for (int i = 0; i<li; i++)
+    {
+        table->symbols[index] = local_symbols[i];
+        ++index;
+    }
+    
+    global_start = index;
+    
+    // Now the global symbols
+    for (int i = 0; i<gi; i++)
+    {
+        table->symbols[index] = global_symbols[i];
+        ++index;
+    }
+    
+    // Free the tables
+    free(local_symbols);
+    free(global_symbols);
+    
+    // Return the start position of the globals
+    return global_start;
 }
 
 int get_str_pos(char *values, int last_pos)

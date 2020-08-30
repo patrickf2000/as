@@ -123,18 +123,16 @@ label:
     LABEL NL            {
                             if (pass_type == Build1) 
                             {
-                                if (strcmp($1, "_start") == 0)
-                                    start = lc;
-                                
                                 sym_table_add(sym_table, $1, lc);
                             }
                             else if (pass_type == SymParse)
                             {
-                                if (strcmp($1, "_start") != 0)
-                                {
-                                    int pos = strtab_start + str_table_add($1, elf_strtab);
-                                    elf_add_symbol(elf_sym_table, pos, lc, 0, 0);
-                                }
+                                int pos = 0;
+                                
+                                if (strcmp($1, "_start") == 0) pos = 1;
+                                else pos = strtab_start + str_table_add($1, elf_strtab);
+                                
+                                elf_add_symbol(elf_sym_table, pos, lc, 0, 0);
                             }
                         }
     | GLOBAL LABEL NL   {
@@ -144,11 +142,12 @@ label:
                             }
                             else if (pass_type == SymParse)
                             {
-                                if (strcmp($2, "_start") != 0)
-                                {
-                                    int pos = strtab_start + str_table_add($2, elf_strtab);
-                                    elf_add_symbol(elf_sym_table, pos, lc, 0, 1);
-                                }
+                                int pos = 0;
+                                
+                                if (strcmp($2, "_start") == 0) pos = 1;
+                                else pos = strtab_start + str_table_add($2, elf_strtab);
+                                
+                                elf_add_symbol(elf_sym_table, pos, lc, 0, 1);
                             }
                         }
     | EXTERN ID NL      {

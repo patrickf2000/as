@@ -3,7 +3,7 @@
 
 ;RET 48
 
-_start:
+global _start:
     mov rax, 5
     mov rbx, 6
     imul rax, rbx, 3

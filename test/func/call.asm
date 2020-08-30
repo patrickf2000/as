@@ -16,7 +16,7 @@ puts:
     syscall
     ret
 
-_start:
+global _start:
     mov rax, msg
     mov rbx, 7
     call puts

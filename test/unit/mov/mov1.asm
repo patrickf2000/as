@@ -3,7 +3,7 @@
 
 ;RET 5
 
-_start:
+global _start:
     mov eax, 5
     mov ebx, eax
     mov ecx, ebx

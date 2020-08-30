@@ -15,7 +15,7 @@
 
 str1 .string "Hi\n"
 
-_start:
+global _start:
     mov ebx, 0
 
 lp:

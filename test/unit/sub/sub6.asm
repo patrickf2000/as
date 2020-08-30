@@ -3,7 +3,7 @@
 
 ;RET 100
 
-_start:
+global _start:
     mov r10, 100
     mov r11, 90
     

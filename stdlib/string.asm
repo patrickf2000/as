@@ -5,7 +5,7 @@ lp:
 	mov dl, [rdi+rcx]
 	;inc ecx
     add ecx, 1
-	cmp dl, 0xA
+    cmp dl, 0x0
 	jne lp
     
     mov eax, ecx

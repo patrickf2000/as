@@ -16,7 +16,7 @@ do
     build/src/asmx86 $entry -o build/stdlib/$name.o
 done
 
-ar -crs build/stdlib/libasx86.so build/stdlib/*.o
+ar -crs build/stdlib/libasx86.a build/stdlib/*.o
 
 echo "Done"
 

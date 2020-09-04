@@ -261,3 +261,16 @@ void amd64_mov_reg64_mem(Reg64 dest, Reg64 src, int dsp, FILE *file)
     amd64_mov_reg32_mem(dest, src, dsp, file);
 }
 
+// Load effective address to 64-bit register
+void amd64_lea64(Reg64 dest, Reg64 src, int dsp, FILE *file)
+{
+    // Write the prefix
+    // TODO: Add checking if the registers are extended
+    amd64_64prefix(1, 0, 0, file);
+    
+    // Write the instruction
+    fputc(0x8D, file);
+    
+    //Write the registers
+    amd64_dsp16(src, dest, dsp, file);
+}

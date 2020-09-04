@@ -63,7 +63,7 @@ void yyerror(const char *s);
 }
 
 %token T_STRING GLOBAL EXTERN
-%token CMP CALL RET PUSH MOV ADD SUB IMUL SYSCALL LEAVE
+%token CMP CALL RET PUSH LEA MOV ADD SUB IMUL SYSCALL LEAVE
 %token XOR
 %token DWORD
 %token NL
@@ -90,6 +90,7 @@ statement:
     | xor
 	| syscall
     | leave
+    | lea
     | mov
     | empty
 	;
@@ -278,6 +279,10 @@ syscall:
     
 leave:
       LEAVE NL          { lc += 1; if (pass_type == Build2) amd64_leave(file); }
+    ;
+    
+lea:
+      LEA REG64 ',' '[' REG64 INTEGER ']' NL            { lc += 4; if (pass_type == Build2) amd64_lea64($2, $5, $6, file); }
     ;
     
 mov:

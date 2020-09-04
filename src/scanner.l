@@ -24,6 +24,7 @@ jge                        { yylval.itype = JGE; return JUMP; }
 jle                        { yylval.itype = JLE; return JUMP; }
 push                       { return PUSH; }
 mov                        { return MOV; }
+lea                        { return LEA; }
 syscall                    { return SYSCALL; }
 leave                      { return LEAVE; }
 

@@ -9,7 +9,7 @@
 
 %%
 .string                    { return T_STRING; }
-global                     { return GLOBAL; }
+.global                    { return GLOBAL; }
 extern                     { return EXTERN; }
 
 cmp                        { return CMP; }
@@ -101,7 +101,7 @@ r15                        { yylval.r64type = R15; return REG64; }
                               yylval.stype = lbl; 
                               return LABEL;
                            }
-[A-Za-z]*([0-9]+)?	       { yylval.stype = strdup(yytext); return ID;}
+[_]?[A-Za-z]*([0-9]+)?	   { yylval.stype = strdup(yytext); return ID;}
 %%
 
 int yywrap() { return 1; }

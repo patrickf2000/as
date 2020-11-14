@@ -28,12 +28,22 @@
 %{
 #include <cstdio>
 #include <string>
+#include <vector>
+#include <map>
+#include <elf.h>
 
 #include <asm/asm.hpp>
+#include <elf/elf_bin.hpp>
 
 FILE *file;
+std::vector<Elf64_Sym> *elf_symtab;
+std::vector<std::string> *strtab;
+
 int lc = 0;
 int pass_num = 1;   // Either 1 or 2
+
+std::vector<std::string> global_symbols;
+std::map<std::string, int> symtab;
 
 // Bison stuff
 typedef struct yy_buffer_state * YY_BUFFER_STATE;
@@ -88,8 +98,25 @@ statement:
     
 label:
     LABEL NL            {
+                            if (pass_num == 1) {
+                                int sym_type = 0;   // Local by default
+                                for (auto str : global_symbols) {
+                                    if (str == $1) {
+                                        sym_type = 1;
+                                        break;
+                                    }
+                                }
+                                
+                                strtab->push_back($1);
+                                int pos = get_str_pos(strtab, $1);
+                                
+                                elf_add_symbol(elf_symtab, pos, lc, 0, sym_type);
+                            }
                         }
     | GLOBAL ID NL      {
+                            if (pass_num == 1) {
+                               global_symbols.push_back($2); 
+                            }
                         }
     | EXTERN ID NL      {
                         }
@@ -255,14 +282,26 @@ empty:
 
 %%
 
-//Our parsing function
-int parse(std::string data, int pass_num, FILE *f) {
-    file = f;
+// Pass 1 function
+int pass1(std::string data, std::vector<Elf64_Sym> *es, std::vector<std::string> *st) {
+    pass_num = 1;
+    elf_symtab = es;
+    strtab = st;
     
     YY_BUFFER_STATE buffer = yy_scan_string(data.c_str());
     yyparse();
     yy_delete_buffer(buffer);
     return lc;
+}
+
+//Our parsing function
+void pass2(std::string data, FILE *f) {
+    file = f;
+    pass_num = 2;
+    
+    YY_BUFFER_STATE buffer = yy_scan_string(data.c_str());
+    yyparse();
+    yy_delete_buffer(buffer);
 }
 
 //Handle syntax errors

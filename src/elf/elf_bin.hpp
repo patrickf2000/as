@@ -62,6 +62,7 @@ typedef enum
 } PassType;
 
 // Build functions
+int get_str_pos(std::vector<std::string> *strtab, std::string to_find);
 int get_table_length(std::vector<std::string> *table);
 void build_obj(FILE *file, const char *in_path);
 

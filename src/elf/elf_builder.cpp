@@ -34,14 +34,8 @@
 
 #include <elf/elf_bin.hpp>
 
-/*extern void set_extern_symtab(SymbolTable *table);
-extern char *data_val_parse(const char *path, char *data_values);
-extern char *data_name_parse(const char *path, char *data_name, SymbolTable *st);
-extern char *symbol_parse(const char *path, char *strtab, Elf64_SymTab *table);
-extern int parse(const char *path, FILE *f, PassType pt, SymbolTable *st, Elf64_RelaTab *rt);
-extern int parse_start_pos();*/
-
-extern int parse(std::string data, int pass_num, FILE *file);
+extern int pass1(std::string data, std::vector<Elf64_Sym> *es, std::vector<std::string> *st);
+extern void pass2(std::string data, FILE *f);
 
 int get_str_pos(std::vector<std::string> *strtab, std::string to_find) {
     int pos = 1;
@@ -81,47 +75,28 @@ void build_obj(FILE *file, const char *in_path)
     shstrtable->push_back(".data");
     shstrtable->push_back(".text");
     
-    // Setup the initial string table
-    //int length = strlen("_start") + strlen(in_path) + 3;
-    //int start_end = strlen("_start") + 1;
-    
+    // Setup the string table
     std::vector<std::string> *strtab = new std::vector<std::string>();
     strtab->push_back(in_path);
     
     // Create the symbol tables
-    /**SymbolTable *sym_table = sym_table_init_default();
-    SymbolTable *extern_table = sym_table_init_default();
-    Elf64_SymTab *symtab = elf_generate_symtab();*/
-    
-    std::map<std::string, int> sym_table;
-    std::map<std::string, int> extern_table;
     std::vector<Elf64_Rela> *rela_tab = new std::vector<Elf64_Rela>();
     
     std::vector<Elf64_Sym> *symtab = new std::vector<Elf64_Sym>();
     elf_generate_symtab(symtab);
     
-    //set_extern_symtab(extern_table);
-    
     // Load the data
-    /*char *data_values = calloc(1, sizeof(char)); 
-    data_values = data_val_parse(in_path, data_values);*/
     std::vector<std::string> *data_values = new std::vector<std::string>();
     
-    /*char *data_names = calloc(1, sizeof(char)); 
-    data_names = data_name_parse(in_path, data_names, sym_table);
-    
-    strtab = elf_insert_data_symbols(symtab, sym_table, data_names, data_values, strtab);*/
-    
     // Pass 1
-    //strtab = symbol_parse(in_path, strtab, symtab);
-    //int code_size = parse(in_path, file, Build1, sym_table, rela_tab);
-    //int code_size = 0;
-    
+    // Test code. This needs to go
     std::string code = "";
+        code += ".global _start\n";
+        code += "_start:\n";
         code += "mov rax, 60\n";
         code += "mov rdi, 5\n";
         code += "syscall\n";
-    int code_size = parse(code, 1, file);
+    int code_size = pass1(code, symtab, strtab);
     
     int rela_size = rela_tab->size();
     //int start_pos = elf_symtab_sort(symtab);
@@ -163,9 +138,9 @@ void build_obj(FILE *file, const char *in_path)
     elf_write_sec_data(file, data_values);
     
     // Write the code
-    parse(code, 2, file);
-    //parse(in_path, file, Build2, sym_table, rela_tab);
+    pass2(code, file);
     
     // Write the rela.text section
     elf_write_rela_text(file, rela_tab);
 }
+

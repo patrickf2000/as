@@ -13,9 +13,13 @@
 
 ;RET 3
 
-str1 .string "Hi\n"
+section .data
+    str1 .string "Hi\n"
 
-global _start:
+section .text
+global _start
+
+_start:
     mov ebx, 0
 
 lp:

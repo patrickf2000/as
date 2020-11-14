@@ -46,7 +46,7 @@ int lc = 0;
 int pass_num = 1;   // Either 1 or 2
 
 std::vector<std::string> global_symbols;
-std::map<std::string, int> symtab;
+std::map<std::string, int> symtab, extern_tab;
 
 // Bison stuff
 typedef struct yy_buffer_state * YY_BUFFER_STATE;
@@ -65,7 +65,10 @@ void yyerror(const char *s);
 	char* stype;
 	int itype;
 	float ftype;
+	Reg16H r8type;
+	Reg32 r32type;
 	Reg64 r64type;
+	Jmp jmp_type;
 }
 
 %token T_STRING GLOBAL EXTERN
@@ -74,8 +77,11 @@ void yyerror(const char *s);
 %token DWORD
 %token NL
 
+%token <r8type> REG16H
+%token <r32type> REG32
 %token <r64type> REG64
-%token <itype> INTEGER HEX REG16H REG32 JUMP
+%token <jmp_type> JUMP
+%token <itype> INTEGER HEX
 %token <ftype> FLOAT
 %token <stype> STRING LABEL
 %token <stype> ID
@@ -150,6 +156,7 @@ label:
                                 strtab->push_back($1);
                                 int pos = get_str_pos(strtab, $1);
                                 
+                                symtab[$1] = lc;
                                 elf_add_symbol(elf_symtab, pos, lc, 0, sym_type);
                             }
                         }
@@ -159,50 +166,49 @@ label:
                             }
                         }
     | EXTERN ID NL      {
+                            if (pass_num == 1) {
+                                strtab->push_back($2);
+                                int pos = get_str_pos(strtab, $2);
+                                
+                                int extern_pos = elf_add_symbol(elf_symtab, pos, 0, 0, 2);
+                                symtab[$2] = -5;
+                                extern_tab[$2] = extern_pos;
+                            }
                         }
     ;
     
 cmp:
-      CMP REG16H ',' INTEGER NL       { lc += 3; if (pass_num == 2) {} }//amd64_cmp_reg16h_imm($2, $4, file); }
-    | CMP REG16H ',' HEX NL           { lc += 3; if (pass_num == 2) {} }//amd64_cmp_reg16h_imm($2, $4, file); }
-    | CMP REG32 ',' INTEGER NL        { lc += 3; if (pass_num == 2) {} }//amd64_cmp_reg32_imm($2, $4, file); }
-    | CMP REG64 ',' INTEGER NL        { lc += 4; if (pass_num == 2) {} }//amd64_cmp_reg64_imm($2, $4, file); }
+      CMP REG16H ',' INTEGER NL       { lc += 3; if (pass_num == 2) amd64_cmp_reg16h_imm($2, $4, file); }
+    | CMP REG16H ',' HEX NL           { lc += 3; if (pass_num == 2) amd64_cmp_reg16h_imm($2, $4, file); }
+    | CMP REG32 ',' INTEGER NL        { lc += 3; if (pass_num == 2) amd64_cmp_reg32_imm($2, $4, file); }
+    | CMP REG64 ',' INTEGER NL        { lc += 4; if (pass_num == 2) amd64_cmp_reg64_imm($2, $4, file); }
     ;
     
 call:
       CALL ID NL    {
                       lc += 5;
                       
-                      /*if (pass_type == Build1)
-                      {
-                          int loco = sym_table_get(sym_table, $2);
-                          
-                          if (loco == -5)
-                          {
-                              int pos = sym_table_get(extern_table, $2);
-                              
-                              elf_rela_add_func(rela_tab, lc-4, pos);
+                      if (pass_num == 1) {
+                          int loco = symtab[$2];
+                          if (loco < 0) {
+                              int pos = extern_tab[$2];
+                              elf_rela_add_func(elf_rela_tab, lc-4, pos);
                           }
-                      }
-                      else if (pass_num == 2) {}
-                      {
-                          int loco = sym_table_get(sym_table, $2);
+                      } else {
+                          int loco = symtab[$2];
                           
-                          if (loco == -5)
-                          {
+                          if (loco < 0) {
                               amd64_call(0, file);
-                          }
-                          else
-                          {
+                          } else {
                               int pos = loco - lc;
                               amd64_call(pos, file);
                           }
-                      }*/
+                      }
                     }
     ;
     
 ret:
-      RET NL        { lc += 1; if (pass_num == 2) {} }//amd64_ret(file); }
+      RET NL        { lc += 1; if (pass_num == 2) amd64_ret(file); }
     ;
     
 jmp:
@@ -210,63 +216,63 @@ jmp:
                       lc += 2;
                       if (pass_num == 2)
                       {
-                          /*int loco = sym_table_get(sym_table, $2);
+                          int loco = symtab[$2];
                           int pos = loco - lc;
-                          amd64_jmp($1, pos, file);*/
+                          amd64_jmp($1, pos, file);
                       }
                     }
     ;
     
 push:
-      PUSH REG64 NL        { ++lc; if (pass_num == 2) {} }//amd64_push_reg64($2, file); }
+      PUSH REG64 NL        { ++lc; if (pass_num == 2) amd64_push_reg64($2, file); }
     ;
     
 add:
-      ADD REG32 ',' REG32 NL                            { lc += 3; if (pass_num == 2) {} }//amd64_add_rr32($2, $4, file); }
-    | ADD REG64 ',' REG64 NL                            { lc += 3; if (pass_num == 2) {} }//amd64_add_rr64($2, $4, file); }
-    | ADD REG32 ',' INTEGER NL                          { lc += 3; if (pass_num == 2) {} }//amd64_add_r32_imm($2, $4, file); }
-    | ADD REG64 ',' INTEGER NL                          { lc += 4; if (pass_num == 2) {} }//amd64_add_r64_imm($2, $4, file); }
-    | ADD REG32 ',' '[' REG64 INTEGER ']' NL            { lc += 3; if (pass_num == 2) {} }//amd64_add_r32_mem($2, $5, $6, file); }
-    | ADD REG64 ',' '[' REG64 INTEGER ']' NL            { lc += 4; if (pass_num == 2) {} }//amd64_add_r64_mem($2, $5, $6, file); }
-    | ADD DWORD '[' REG64 INTEGER ']' ',' INTEGER NL    { lc += 4; if (pass_num == 2) {} }//amd64_add_dw_mem_imm($4, $5, $8, file); }
+      ADD REG32 ',' REG32 NL                            { lc += 3; if (pass_num == 2) amd64_add_rr32($2, $4, file); }
+    | ADD REG64 ',' REG64 NL                            { lc += 3; if (pass_num == 2) amd64_add_rr64($2, $4, file); }
+    | ADD REG32 ',' INTEGER NL                          { lc += 3; if (pass_num == 2) amd64_add_r32_imm($2, $4, file); }
+    | ADD REG64 ',' INTEGER NL                          { lc += 4; if (pass_num == 2) amd64_add_r64_imm($2, $4, file); }
+    | ADD REG32 ',' '[' REG64 INTEGER ']' NL            { lc += 3; if (pass_num == 2) amd64_add_r32_mem($2, $5, $6, file); }
+    | ADD REG64 ',' '[' REG64 INTEGER ']' NL            { lc += 4; if (pass_num == 2) amd64_add_r64_mem($2, $5, $6, file); }
+    | ADD DWORD '[' REG64 INTEGER ']' ',' INTEGER NL    { lc += 4; if (pass_num == 2) amd64_add_dw_mem_imm($4, $5, $8, file); }
     ;
     
 sub:
-      SUB REG32 ',' REG32 NL          { lc += 3; if (pass_num == 2) {} }//amd64_sub_rr32($2, $4, file); }
-    | SUB REG64 ',' REG64 NL          { lc += 3; if (pass_num == 2) {} }//amd64_sub_rr64($2, $4, file); }
-    | SUB REG32 ',' INTEGER NL        { lc += 3; if (pass_num == 2) {} }//amd64_sub_r32_imm($2, $4, file); }
-    | SUB REG64 ',' INTEGER NL        { lc += 4; if (pass_num == 2) {} }//amd64_sub_r64_imm($2, $4, file); }
+      SUB REG32 ',' REG32 NL          { lc += 3; if (pass_num == 2) amd64_sub_rr32($2, $4, file); }
+    | SUB REG64 ',' REG64 NL          { lc += 3; if (pass_num == 2) amd64_sub_rr64($2, $4, file); }
+    | SUB REG32 ',' INTEGER NL        { lc += 3; if (pass_num == 2) amd64_sub_r32_imm($2, $4, file); }
+    | SUB REG64 ',' INTEGER NL        { lc += 4; if (pass_num == 2) amd64_sub_r64_imm($2, $4, file); }
     ;
     
 imul:
       IMUL REG32 NL                           {
                                                   lc += 2;
                                                   if ($2 > EDI) ++lc;
-                                                  if (pass_num == 2) {} //amd64_imul_r32($2, file);
+                                                  if (pass_num == 2) amd64_imul_r32($2, file);
                                               }
-    | IMUL REG64 NL                           { lc += 3; if (pass_num == 2) {} }//amd64_imul_r64($2, file); }
+    | IMUL REG64 NL                           { lc += 3; if (pass_num == 2) amd64_imul_r64($2, file); }
     | IMUL REG32 ',' REG32 NL                 {
                                                   lc += 3;
                                                   if ($2 > EDI || $4 > EDI) ++lc;
-                                                  if (pass_num == 2) {} //amd64_imul_rr32($2, $4, file);
+                                                  if (pass_num == 2) amd64_imul_rr32($2, $4, file);
                                               }
-    | IMUL REG64 ',' REG64 NL                 { lc += 4; if (pass_num == 2) {} }//amd64_imul_rr64($2, $4, file); }
+    | IMUL REG64 ',' REG64 NL                 { lc += 4; if (pass_num == 2) amd64_imul_rr64($2, $4, file); }
     | IMUL REG32 ',' INTEGER NL               {
                                                   lc += 6;
                                                   if ($2 > EDI) ++lc;
-                                                  if (pass_num == 2) {} //amd64_imul_r32_imm($2, $2, $4, file);
+                                                  if (pass_num == 2) amd64_imul_r32_imm($2, $2, $4, file);
                                               }
     | IMUL REG32 ',' REG32 ',' INTEGER NL     {
                                                   lc += 6;
                                                   if ($2 > EDI || $4 > EDI) ++lc;
-                                                  if (pass_num == 2) {} //amd64_imul_r32_imm($2, $4, $6, file);
+                                                  if (pass_num == 2) amd64_imul_r32_imm($2, $4, $6, file);
                                               }
-    | IMUL REG64 ',' INTEGER NL               { lc += 7; if (pass_num == 2) {} }//amd64_imul_r64_imm($2, $2, $4, file); }
-    | IMUL REG64 ',' REG64 ',' INTEGER NL     { lc += 7; if (pass_num == 2) {} }//amd64_imul_r64_imm($2, $4, $6, file); }
+    | IMUL REG64 ',' INTEGER NL               { lc += 7; if (pass_num == 2) amd64_imul_r64_imm($2, $2, $4, file); }
+    | IMUL REG64 ',' REG64 ',' INTEGER NL     { lc += 7; if (pass_num == 2) amd64_imul_r64_imm($2, $4, $6, file); }
     ;
     
 xor:
-      XOR REG32 ',' REG32 NL        { lc += 2; if (pass_num == 2) {} }//amd64_xor_rr32($2, $4, file); }
+      XOR REG32 ',' REG32 NL        { lc += 2; if (pass_num == 2) amd64_xor_rr32($2, $4, file); }
     ;
     
 syscall:
@@ -274,30 +280,31 @@ syscall:
     ;
     
 leave:
-      LEAVE NL          { lc += 1; if (pass_num == 2) {} }//amd64_leave(file); }
+      LEAVE NL          { lc += 1; if (pass_num == 2) amd64_leave(file); }
     ;
     
 lea:
-      LEA REG64 ',' '[' REG64 INTEGER ']' NL            { lc += 4; if (pass_num == 2) {} }//amd64_lea64($2, $5, $6, file); }
+      LEA REG64 ',' '[' REG64 INTEGER ']' NL            { lc += 4; if (pass_num == 2) amd64_lea64($2, $5, $6, file); }
     ;
     
 mov:
       MOV REG32 ',' REG32 NL                            { 
                                                             lc += 2; 
                                                             if ($2 > EDI || $4 > EDI) ++lc;
-                                                            if (pass_num == 2) {} //amd64_mov_rr32($2, $4, file); 
+                                                            if (pass_num == 2) amd64_mov_rr32($2, $4, file); 
                                                         }
-    | MOV REG64 ',' REG64 NL                            { lc += 3; if (pass_num == 2) {} }//amd64_mov_rr64($2, $4, file); }
+    | MOV REG64 ',' REG64 NL                            { lc += 3; if (pass_num == 2) amd64_mov_rr64($2, $4, file); }
     | MOV REG32 ',' INTEGER NL                          { 
                                                             lc += 5; 
                                                             if ($2 > EDI) ++lc;
-                                                            if (pass_num == 2) {} //amd64_mov_reg32_imm($2, $4, file); 
+                                                            if (pass_num == 2) amd64_mov_reg32_imm($2, $4, file); 
                                                         }
     | MOV REG64 ',' INTEGER NL                          { lc += 10; if (pass_num == 2) amd64_mov_reg64_imm($2, $4, file); }
     | MOV REG64 ',' ID NL                               { 
                                                           if (pass_num == 1) {
                                                               int code_offset = lc + 2;
                                                               int data_offset = symtab[$4];
+                                                              if (data_offset > 0) ++data_offset;
                                                               
                                                               elf_rela_add(elf_rela_tab, code_offset, data_offset);
                                                           } else {
@@ -305,12 +312,12 @@ mov:
                                                           }
                                                           lc += 10;
                                                         }
-    | MOV REG16H ',' '[' REG64 '+' REG64 ']' NL         { lc += 3; if (pass_num == 2) {} }//amd64_mov_r8_mrr($2, $5, $7, file); }
-    | MOV REG32 ',' '[' REG64 INTEGER ']' NL            { lc += 3; if (pass_num == 2) {} }//amd64_mov_reg32_mem($2, $5, $6, file); }
-    | MOV REG64 ',' '[' REG64 INTEGER ']' NL            { lc += 4; if (pass_num == 2) {} }//amd64_mov_reg64_mem($2, $5, $6, file); }
-    | MOV '[' REG64 INTEGER ']' ',' REG32 NL            { lc += 3; if (pass_num == 2) {} }//amd64_mov_m_reg32($3, $4, $7, file); }
-    | MOV '[' REG64 INTEGER ']' ',' REG64 NL            { lc += 4; if (pass_num == 2) {} }//amd64_mov_m_reg64($3, $4, $7, file); }
-    | MOV DWORD '[' REG64 INTEGER ']' ',' INTEGER NL    { lc += 7; if (pass_num == 2) {} }//amd64_mov_m_int($4, $5, $8, file); }
+    | MOV REG16H ',' '[' REG64 '+' REG64 ']' NL         { lc += 3; if (pass_num == 2) amd64_mov_r8_mrr($2, $5, $7, file); }
+    | MOV REG32 ',' '[' REG64 INTEGER ']' NL            { lc += 3; if (pass_num == 2) amd64_mov_reg32_mem($2, $5, $6, file); }
+    | MOV REG64 ',' '[' REG64 INTEGER ']' NL            { lc += 4; if (pass_num == 2) amd64_mov_reg64_mem($2, $5, $6, file); }
+    | MOV '[' REG64 INTEGER ']' ',' REG32 NL            { lc += 3; if (pass_num == 2) amd64_mov_m_reg32($3, $4, $7, file); }
+    | MOV '[' REG64 INTEGER ']' ',' REG64 NL            { lc += 4; if (pass_num == 2) amd64_mov_m_reg64($3, $4, $7, file); }
+    | MOV DWORD '[' REG64 INTEGER ']' ',' INTEGER NL    { lc += 7; if (pass_num == 2) amd64_mov_m_int($4, $5, $8, file); }
     ;
     
 empty:

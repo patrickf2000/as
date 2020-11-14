@@ -1,5 +1,7 @@
+section .text
+global strlen
 
-global strlen:
+strlen:
     xor ecx, ecx
 lp:
 	mov dl, [rdi+rcx]

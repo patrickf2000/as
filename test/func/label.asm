@@ -10,10 +10,14 @@
 ; back to the first label. Then we jump all the way
 ; to the end.
 
-str1 .string "Hello!\n"
-str2 .string "Hi!\n"
+section .data
+    str1 .string "Hello!\n"
+    str2 .string "Hi!\n"
 
-global _start:
+section .text
+global _start
+
+_start:
     jmp label2
 
 label1:

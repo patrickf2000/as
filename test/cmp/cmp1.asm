@@ -4,10 +4,14 @@
 
 ;RET 4
 
-eq .string "Equal!\n"
-neq .string "Not equal\n"
+section .data
+    eq .string "Equal!\n"
+    neq .string "Not equal\n"
 
-global _start:
+section .text
+global _start
+
+_start:
     mov eax, 2
     cmp eax, 10
     je equal

@@ -155,7 +155,8 @@ void build_obj(FILE *file, const char *in_path)
     offset = elf_header_strtab(file, strtab_name, offset, strtab_size);
     
     int data_name = get_str_pos(shstrtable, ".data");
-    int data_size = get_table_length(data_values) - (data_values->size() + 1);
+    //int data_size = get_table_length(data_values) - (data_values->size() + 1);
+    int data_size = get_table_length(data_values) - 1;
     offset = elf_header_sec_data(file, data_name, offset, data_size);
     
     int text_name = get_str_pos(shstrtable, ".text");

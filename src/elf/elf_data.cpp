@@ -113,6 +113,7 @@ void elf_write_sec_data(FILE *file, std::vector<std::string> *data) {
     for (int i = 0; i<data->size(); i++) {
         auto current = data->at(i);
         fputs(current.c_str(), file);
+        fputc(0, file);
     }
 }
 

@@ -5,13 +5,17 @@
 
 ;RET 5
 
-STR0 .string "Hello!\n"
-STR1 .string "How are you today?\n"
+section .data
+    STR0 .string "Hello!\n"
+    STR1 .string "How are you today?\n"
 
+section .text
 extern puts
 extern exit
    
-global _start:
+global _start
+
+_start:
     mov rdi, STR0
     call puts
     

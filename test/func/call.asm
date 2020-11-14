@@ -5,8 +5,12 @@
 
 ;RET 3
 
-msg .string "Hello!\n"
-msg2 .string "How are you?\n"
+section .data
+    msg .string "Hello!\n"
+    msg2 .string "How are you?\n"
+
+section .text
+global _start
 
 puts:
     mov rsi, rax
@@ -16,7 +20,7 @@ puts:
     syscall
     ret
 
-global _start:
+_start:
     mov rax, msg
     mov rbx, 7
     call puts

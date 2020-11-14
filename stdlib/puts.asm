@@ -1,6 +1,8 @@
+section .text
 extern strlen
 
-global puts:
+global puts
+puts:
     call strlen
     mov edx, eax
     sub edx, 1

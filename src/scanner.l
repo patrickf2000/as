@@ -9,19 +9,19 @@
 
 %%
 .string                    { return T_STRING; }
-.global                    { return GLOBAL; }
+global                     { return GLOBAL; }
 extern                     { return EXTERN; }
 
 cmp                        { return CMP; }
 call                       { return CALL; }
 ret                        { return RET; }
-jmp                        { yylval.itype = JMP; return JUMP; }
-je                         { yylval.itype = JE;  return JUMP; }
-jne                        { yylval.itype = JNE; return JUMP; }
-jg                         { yylval.itype = JG;  return JUMP; }
-jl                         { yylval.itype = JL;  return JUMP; }
-jge                        { yylval.itype = JGE; return JUMP; }
-jle                        { yylval.itype = JLE; return JUMP; }
+jmp                        { yylval.jmp_type = JMP; return JUMP; }
+je                         { yylval.jmp_type = JE;  return JUMP; }
+jne                        { yylval.jmp_type = JNE; return JUMP; }
+jg                         { yylval.jmp_type = JG;  return JUMP; }
+jl                         { yylval.jmp_type = JL;  return JUMP; }
+jge                        { yylval.jmp_type = JGE; return JUMP; }
+jle                        { yylval.jmp_type = JLE; return JUMP; }
 push                       { return PUSH; }
 mov                        { return MOV; }
 lea                        { return LEA; }
@@ -36,32 +36,32 @@ xor                        { return XOR; }
 
 dword                      { return DWORD; }
 
-al                         { yylval.itype = AL; return REG16H; }
-cl                         { yylval.itype = CL; return REG16H; }
-dl                         { yylval.itype = DL; return REG16H; }
-bl                         { yylval.itype = BL; return REG16H; }
-ah                         { yylval.itype = AH; return REG16H; }
-ch                         { yylval.itype = CH; return REG16H; }
-dh                         { yylval.itype = DH; return REG16H; }
-bh                         { yylval.itype = BH; return REG16H; }
+al                         { yylval.r8type = AL; return REG16H; }
+cl                         { yylval.r8type = CL; return REG16H; }
+dl                         { yylval.r8type = DL; return REG16H; }
+bl                         { yylval.r8type = BL; return REG16H; }
+ah                         { yylval.r8type = AH; return REG16H; }
+ch                         { yylval.r8type = CH; return REG16H; }
+dh                         { yylval.r8type = DH; return REG16H; }
+bh                         { yylval.r8type = BH; return REG16H; }
 
-eax                        { yylval.itype = EAX; return REG32; }
-ebx                        { yylval.itype = EBX; return REG32; }
-ecx                        { yylval.itype = ECX; return REG32; }
-edx                        { yylval.itype = EDX; return REG32; }
-ebp                        { yylval.itype = EBP; return REG32; }
-esp                        { yylval.itype = ESP; return REG32; }
-edi                        { yylval.itype = EDI; return REG32; }
-esi                        { yylval.itype = ESI; return REG32; }
+eax                        { yylval.r32type = EAX; return REG32; }
+ebx                        { yylval.r32type = EBX; return REG32; }
+ecx                        { yylval.r32type = ECX; return REG32; }
+edx                        { yylval.r32type = EDX; return REG32; }
+ebp                        { yylval.r32type = EBP; return REG32; }
+esp                        { yylval.r32type = ESP; return REG32; }
+edi                        { yylval.r32type = EDI; return REG32; }
+esi                        { yylval.r32type = ESI; return REG32; }
 
-r8d                        { yylval.itype = R8D;  return REG32; }
-r9d                        { yylval.itype = R9D;  return REG32; }
-r10d                       { yylval.itype = R10D; return REG32; }
-r11d                       { yylval.itype = R11D; return REG32; }
-r12d                       { yylval.itype = R12D; return REG32; }
-r13d                       { yylval.itype = R13D; return REG32; }
-r14d                       { yylval.itype = R14D; return REG32; }
-r15d                       { yylval.itype = R15D; return REG32; }
+r8d                        { yylval.r32type = R8D;  return REG32; }
+r9d                        { yylval.r32type = R9D;  return REG32; }
+r10d                       { yylval.r32type = R10D; return REG32; }
+r11d                       { yylval.r32type = R11D; return REG32; }
+r12d                       { yylval.r32type = R12D; return REG32; }
+r13d                       { yylval.r32type = R13D; return REG32; }
+r14d                       { yylval.r32type = R14D; return REG32; }
+r15d                       { yylval.r32type = R15D; return REG32; }
 
 rax                        { yylval.r64type = RAX; return REG64; }
 rbx                        { yylval.r64type = RBX; return REG64; }

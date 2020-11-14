@@ -5,8 +5,12 @@
 
 ;RET 0
 
-STR0 .string "Hello!\n"
-STR1 .string "How are you today?\n"
+section .data
+    STR0 .string "Hello!\n"
+    STR1 .string "How are you today?\n"
+
+section .text
+global _start
 
 strlen:
     xor ecx, ecx
@@ -31,7 +35,7 @@ println:
     
     ret
    
-global _start:
+_start:
     mov rdi, STR0
     call println
     

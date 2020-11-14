@@ -52,6 +52,8 @@ extern YY_BUFFER_STATE yy_scan_string(const char * str);
 extern void yy_delete_buffer(YY_BUFFER_STATE buffer);
 int yylex();
 void yyerror(const char *s);
+
+#define YYDEBUG 1
 %}
 
 %define parse.error verbose

@@ -28,6 +28,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <iostream>
+#include <fstream>
 #include <vector>
 #include <string>
 #include <map>
@@ -37,6 +39,42 @@
 extern int pass1(std::string data, std::vector<Elf64_Sym> *es, std::vector<std::string> *st);
 extern void pass2(std::string data, FILE *f);
 
+std::string load_section(const char *path, const char *section) {
+    std::ifstream reader(path);
+    if (!reader.is_open()) {
+        std::cerr << "Unable to open input." << std::endl;
+        return "";
+    }
+    
+    std::string contents = "";
+    std::string line = "";
+    bool add = false;
+    
+    while (std::getline(reader, line)) {
+        int pos = line.find("section");
+        if (pos == 0) {
+            pos += 8;
+            std::string part = line.substr(pos);
+            
+            if (part == section) {
+                add = true;
+            } else {
+                add = false;
+            }
+            
+            continue;
+        }
+        
+        if (line.length() > 0 && add) {
+            contents += line + "\n";
+        }
+    }
+    
+    contents += "\n";
+    return contents;
+}
+
+// Various string utilities
 int get_str_pos(std::vector<std::string> *strtab, std::string to_find) {
     int pos = 1;
     
@@ -66,6 +104,10 @@ int get_table_length(std::vector<std::string> *table) {
 // Builds a relocatable object file
 void build_obj(FILE *file, const char *in_path)
 {
+    // Load the input file
+    std::string code = load_section(in_path, ".text");
+    std::string data = load_section(in_path, ".data");
+
     // Build the section string table
     std::vector<std::string> *shstrtable = new std::vector<std::string>();
     shstrtable->push_back(".shstrtab");
@@ -80,22 +122,13 @@ void build_obj(FILE *file, const char *in_path)
     strtab->push_back(in_path);
     
     // Create the symbol tables
+    std::vector<std::string> *data_values = new std::vector<std::string>();
     std::vector<Elf64_Rela> *rela_tab = new std::vector<Elf64_Rela>();
     
     std::vector<Elf64_Sym> *symtab = new std::vector<Elf64_Sym>();
     elf_generate_symtab(symtab);
     
-    // Load the data
-    std::vector<std::string> *data_values = new std::vector<std::string>();
-    
     // Pass 1
-    // Test code. This needs to go
-    std::string code = "";
-        code += ".global _start\n";
-        code += "_start:\n";
-        code += "mov rax, 60\n";
-        code += "mov rdi, 5\n";
-        code += "syscall\n";
     int code_size = pass1(code, symtab, strtab);
     
     int rela_size = rela_tab->size();

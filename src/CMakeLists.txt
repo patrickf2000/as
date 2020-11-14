@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(asm_x86)
 
-#BISON_TARGET(parser grammar.y ${CMAKE_CURRENT_BINARY_DIR}/parser.yy.cpp)
-#FLEX_TARGET(scanner scanner.l ${CMAKE_CURRENT_BINARY_DIR}/parser.lex.cpp)
-#ADD_FLEX_BISON_DEPENDENCY(scanner parser)
+BISON_TARGET(parser grammar.y ${CMAKE_CURRENT_BINARY_DIR}/parser.yy.cpp)
+FLEX_TARGET(scanner scanner.l ${CMAKE_CURRENT_BINARY_DIR}/parser.lex.cpp)
+ADD_FLEX_BISON_DEPENDENCY(scanner parser)
 
 #set(ASM_SRC
 #    asm/cmp.cpp
@@ -26,8 +26,8 @@ set(ELF_SRC
 )
 
 set(MAIN_SRC
-#	${BISON_parser_OUTPUTS}
-#	${FLEX_scanner_OUTPUTS}
+	${BISON_parser_OUTPUTS}
+	${FLEX_scanner_OUTPUTS}
 	main.cpp
 )
 

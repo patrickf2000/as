@@ -41,6 +41,8 @@ extern char *symbol_parse(const char *path, char *strtab, Elf64_SymTab *table);
 extern int parse(const char *path, FILE *f, PassType pt, SymbolTable *st, Elf64_RelaTab *rt);
 extern int parse_start_pos();*/
 
+extern int parse(std::string data, int pass_num);
+
 int get_str_pos(std::vector<std::string> *strtab, std::string to_find) {
     int pos = 1;
     
@@ -113,7 +115,16 @@ void build_obj(FILE *file, const char *in_path)
     // Pass 1
     //strtab = symbol_parse(in_path, strtab, symtab);
     //int code_size = parse(in_path, file, Build1, sym_table, rela_tab);
-    int code_size = 0;
+    //int code_size = 0;
+    
+    std::string code = "";
+        code += "mov rax, 60\n";
+        code += "mov rdi, 5\n";
+        code += "syscall\n";
+    int code_size = parse(code, 1);
+    printf("Code size: %d\n", code_size);
+    code_size = 0;
+    
     int rela_size = rela_tab->size();
     //int start_pos = elf_symtab_sort(symtab);
     int start_pos = 4;
@@ -154,6 +165,7 @@ void build_obj(FILE *file, const char *in_path)
     elf_write_sec_data(file, data_values);
     
     // Write the code
+    parse(code, 2);
     //parse(in_path, file, Build2, sym_table, rela_tab);
     
     // Write the rela.text section

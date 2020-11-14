@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <asm/asm.h>
+#include <asm/asm.hpp>
 
-#include "parser.yy.h"
+#include "parser.yy.hpp"
 %}
 
 %%
@@ -103,3 +103,6 @@ r15                        { yylval.itype = R15; return REG64; }
                            }
 [A-Za-z]*([0-9]+)?	       { yylval.stype = strdup(yytext); return ID;}
 %%
+
+int yywrap() { return 1; }
+

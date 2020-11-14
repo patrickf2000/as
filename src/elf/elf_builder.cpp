@@ -36,7 +36,8 @@
 
 #include <elf/elf_bin.hpp>
 
-extern int pass1(std::string data, std::vector<Elf64_Sym> *es, std::vector<std::string> *st);
+extern int data_pass(std::string data, std::vector<Elf64_Sym> *es, std::vector<std::string> *st, std::vector<std::string> *dt);
+extern int pass1(std::string data, std::vector<Elf64_Sym> *es, std::vector<std::string> *st, std::vector<Elf64_Rela> *rela_tab);
 extern void pass2(std::string data, FILE *f);
 
 std::string load_section(const char *path, const char *section) {
@@ -117,11 +118,10 @@ void build_obj(FILE *file, const char *in_path)
     shstrtable->push_back(".data");
     shstrtable->push_back(".text");
     
-    // Setup the string table
+    // Create the symbol tables
     std::vector<std::string> *strtab = new std::vector<std::string>();
     strtab->push_back(in_path);
     
-    // Create the symbol tables
     std::vector<std::string> *data_values = new std::vector<std::string>();
     std::vector<Elf64_Rela> *rela_tab = new std::vector<Elf64_Rela>();
     
@@ -129,11 +129,11 @@ void build_obj(FILE *file, const char *in_path)
     elf_generate_symtab(symtab);
     
     // Pass 1
-    int code_size = pass1(code, symtab, strtab);
+    data_pass(data, symtab, strtab, data_values);
+    int code_size = pass1(code, symtab, strtab, rela_tab);
     
     int rela_size = rela_tab->size();
-    //int start_pos = elf_symtab_sort(symtab);
-    int start_pos = 4;
+    int start_pos = elf_symtab_sort(symtab);
     
     // Build the rest
     int offset = 8 * 64;
@@ -155,7 +155,7 @@ void build_obj(FILE *file, const char *in_path)
     offset = elf_header_strtab(file, strtab_name, offset, strtab_size);
     
     int data_name = get_str_pos(shstrtable, ".data");
-    int data_size = get_table_length(data_values);
+    int data_size = get_table_length(data_values) - (data_values->size() + 1);
     offset = elf_header_sec_data(file, data_name, offset, data_size);
     
     int text_name = get_str_pos(shstrtable, ".text");

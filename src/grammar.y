@@ -27,6 +27,7 @@
 
 %{
 #include <cstdio>
+#include <cstring>
 #include <string>
 #include <vector>
 #include <map>
@@ -37,7 +38,9 @@
 
 FILE *file;
 std::vector<Elf64_Sym> *elf_symtab;
+std::vector<Elf64_Rela> *elf_rela_tab;
 std::vector<std::string> *strtab;
+std::vector<std::string> *data_list;
 
 int lc = 0;
 int pass_num = 1;   // Either 1 or 2
@@ -81,7 +84,8 @@ void yyerror(const char *s);
 all_statements: statement all_statements | /* empty */;
 
 statement:
-      label
+      data
+    | label
     | cmp
     | call
     | ret
@@ -97,6 +101,40 @@ statement:
     | mov
     | empty
 	;
+
+data:
+      ID T_STRING STRING NL    {
+      							 if (pass_num == 1) {
+      							    symtab[$1] = lc;
+      							    
+      							    std::string str_original = $3;
+      							    std::string str = "";
+      							    for (int i = 1; i<str_original.length()-2; i++) {
+      							        char c = str_original[i];
+      							        if (c == '\\') {
+      							            c = str_original[i+1];
+      							            if (c == 'n') {
+      							                str += '\n';
+      							            } else {
+      							                str += c;
+      							            }
+      							            
+      							            continue;
+      							        }
+      							        
+      							        str += c;
+      							    }
+      							    
+      							    lc += str.length();
+      							    data_list->push_back(str);
+      							    
+      							    strtab->push_back($1);
+      							    int pos = get_str_pos(strtab, $1);
+      							    
+      							    elf_add_symbol(elf_symtab, pos, lc, 1, 0);
+      							 }
+                               }
+    ;
     
 label:
     LABEL NL            {
@@ -257,18 +295,14 @@ mov:
                                                         }
     | MOV REG64 ',' INTEGER NL                          { lc += 10; if (pass_num == 2) amd64_mov_reg64_imm($2, $4, file); }
     | MOV REG64 ',' ID NL                               { 
-                                                          /*if (pass_type == Build1) 
-                                                          {
+                                                          if (pass_num == 1) {
                                                               int code_offset = lc + 2;
-                                                              int data_offset = sym_table_get(sym_table, $4);
+                                                              int data_offset = symtab[$4];
                                                               
-                                                              elf_rela_add(rela_tab, code_offset, data_offset);
-                                                          }
-                                                          else if (pass_num == 2) {}
-                                                          {
+                                                              elf_rela_add(elf_rela_tab, code_offset, data_offset);
+                                                          } else {
                                                               amd64_mov_reg64_imm($2, 0, file);
-                                                              
-                                                          }*/
+                                                          }
                                                           lc += 10;
                                                         }
     | MOV REG16H ',' '[' REG64 '+' REG64 ']' NL         { lc += 3; if (pass_num == 2) {} }//amd64_mov_r8_mrr($2, $5, $7, file); }
@@ -284,11 +318,27 @@ empty:
 
 %%
 
-// Pass 1 function
-int pass1(std::string data, std::vector<Elf64_Sym> *es, std::vector<std::string> *st) {
+// Pass 1 function for data
+int data_pass(std::string data, std::vector<Elf64_Sym> *es, std::vector<std::string> *st, std::vector<std::string> *dt) {
+    lc = 0;
     pass_num = 1;
     elf_symtab = es;
     strtab = st;
+    data_list = dt;
+    
+    YY_BUFFER_STATE buffer = yy_scan_string(data.c_str());
+    yyparse();
+    yy_delete_buffer(buffer);
+    return lc;
+}
+
+// Pass 1 function
+int pass1(std::string data, std::vector<Elf64_Sym> *es, std::vector<std::string> *st, std::vector<Elf64_Rela> *rela_tab) {
+    lc = 0;
+    pass_num = 1;
+    elf_symtab = es;
+    strtab = st;
+    elf_rela_tab = rela_tab;
     
     YY_BUFFER_STATE buffer = yy_scan_string(data.c_str());
     yyparse();
@@ -298,6 +348,7 @@ int pass1(std::string data, std::vector<Elf64_Sym> *es, std::vector<std::string>
 
 //Our parsing function
 void pass2(std::string data, FILE *f) {
+    lc = 0;
     file = f;
     pass_num = 2;
     

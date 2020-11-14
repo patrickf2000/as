@@ -3,7 +3,10 @@
 
 ;RET 144
 
-global _start:
+section .text
+global _start
+
+_start:
     mov eax, 2
     mov ebx, 3
     mov ecx, 4

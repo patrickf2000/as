@@ -3,7 +3,10 @@
 
 ;RET 33
 
-global _start:
+section .text
+global _start
+
+_start:
     mov rax, 10
     add rax, 5
     

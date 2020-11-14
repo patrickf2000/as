@@ -5,10 +5,14 @@
 
 ;OUTPUT 0
 
-eq .string "Equal\n"
-neq .string "Not equal\n"
+section .data
+    eq .string "Equal\n"
+    neq .string "Not equal\n"
 
-global _start:
+section .text
+global _start
+
+_start:
     mov eax, 5
     cmp eax, 10
     je wrong

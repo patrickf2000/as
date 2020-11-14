@@ -3,7 +3,10 @@
 
 ;RET 0
 
-global _start:
+section .text
+global _start
+
+_start:
     ; Test 1
     mov eax, 6
     add eax, 5

@@ -3,7 +3,10 @@
 
 ;RET 2
 
-global _start:
+section .text
+global _start
+
+_start:
     mov r15, 10
     mov r14, 5
     mov r13, 3

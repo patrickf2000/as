@@ -3,7 +3,10 @@
 
 ;RET 3
 
-global _start:
+section .text
+global _start
+
+_start:
     mov rax, 1
     mov rbx, 2
     add rax, rbx

@@ -3,7 +3,10 @@
 
 ;RET 100
 
-global _start:
+section .text
+global _start
+
+_start:
     mov r10, 100
     mov r11, 90
     

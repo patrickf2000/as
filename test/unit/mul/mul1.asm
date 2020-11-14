@@ -3,7 +3,10 @@
 
 ;RET 60
 
-global _start:
+section .text
+global _start
+
+_start:
     mov rax, 5
     mov rbx, 3
     imul rax, rbx

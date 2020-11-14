@@ -179,13 +179,21 @@ void amd64_r1_32(Reg32 reg, FILE *file)
     switch (reg)
     {
         case EAX: rnew = RAX; break;
+        case R8D: rnew = R8; break;
         case ECX: rnew = RCX; break;
+        case R9D: rnew = R9; break;
         case EDX: rnew = RDX; break;
+        case R10D: rnew = R10; break;
         case EBX: rnew = RBX; break;
+        case R11D: rnew = R11; break;
         case ESP: rnew = RSP; break;
+        case R12D: rnew = R12; break;
         case EBP: rnew = RBP; break;
+        case R13D: rnew = R13; break;
         case ESI: rnew = RSI; break;
+        case R14D: rnew = R14; break;
         case EDI: rnew = RDI; break;
+        case R15D: rnew = R15; break;
     }
     
     amd64_r1(rnew, file);

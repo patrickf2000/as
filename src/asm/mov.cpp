@@ -27,7 +27,7 @@
 
 #include <inttypes.h>
 
-#include "asm.h"
+#include "asm.hpp"
 
 // Move integer immediate to 32-bit register
 // Format: <op> <imm>
@@ -127,7 +127,7 @@ void amd64_mov_rr32(Reg32 r1, Reg32 r2, FILE *file)
     fputc(0x89, file);
     
     //Now encode the registers
-    amd64_rr(r1, r2, file);
+    amd64_rr32(r1, r2, file);
 }
 
 // Move one register to another (64-bit)
@@ -182,7 +182,7 @@ void amd64_mov_m_reg64(Reg64 dest, int dsp, Reg64 src, FILE *file)
     fputc(0x89, file);
     
     // And the registers
-    amd64_dsp16(dest, src, dsp, file);
+    amd64_dsp16_64(dest, src, dsp, file);
 }
 
 // Move memory location to 8-bit half register using reg+reg indexing
@@ -258,7 +258,8 @@ void amd64_mov_reg64_mem(Reg64 dest, Reg64 src, int dsp, FILE *file)
     fputc(0x48, file);
     
     // Write the rest
-    amd64_mov_reg32_mem(dest, src, dsp, file);
+    fputc(0x8B, file);
+    amd64_dsp16_64(src, dest, dsp, file);
 }
 
 // Load effective address to 64-bit register
@@ -272,5 +273,5 @@ void amd64_lea64(Reg64 dest, Reg64 src, int dsp, FILE *file)
     fputc(0x8D, file);
     
     //Write the registers
-    amd64_dsp16(src, dest, dsp, file);
+    amd64_dsp16_64(src, dest, dsp, file);
 }

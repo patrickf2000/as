@@ -25,7 +25,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 // EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "asm.h"
+#include "asm.hpp"
 
 // The common functions for math register-register operations
 void amd64_math_rr32(Reg32 dest, Reg32 src, unsigned char opcode, FILE *file)
@@ -39,7 +39,7 @@ void amd64_math_rr32(Reg32 dest, Reg32 src, unsigned char opcode, FILE *file)
     fputc(opcode, file);
     
     //Now encode the registers
-    amd64_rr(dest, src, file);
+    amd64_rr32(dest, src, file);
 }
 
 void amd64_math_rr64(Reg64 dest, Reg64 src, unsigned char opcode, FILE *file)
@@ -85,6 +85,22 @@ void amd64_add_ri(Reg64 reg, FILE *file)
     }
 }
 
+void amd64_add_ri32(Reg32 reg, FILE *file)
+{
+    // The register
+    switch (reg)
+    {
+        case EAX: fputc(0xC0, file); break;
+        case ECX: fputc(0xC1, file); break;
+        case EDX: fputc(0xC2, file); break;
+        case EBX: fputc(0xC3, file); break;
+        case ESP: fputc(0xC4, file); break;
+        case EBP: fputc(0xC5, file); break;
+        case ESI: fputc(0xC6, file); break;
+        case EDI: fputc(0xC7, file); break;
+    }
+}
+
 // Add a 32-bit register and an immediate
 void amd64_add_r32_imm(Reg32 reg, int imm, FILE *file)
 {
@@ -92,7 +108,7 @@ void amd64_add_r32_imm(Reg32 reg, int imm, FILE *file)
     fputc(0x83, file);
     
     // Encode the register
-    amd64_add_ri(reg, file);
+    amd64_add_ri32(reg, file);
     
     // Write the immediate value
     fputc(imm, file);
@@ -139,7 +155,7 @@ void amd64_add_r64_mem(Reg64 reg, Reg64 src, int dsp, FILE *file)
     fputc(0x03, file);
     
     // The registers
-    amd64_dsp16(src, reg, dsp, file);
+    amd64_dsp16_64(src, reg, dsp, file);
 }
 
 // Add an immediate with a 32-bit memory location
@@ -173,7 +189,7 @@ void amd64_sub_r32_imm(Reg32 reg, int imm, FILE *file)
     fputc(0x83, file);
     
     // Encode the register
-    amd64_r1(reg, file);
+    amd64_r1_32(reg, file);
     
     // Write the immediate
     fputc(imm, file);
@@ -212,7 +228,7 @@ void amd64_imul_rr32(Reg32 dest, Reg32 src, FILE *file)
     fputc(0xAF, file);
     
     // The registers
-    amd64_rr(src, dest, file);
+    amd64_rr32(src, dest, file);
 }
 
 // Signed-multiply two 64-bit register values
@@ -242,7 +258,7 @@ void amd64_imul_r32(Reg32 reg, FILE *file)
     fputc(0xF7, file);
     
     // Encode the registers
-    amd64_r1(reg, file);
+    amd64_r1_32(reg, file);
 }
 
 // Signed multiply register with rax value
@@ -271,7 +287,7 @@ void amd64_imul_r32_imm(Reg32 dest, Reg32 src, int imm, FILE *file)
     fputc(0x69, file);
     
     // Encode the registers
-    amd64_rr(src, dest, file);
+    amd64_rr32(src, dest, file);
     
     // Write the immediate
     fwrite(&imm, sizeof(int), 1, file);

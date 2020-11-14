@@ -29,7 +29,7 @@
 
 #include <stdio.h>
 
-typedef enum
+enum Reg64
 {
     RAX,
     RBX,
@@ -48,9 +48,9 @@ typedef enum
     R13,
     R14,
     R15
-} Reg64;
+};
 
-typedef enum
+enum Reg32
 {
     EAX,
     EBX,
@@ -69,7 +69,7 @@ typedef enum
     R13D,
     R14D,
     R15D
-} Reg32;
+};
 
 enum Reg16H
 {
@@ -84,7 +84,7 @@ enum Reg16H
     DH
 };
 
-typedef enum
+enum Jmp
 {
     JMP,
     JE,
@@ -93,7 +93,7 @@ typedef enum
     JL,
     JGE,
     JLE
-} Jmp;
+};
 
 void amd64_cmp_reg16h_imm(Reg16H op1, int op2, FILE *file);
 void amd64_cmp_reg32_imm(Reg32 op1, int op2, FILE *file);
@@ -141,8 +141,12 @@ void amd64_imul_r64_imm(Reg64 dest, Reg64 src, int imm, FILE *file);
 
 void amd64_64prefix(int size64, int dest64, int src64, FILE *file);
 void amd64_rr(Reg64 r1, Reg64 r2, FILE *file);
+void amd64_rr32(Reg32 r1, Reg32 r2, FILE *file);
 void amd64_r1(Reg64 reg, FILE *file);
+void amd64_r1_32(Reg32 reg, FILE *file);
 void amd64_dsp16(Reg64 mem, Reg32 r, int dsp, FILE *file);
+void amd64_dsp16_64(Reg64 mem, Reg64 r, int dsp, FILE *file);
 void amd64_mem_imm(Reg64 dest, int dsp, FILE *file);
 void amd64_syscall(FILE *file);
+
 void amd64_leave(FILE *file);

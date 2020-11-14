@@ -63,23 +63,23 @@ r13d                       { yylval.itype = R13D; return REG32; }
 r14d                       { yylval.itype = R14D; return REG32; }
 r15d                       { yylval.itype = R15D; return REG32; }
 
-rax                        { yylval.itype = RAX; return REG64; }
-rbx                        { yylval.itype = RBX; return REG64; }
-rcx                        { yylval.itype = RCX; return REG64; }
-rdx                        { yylval.itype = RDX; return REG64; }
-rbp                        { yylval.itype = RBP; return REG64; }
-rsp                        { yylval.itype = RSP; return REG64; }
-rdi                        { yylval.itype = RDI; return REG64; }
-rsi                        { yylval.itype = RSI; return REG64; }
+rax                        { yylval.r64type = RAX; return REG64; }
+rbx                        { yylval.r64type = RBX; return REG64; }
+rcx                        { yylval.r64type = RCX; return REG64; }
+rdx                        { yylval.r64type = RDX; return REG64; }
+rbp                        { yylval.r64type = RBP; return REG64; }
+rsp                        { yylval.r64type = RSP; return REG64; }
+rdi                        { yylval.r64type = RDI; return REG64; }
+rsi                        { yylval.r64type = RSI; return REG64; }
 
-r8                         { yylval.itype = R8;  return REG64; }
-r9                         { yylval.itype = R9;  return REG64; }
-r10                        { yylval.itype = R10; return REG64; }
-r11                        { yylval.itype = R11; return REG64; }
-r12                        { yylval.itype = R12; return REG64; }
-r13                        { yylval.itype = R13; return REG64; }
-r14                        { yylval.itype = R14; return REG64; }
-r15                        { yylval.itype = R15; return REG64; }
+r8                         { yylval.r64type = R8;  return REG64; }
+r9                         { yylval.r64type = R9;  return REG64; }
+r10                        { yylval.r64type = R10; return REG64; }
+r11                        { yylval.r64type = R11; return REG64; }
+r12                        { yylval.r64type = R12; return REG64; }
+r13                        { yylval.r64type = R13; return REG64; }
+r14                        { yylval.r64type = R14; return REG64; }
+r15                        { yylval.r64type = R15; return REG64; }
 
 ;.*\n                      {}
 

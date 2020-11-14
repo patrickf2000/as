@@ -25,7 +25,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 // EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "asm.h"
+#include "asm.hpp"
 
 void amd64_push_reg64(Reg64 reg, FILE *file)
 {

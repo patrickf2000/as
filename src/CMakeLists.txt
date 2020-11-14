@@ -5,16 +5,16 @@ BISON_TARGET(parser grammar.y ${CMAKE_CURRENT_BINARY_DIR}/parser.yy.cpp)
 FLEX_TARGET(scanner scanner.l ${CMAKE_CURRENT_BINARY_DIR}/parser.lex.cpp)
 ADD_FLEX_BISON_DEPENDENCY(scanner parser)
 
-#set(ASM_SRC
-#    asm/cmp.cpp
-#    asm/data.cpp
-#    asm/func.cpp
-#    asm/logic.cpp
-#    asm/math.cpp
-#    asm/mov.cpp
-#    asm/push.cpp
-#    asm/utils.cpp
-#)
+set(ASM_SRC
+    asm/cmp.cpp
+    asm/data.cpp
+    asm/func.cpp
+    asm/logic.cpp
+    asm/math.cpp
+    asm/mov.cpp
+    asm/push.cpp
+    asm/utils.cpp
+)
 
 set(ELF_SRC
     elf/elf_bin.cpp
@@ -33,6 +33,6 @@ set(MAIN_SRC
 
 add_executable(asmx86 
     ${MAIN_SRC}
-#    ${ASM_SRC}
+    ${ASM_SRC}
     ${ELF_SRC}
 )

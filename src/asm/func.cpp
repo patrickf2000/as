@@ -25,7 +25,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 // EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "asm.h"
+#include "asm.hpp"
 
 // The relative jump instructions
 // Format: <instruction> <loco>

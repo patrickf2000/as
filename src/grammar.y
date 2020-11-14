@@ -26,10 +26,12 @@
 // EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 %{
+#include <cstdio>
 #include <string>
 
 #include <asm/asm.hpp>
 
+FILE *file;
 int lc = 0;
 int pass_num = 1;   // Either 1 or 2
 
@@ -48,6 +50,7 @@ void yyerror(const char *s);
 	char* stype;
 	int itype;
 	float ftype;
+	Reg64 r64type;
 }
 
 %token T_STRING GLOBAL EXTERN
@@ -56,7 +59,8 @@ void yyerror(const char *s);
 %token DWORD
 %token NL
 
-%token <itype> INTEGER HEX REG16H REG32 REG64 JUMP
+%token <r64type> REG64
+%token <itype> INTEGER HEX REG16H REG32 JUMP
 %token <ftype> FLOAT
 %token <stype> STRING LABEL
 %token <stype> ID
@@ -199,7 +203,7 @@ xor:
     ;
     
 syscall:
-      SYSCALL NL        { lc += 2; if (pass_num == 2) {} }//amd64_syscall(file); }
+      SYSCALL NL        { lc += 2; if (pass_num == 2) amd64_syscall(file); }
     ;
     
 leave:
@@ -222,7 +226,7 @@ mov:
                                                             if ($2 > EDI) ++lc;
                                                             if (pass_num == 2) {} //amd64_mov_reg32_imm($2, $4, file); 
                                                         }
-    | MOV REG64 ',' INTEGER NL                          { lc += 10; if (pass_num == 2) {} }//amd64_mov_reg64_imm($2, $4, file); }
+    | MOV REG64 ',' INTEGER NL                          { lc += 10; if (pass_num == 2) amd64_mov_reg64_imm($2, $4, file); }
     | MOV REG64 ',' ID NL                               { 
                                                           /*if (pass_type == Build1) 
                                                           {
@@ -252,7 +256,9 @@ empty:
 %%
 
 //Our parsing function
-int parse(std::string data, int pass_num) {
+int parse(std::string data, int pass_num, FILE *f) {
+    file = f;
+    
     YY_BUFFER_STATE buffer = yy_scan_string(data.c_str());
     yyparse();
     yy_delete_buffer(buffer);

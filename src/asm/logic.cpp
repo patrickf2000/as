@@ -25,7 +25,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 // EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "asm.h"
+#include "asm.hpp"
 
 // 32-bit XOR with two registers
 // 31 <encoding>
@@ -35,5 +35,6 @@ void amd64_xor_rr32(Reg32 dest, Reg32 src, FILE *file)
     fputc(0x31, file);
     
     // Encode the registers
-    amd64_rr(dest, src, file);
+    amd64_rr32(dest, src, file);
 }
+

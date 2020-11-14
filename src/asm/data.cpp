@@ -28,12 +28,12 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <asm/asm.h>
+#include <asm/asm.hpp>
 
 // Write string data to the file
 void amd64_write_string(const char *str, FILE *file)
 {
-    int len = strlen(str) - 2;
+    /*int len = strlen(str) - 2;
     char *str2 = malloc(sizeof(char)*len);
     
     // Omit the quotes and check for escape sequences
@@ -51,5 +51,5 @@ void amd64_write_string(const char *str, FILE *file)
         index++;
     }
     
-    fputs(str2, file);
+    fputs(str2, file);*/
 }

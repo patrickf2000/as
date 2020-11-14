@@ -25,7 +25,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 // EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "asm.h"
+#include "asm.hpp"
 
 // Compare 16-bit register half and immediage
 // Format: 80 <reg> <imm>
@@ -52,20 +52,6 @@ void amd64_cmp_reg16h_imm(Reg16H op1, int op2, FILE *file)
 }
 
 // Encode registers for the register-immediate instructions
-void amd64_cmp_ri(Reg64 reg, FILE *file)
-{
-    switch (reg)
-    {
-        case RAX: fputc(0xF8, file); break;
-        case RCX: fputc(0xF9, file); break;
-        case RDX: fputc(0xFA, file); break;
-        case RBX: fputc(0xFB, file); break;
-        case RSP: fputc(0xFC, file); break;
-        case RBP: fputc(0xFD, file); break;
-        case RSI: fputc(0xFE, file); break;
-        case RDI: fputc(0xFF, file); break;
-    }
-}
 
 // Compare 32-bit register and immediate
 // Format: 83 <reg> <imm>
@@ -75,7 +61,17 @@ void amd64_cmp_reg32_imm(Reg32 op1, int op2, FILE *file)
     fputc(0x83, file);
     
     // The registers
-    amd64_cmp_ri(op1, file);
+    switch (op1)
+    {
+        case EAX: fputc(0xF8, file); break;
+        case ECX: fputc(0xF9, file); break;
+        case EDX: fputc(0xFA, file); break;
+        case EBX: fputc(0xFB, file); break;
+        case ESP: fputc(0xFC, file); break;
+        case EBP: fputc(0xFD, file); break;
+        case ESI: fputc(0xFE, file); break;
+        case EDI: fputc(0xFF, file); break;
+    }
 
     // Write the immediate
     fputc(op2, file);
@@ -91,5 +87,21 @@ void amd64_cmp_reg64_imm(Reg64 op1, int op2, FILE *file)
     else
         amd64_64prefix(1, 0, 0, file);
         
-   amd64_cmp_reg32_imm(op1, op2, file);
+    // The instruction
+    fputc(0x83, file);
+        
+    switch (op1)
+    {
+        case RAX: fputc(0xF8, file); break;
+        case RCX: fputc(0xF9, file); break;
+        case RDX: fputc(0xFA, file); break;
+        case RBX: fputc(0xFB, file); break;
+        case RSP: fputc(0xFC, file); break;
+        case RBP: fputc(0xFD, file); break;
+        case RSI: fputc(0xFE, file); break;
+        case RDI: fputc(0xFF, file); break;
+    }
+    
+    // Write the immediate
+    fputc(op2, file);
 }

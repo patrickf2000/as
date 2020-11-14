@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include <elf.h>
 
-#include "elf_bin.h"
+#include "elf_bin.hpp"
 
 // Write an ELF header
 void elf_write_header(FILE *file)

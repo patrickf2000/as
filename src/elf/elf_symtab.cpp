@@ -29,7 +29,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <elf/elf_bin.h>
+#include <vector>
+
+#include <elf/elf_bin.hpp>
 
 // Write the symbol table
 int elf_header_symtab(FILE *file, int name_pos, int offset, int count, int start_pos)
@@ -56,75 +58,63 @@ int elf_header_symtab(FILE *file, int name_pos, int offset, int count, int start
 }
 
 // Write the symbol table
-void elf_write_symtab(FILE *file, Elf64_SymTab *symtab)
-{
-    fwrite(symtab->symbols, sizeof(Elf64_Sym), symtab->size, file);
+void elf_write_symtab(FILE *file, std::vector<Elf64_Sym> *symtab) {
+    for (int i = 0; i<symtab->size(); i++) {
+        Elf64_Sym current = symtab->at(i);
+        fwrite(&current, sizeof(Elf64_Sym), 1, file);
+    }
 }
 
 // Generate the default symbol table
-Elf64_SymTab *elf_generate_symtab()
-{
-    // The symbol variable
-    Elf64_Sym *symbols = malloc(sizeof(Elf64_Sym)*5);
-    Elf64_Sym symbol;
-    
+void elf_generate_symtab(std::vector<Elf64_Sym> *symtab) {
     // The null symbol
-    symbol.st_name = 0;
-    symbol.st_info = ELF64_ST_INFO(STB_LOCAL, STT_NOTYPE);
-    symbol.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
-    symbol.st_shndx = STN_UNDEF;
-    symbol.st_value = 0;
-    symbol.st_size = 0;
-    symbols[0] = symbol;
+    Elf64_Sym symbol1;
+    symbol1.st_name = 0;
+    symbol1.st_info = ELF64_ST_INFO(STB_LOCAL, STT_NOTYPE);
+    symbol1.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
+    symbol1.st_shndx = STN_UNDEF;
+    symbol1.st_value = 0;
+    symbol1.st_size = 0;
+    symtab->push_back(symbol1);
     
     // The file symbol
-    symbol.st_name = 8;
-    symbol.st_info = ELF64_ST_INFO(STB_LOCAL, STT_FILE);
-    symbol.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
-    symbol.st_shndx = SHN_ABS;
-    symbol.st_value = 0;
-    symbol.st_size = 0;
-    symbols[1] = symbol;
+    Elf64_Sym symbol2;
+    symbol2.st_name = 1;
+    symbol2.st_info = ELF64_ST_INFO(STB_LOCAL, STT_FILE);
+    symbol2.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
+    symbol2.st_shndx = SHN_ABS;
+    symbol2.st_value = 0;
+    symbol2.st_size = 0;
+    symtab->push_back(symbol2);
     
     // The section symbol (data)
-    symbol.st_name = 0;
-    symbol.st_info = ELF64_ST_INFO(STB_LOCAL, STT_SECTION);
-    symbol.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
-    symbol.st_shndx = 4;
-    symbol.st_value = 0;
-    symbol.st_size = 0;
-    symbols[2] = symbol;
+    Elf64_Sym symbol3;
+    symbol3.st_name = 0;
+    symbol3.st_info = ELF64_ST_INFO(STB_LOCAL, STT_SECTION);
+    symbol3.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
+    symbol3.st_shndx = 4;
+    symbol3.st_value = 0;
+    symbol3.st_size = 0;
+    symtab->push_back(symbol3);
     
     // The section symbol (text)
-    symbol.st_name = 0;
-    symbol.st_info = ELF64_ST_INFO(STB_LOCAL, STT_SECTION);
-    symbol.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
-    symbol.st_shndx = 5;
-    symbol.st_value = 0;
-    symbol.st_size = 0;
-    symbols[3] = symbol;
-    
-    // Build and return the table
-    Elf64_SymTab *symtab = malloc(sizeof(Elf64_SymTab));
-    symtab->symbols = symbols;
-    symtab->size = 4;
-    
-    return symtab;
+    Elf64_Sym symbol4;
+    symbol4.st_name = 0;
+    symbol4.st_info = ELF64_ST_INFO(STB_LOCAL, STT_SECTION);
+    symbol4.st_other = ELF64_ST_VISIBILITY(STV_DEFAULT);
+    symbol4.st_shndx = 5;
+    symbol4.st_value = 0;
+    symbol4.st_size = 0;
+    symtab->push_back(symbol4);
 }
 
 // A symbol to the symbol table
 // Type: 0 -> Local symbol
 //       1 -> Global symbol
 //       2 -> Extern symbol
-int elf_add_symbol(Elf64_SymTab *table, int name_pos, int value, int is_data, int type)
-{
+int elf_add_symbol(std::vector<Elf64_Sym> *table, int name_pos, int value, int is_data, int type) {
     if (name_pos == 0)
         return -1;
-    
-    // Reallocate
-    int size = table->size + 1;
-    table->symbols = realloc(table->symbols, sizeof(Elf64_Sym) * size);
-    table->size = size;
     
     int index = 5;
     if (is_data) index = 4;
@@ -143,62 +133,53 @@ int elf_add_symbol(Elf64_SymTab *table, int name_pos, int value, int is_data, in
     symbol.st_shndx = shndx;
     symbol.st_value = value;
     symbol.st_size = 0;
-    table->symbols[size-1] = symbol;
+    table->push_back(symbol);
     
-    return size-1;
+    return table->size()-1;
 }
 
 // Sorts the symbol table so all global symbols are last
-int elf_symtab_sort(Elf64_SymTab *table)
-{
-    int size = table->size;
+int elf_symtab_sort(std::vector<Elf64_Sym> *table) {
+    int size = table->size();
 
     // First, allocate two tables
-    Elf64_Sym *local_symbols = malloc(sizeof(Elf64_Sym)*size);
-    Elf64_Sym *global_symbols = malloc(sizeof(Elf64_Sym)*size);
+    std::vector<Elf64_Sym> local_symbols;
+    std::vector<Elf64_Sym> global_symbols;
     
     int li = 0;    // Local symbol table index
     int gi = 0;    // Global symbol table index
     
     // Iterate through the original table and sort out the symbols
-    for (int i = 0; i<size; i++)
-    {
-        Elf64_Sym current = table->symbols[i];
-        if (ELF64_ST_BIND(current.st_info) == STB_GLOBAL)
-        {
-            global_symbols[gi] = current;
+    for (int i = 0; i<size; i++) {
+        Elf64_Sym current = table->at(i);
+        
+        if (ELF64_ST_BIND(current.st_info) == STB_GLOBAL) {
+            global_symbols.push_back(current);
             ++gi;   
-        }
-        else
-        {
-            local_symbols[li] = current;
+        } else {
+            local_symbols.push_back(current);
             ++li;
         }
     }
+    
+    table->clear();
     
     // Put the tables back together
     int index = 0;
     int global_start = 0;
     
     // Start with the local symbols
-    for (int i = 0; i<li; i++)
-    {
-        table->symbols[index] = local_symbols[i];
+    for (int i = 0; i<li; i++) {
+        table->push_back(local_symbols.at(i));
         ++index;
     }
     
     global_start = index;
     
     // Now the global symbols
-    for (int i = 0; i<gi; i++)
-    {
-        table->symbols[index] = global_symbols[i];
-        ++index;
+    for (int i = 0; i<gi; i++) {
+        table->push_back(global_symbols.at(i));
     }
-    
-    // Free the tables
-    free(local_symbols);
-    free(global_symbols);
     
     // Return the start position of the globals
     return global_start;
@@ -227,7 +208,7 @@ int get_str_pos(char *values, int last_pos)
 
 // Insert data symbols
 // This involes adding everything to the symbol table and calculating offsets
-char *elf_insert_data_symbols(Elf64_SymTab *symtab, SymbolTable *dataPos, char *names, char *values, char *strtab)
+/*char *elf_insert_data_symbols(Elf64_SymTab *symtab, SymbolTable *dataPos, char *names, char *values, char *strtab)
 {
     int length = strlen(names);
     int old_length = strlen(strtab);
@@ -280,4 +261,4 @@ char *elf_insert_data_symbols(Elf64_SymTab *symtab, SymbolTable *dataPos, char *
     free(buf);
     
     return strtab;
-}
+}*/

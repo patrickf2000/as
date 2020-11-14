@@ -29,13 +29,13 @@
 #include <stdlib.h>
 #include <malloc.h>
 
-#include <elf/elf_bin.h>
+#include <vector>
+#include <string>
+
+#include <elf/elf_bin.hpp>
 
 //Write the section header string table data
-int elf_header_shstrtab(FILE *file, int name_pos, int offset, char *table)
-{
-    int size = strlen(table) + 1;
-
+int elf_header_shstrtab(FILE *file, int name_pos, int offset, int size) {
     Elf64_Shdr header;
 
     header.sh_name = name_pos;          // Section name (string tbl index)
@@ -56,10 +56,7 @@ int elf_header_shstrtab(FILE *file, int name_pos, int offset, char *table)
 }
 
 // Write the string table
-int elf_header_strtab(FILE *file, int name_pos, int offset, char *table)
-{
-    int size = strlen(table) + 1;
-
+int elf_header_strtab(FILE *file, int name_pos, int offset, int size) {
     Elf64_Shdr header;
 
     header.sh_name = name_pos;		/* Section name (string tbl index) */
@@ -77,3 +74,15 @@ int elf_header_strtab(FILE *file, int name_pos, int offset, char *table)
     
     return offset + size;
 }
+
+// Write a string table to our file
+void elf_strtab_write(FILE *file, std::vector<std::string> *table) {
+    fputc(0, file);
+    
+    for (int i = 0; i<table->size(); i++) {
+        auto current = table->at(i);
+        fputs(current.c_str(), file);
+        fputc(0, file);
+    }
+}
+

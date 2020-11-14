@@ -25,46 +25,27 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 // EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
+// Handles things relating to the text section of the ELF file
 
-#include <elf/elf_bin.h>
+#include <elf/elf_bin.hpp>
 
-int main(int argc, char *argv[]) 
+// Write the .text header
+int elf_header_text(FILE *file, int name_pos, int offset, int size)
 {
-    if (argc == 1) 
-    {
-        puts("Error: No input");
-        return 1;
-    }
-    
-    char *out_path = "a.out";
-    
-    for (int i = 1; i<argc; i++) {
-        if (strcmp(argv[i], "-o") == 0) {
-            if (i+1 >= argc) {
-                puts("Error: No output file specified.");
-                return 1;
-            }
-            
-            out_path = strdup(argv[i+1]);
-            ++i;
-        }
-    }
+    Elf64_Shdr header;
 
-    // Generate the file
-    FILE *file = fopen(out_path, "w");
+    header.sh_name = name_pos;		                // Section name (string tbl index)
+    header.sh_type = SHT_PROGBITS;		            // Section type
+    header.sh_flags = SHF_ALLOC | SHF_EXECINSTR;	// Section flags
+    header.sh_addr = 0;		                        // Section virtual addr at execution
+    header.sh_offset = offset;		                // Section file offset
+    header.sh_size = size;		                    // Section size in bytes
+    header.sh_link = 0;		                        // Link to another section
+    header.sh_info = 0;		                        // Additional section information
+    header.sh_addralign = 16;		                // Section alignment
+    header.sh_entsize = 0;		                    // Entry size if section holds table
+
+    fwrite(&header, sizeof(header), 1, file);
     
-    // Build the object
-    build_obj(file, argv[1]);
-    
-    // Clean things up
-    fclose(file);
-    
-    //Set permissions
-    chmod(out_path, 0777);
-	
-	return 0;
+    return offset + size;
 }

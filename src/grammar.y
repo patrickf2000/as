@@ -30,10 +30,10 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <asm/asm.h>
-#include <elf/elf_bin.h>
-#include <utils/sym_table.h>
-#include <utils/str_table.h>
+#include <asm/asm.hpp>
+#include <elf/elf_bin.hpp>
+#include <utils/sym_table.hpp>
+#include <utils/str_table.hpp>
 
 extern FILE *yyin;
 FILE *file;

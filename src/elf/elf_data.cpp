@@ -28,7 +28,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <elf/elf_bin.h>
+#include <elf/elf_bin.hpp>
 
 // Generates a header for the .rela.text section
 int elf_header_rela_text(FILE *file, int name_pos, int offset, int size)
@@ -52,69 +52,41 @@ int elf_header_rela_text(FILE *file, int name_pos, int offset, int size)
     return offset + size;
 }
 
-// Checks the size of the .rela.text table and allocates more memory if needed
-int elf_rela_check(Elf64_RelaTab *table)
-{
-    // Resize the table
-    int size = 1;
-    
-    if (table->size == 0)
-    {
-        table->symbols = malloc(sizeof(Elf64_Rela));
-        table->size = size;
-    }
-    else
-    {
-        size = table->size + 1;
-        table->symbols = realloc(table->symbols, sizeof(Elf64_Rela) * size);
-        table->size = size;
-    }
-    
-    return size;
-}
-
 // Adds a .rela.text item to the table
-void elf_rela_add(Elf64_RelaTab *table, int code_offset, int data_offset)
+void elf_rela_add(std::vector<Elf64_Rela> *table, int code_offset, int data_offset)
 {
-    int size = elf_rela_check(table);
-    
     // Create and add the symbol
     Elf64_Rela rela;
     rela.r_offset = code_offset;
     rela.r_info = ELF64_R_INFO(2,1);
     rela.r_addend = data_offset;
-    table->symbols[size-1] = rela;
+    table->push_back(rela);
 }
 
-void elf_rela_add_func(Elf64_RelaTab *table, int code_offset, int symtab_pos)
+void elf_rela_add_func(std::vector<Elf64_Rela> *table, int code_offset, int symtab_pos)
 {
-    int size = elf_rela_check(table);
-    
     // Create and add the symbol
     Elf64_Rela rela;
     rela.r_offset = code_offset;
     rela.r_info = ELF64_R_INFO(symtab_pos,2);
     rela.r_addend = -4;
-    table->symbols[size-1] = rela;
+    table->push_back(rela);
 }
 
 // Writes the .rela.text section
-void elf_write_rela_text(FILE *file, Elf64_RelaTab *table)
-{
-    if (table->size == 0)
+void elf_write_rela_text(FILE *file, std::vector<Elf64_Rela> *table) {
+    if (table->size() == 0)
         return;
     
-    for (int i = 0; i<table->size; i++)
+    for (int i = 0; i<table->size(); i++)
     {
-        Elf64_Rela rela = table->symbols[i];
+        Elf64_Rela rela = table->at(i);
         fwrite(&rela, sizeof(Elf64_Rela), 1, file);
     }
 }
 
 // Generates a header for the .data section
-int elf_header_sec_data(FILE *file, int name_pos, int offset, char *data)
-{
-    int size = strlen(data);
+int elf_header_sec_data(FILE *file, int name_pos, int offset, int size) {
     Elf64_Shdr header;
 
     header.sh_name = name_pos;		                // Section name (string tbl index)
@@ -134,17 +106,10 @@ int elf_header_sec_data(FILE *file, int name_pos, int offset, char *data)
 }
 
 // Writes the data section
-void elf_write_sec_data(FILE *file, char *data)
-{
-    if (strlen(data) == 0)
+void elf_write_sec_data(FILE *file, std::vector<std::string> *data) {
+    if (get_table_length(data) == 0)
         return;
 
-    for (int i = 1; i<strlen(data); i++)
-    {
-        if (data[i] == '|') fputc(0, file);
-        else fputc(data[i], file);
-    }
-    
-    fputc(0, file);
+    elf_strtab_write(file, data);
 }
 

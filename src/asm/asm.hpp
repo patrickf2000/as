@@ -71,7 +71,7 @@ typedef enum
     R15D
 } Reg32;
 
-typedef enum
+enum Reg16H
 {
     AL,
     BL,
@@ -82,7 +82,7 @@ typedef enum
     BH,
     CH,
     DH
-} Reg16H;
+};
 
 typedef enum
 {

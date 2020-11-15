@@ -93,7 +93,7 @@ r15                        { yylval.r64type = R15; return REG64; }
 \"(\\.|[^"\\])*\"          { yylval.stype = strdup(yytext); return STRING;}
 [ \t]                      {}
 0x[A-Fa-f0-9]*             { yylval.itype = (int)strtol(yytext, NULL, 16); return HEX; }
-[-]?[0-9]+                 { yylval.itype = atoi(yytext); return INTEGER;}
+[-+]?[0-9]+                { yylval.itype = atoi(yytext); return INTEGER;}
 [-]?([0-9]*[.])?[0-9]+     { yylval.ftype = atof(yytext); return FLOAT;}
 [_]?[A-Za-z]*([0-9]+)?:		   {
                               char *lbl = strdup(yytext);

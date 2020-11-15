@@ -27,6 +27,31 @@
 
 #include "asm.hpp"
 
+// A utility function for converting a 32-bit register to a 64-bit one
+Reg64 amd64_r32_to_r64(Reg32 reg) {
+    switch (reg)
+    {
+        case EAX: return RAX;
+        case R8D: return R8;
+        case ECX: return RCX;
+        case R9D: return R9;
+        case EDX: return RDX;
+        case R10D: return R10;
+        case EBX: return RBX;
+        case R11D: return R11;
+        case ESP: return RSP;
+        case R12D: return R12;
+        case EBP: return RBP;
+        case R13D: return R13;
+        case ESI: return RSI;
+        case R14D: return R14;
+        case EDI: return RDI;
+        case R15D: return R15;
+    }
+    
+    return RAX;
+}
+
 // Writes the 64-bit prefix
 void amd64_64prefix(int size64, int dest64, int src64, FILE *file)
 {
@@ -39,9 +64,8 @@ void amd64_64prefix(int size64, int dest64, int src64, FILE *file)
     fputc(mask, file);
 }
 
-// Encode a register -> register instruction (64-bit version)
-void amd64_rr(Reg64 r1, Reg64 r2, FILE *file)
-{
+// Encode a register -> register instruction 
+void amd64_rr(Reg64 r1, Reg64 r2, FILE *file) {
     // Binary format: 11 <source> <dest>
     int mask = 0b11111111;
     int reg1, reg2;
@@ -94,64 +118,14 @@ void amd64_rr(Reg64 r1, Reg64 r2, FILE *file)
     fputc(mask, file);
 }
 
-void amd64_rr32(Reg32 r1, Reg32 r2, FILE *file)
-{
-    // Binary format: 11 <source> <dest>
-    int mask = 0b11111111;
-    int reg1, reg2;
-    
-    // The destination
-    switch (r1)
-    {
-        case EAX: 
-        case R8D: reg1 = 0b11111000; break;
-        case ECX: 
-        case R9D: reg1 = 0b11111001; break;
-        case EDX: 
-        case R10D: reg1 = 0b11111010; break;
-        case EBX:
-        case R11D: reg1 = 0b11111011; break;
-        case ESP: 
-        case R12D: reg1 = 0b11111100; break;
-        case EBP: 
-        case R13D: reg1 = 0b11111101; break;
-        case ESI: 
-        case R14D: reg1 = 0b11111110; break;
-        case EDI: 
-        case R15D: reg1 = 0b11111111; break;
-    }
-    
-    // The source
-    switch (r2)
-    {
-        case EAX: 
-        case R8D: reg2 = 0b11000111; break;
-        case ECX: 
-        case R9D: reg2 = 0b11001111; break;
-        case EDX: 
-        case R10D: reg2 = 0b11010111; break;
-        case EBX: 
-        case R11D: reg2 = 0b11011111; break;
-        case ESP: 
-        case R12D: reg2 = 0b11100111; break;
-        case EBP: 
-        case R13D: reg2 = 0b11101111; break;
-        case ESI: 
-        case R14D: reg2 = 0b11110111; break;
-        case EDI: 
-        case R15D: reg2 = 0b11111111; break;
-    }
-    
-    // Do the math and write
-    mask = mask & reg1;
-    mask = mask & reg2;
-    fputc(mask, file);
+void amd64_rr(Reg32 r1, Reg32 r2, FILE *file) {
+    auto r64_1 = amd64_r32_to_r64(r1);
+    auto r64_2 = amd64_r32_to_r64(r2);
+    amd64_rr(r64_1, r64_2, file);
 }
 
 // Encodes a single register instruction
-void amd64_r1(Reg64 reg, FILE *file)
-{
-    // Encode the register
+void amd64_r1(Reg64 reg, FILE *file) {
     switch (reg)
     {
         case RAX: 
@@ -173,36 +147,14 @@ void amd64_r1(Reg64 reg, FILE *file)
     }
 }
 
-void amd64_r1_32(Reg32 reg, FILE *file)
-{
-    Reg64 rnew;
-    switch (reg)
-    {
-        case EAX: rnew = RAX; break;
-        case R8D: rnew = R8; break;
-        case ECX: rnew = RCX; break;
-        case R9D: rnew = R9; break;
-        case EDX: rnew = RDX; break;
-        case R10D: rnew = R10; break;
-        case EBX: rnew = RBX; break;
-        case R11D: rnew = R11; break;
-        case ESP: rnew = RSP; break;
-        case R12D: rnew = R12; break;
-        case EBP: rnew = RBP; break;
-        case R13D: rnew = R13; break;
-        case ESI: rnew = RSI; break;
-        case R14D: rnew = R14; break;
-        case EDI: rnew = RDI; break;
-        case R15D: rnew = R15; break;
-    }
-    
-    amd64_r1(rnew, file);
+void amd64_r1(Reg32 reg, FILE *file) {
+    auto reg64 = amd64_r32_to_r64(reg);
+    amd64_r1(reg64, file);
 }
 
 // Encodes registers that have either a source/destination effective address
 // with a displacement, and a source/destination 32-bit register
-void amd64_dsp16(Reg64 mem, Reg32 r, int dsp, FILE *file)
-{
+void amd64_dsp16(Reg64 mem, Reg64 src, int dsp, FILE *file) {
     // Write the registers
     // Binary format: 1 <dest> <src>
     int reg1, reg2;
@@ -221,16 +173,16 @@ void amd64_dsp16(Reg64 mem, Reg32 r, int dsp, FILE *file)
     }
     
     // The source
-    switch (r)
+    switch (src)
     {
-        case EAX: reg2 = 0b1000111; break;
-        case ECX: reg2 = 0b1001111; break;
-        case EDX: reg2 = 0b1010111; break;
-        case EBX: reg2 = 0b1011111; break;
-        case ESP: reg2 = 0b1100111; break;
-        case EBP: reg2 = 0b1101111; break;
-        case ESI: reg2 = 0b1110111; break;
-        case EDI: reg2 = 0b1111111; break;
+        case RAX: reg2 = 0b1000111; break;
+        case RCX: reg2 = 0b1001111; break;
+        case RDX: reg2 = 0b1010111; break;
+        case RBX: reg2 = 0b1011111; break;
+        case RSP: reg2 = 0b1100111; break;
+        case RBP: reg2 = 0b1101111; break;
+        case RSI: reg2 = 0b1110111; break;
+        case RDI: reg2 = 0b1111111; break;
     }
     
     // Do the math and write
@@ -246,22 +198,9 @@ void amd64_dsp16(Reg64 mem, Reg32 r, int dsp, FILE *file)
     fputc(dsp, file);
 }
 
-void amd64_dsp16_64(Reg64 mem, Reg64 r, int dsp, FILE *file)
-{
-    Reg32 rnew;
-    switch (r)
-    {
-        case RAX: rnew = EAX; break;
-        case RCX: rnew = ECX; break;
-        case RDX: rnew = EDX; break;
-        case RBX: rnew = EBX; break;
-        case RSP: rnew = ESP; break;
-        case RBP: rnew = EBP; break;
-        case RSI: rnew = ESI; break;
-        case RDI: rnew = EDI; break;
-    }
-    
-    amd64_dsp16(mem, rnew, dsp, file);
+void amd64_dsp16(Reg64 mem, Reg32 src, int dsp, FILE *file) {
+    auto src64 = amd64_r32_to_r64(src);
+    amd64_dsp16(mem, src64, dsp, file);
 }
 
 // Used for instructions that perform operations on immediates to memory

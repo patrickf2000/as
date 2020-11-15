@@ -141,11 +141,11 @@ void amd64_imul_r64_imm(Reg64 dest, Reg64 src, int imm, FILE *file);
 
 void amd64_64prefix(int size64, int dest64, int src64, FILE *file);
 void amd64_rr(Reg64 r1, Reg64 r2, FILE *file);
-void amd64_rr32(Reg32 r1, Reg32 r2, FILE *file);
+void amd64_rr(Reg32 r1, Reg32 r2, FILE *file);
 void amd64_r1(Reg64 reg, FILE *file);
-void amd64_r1_32(Reg32 reg, FILE *file);
-void amd64_dsp16(Reg64 mem, Reg32 r, int dsp, FILE *file);
-void amd64_dsp16_64(Reg64 mem, Reg64 r, int dsp, FILE *file);
+void amd64_r1(Reg32 reg, FILE *file);
+void amd64_dsp16(Reg64 mem, Reg64 src, int dsp, FILE *file);
+void amd64_dsp16(Reg64 mem, Reg32 src, int dsp, FILE *file);
 void amd64_mem_imm(Reg64 dest, int dsp, FILE *file);
 void amd64_syscall(FILE *file);
 

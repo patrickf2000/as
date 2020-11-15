@@ -35,6 +35,6 @@ void amd64_xor_rr32(Reg32 dest, Reg32 src, FILE *file)
     fputc(0x31, file);
     
     // Encode the registers
-    amd64_rr32(dest, src, file);
+    amd64_rr(dest, src, file);
 }
 

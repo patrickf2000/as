@@ -31,16 +31,14 @@
 
 // Move integer immediate to 32-bit register
 // Format: <op> <imm>
-void amd64_mov_reg32_imm(Reg32 reg, int imm, FILE *file)
-{
+void amd64_mov_reg32_imm(Reg32 reg, int imm, FILE *file) {
     // Check the registers- if its one of the 64-bit ones, we need a prefix
     if (reg > EDI)
         amd64_64prefix(0, 1, 0, file);
 
     // Write the instruction
     // The instruction is different per register
-    switch (reg)
-    {
+    switch (reg) {
         case EAX: 
         case R8D: fputc(0xB8, file); break;
         
@@ -72,8 +70,7 @@ void amd64_mov_reg32_imm(Reg32 reg, int imm, FILE *file)
 
 // Move integer immediate to 64-bit register
 // Format: <prefix> <op> <imm>
-void amd64_mov_reg64_imm(Reg64 reg, int imm, FILE *file)
-{
+void amd64_mov_reg64_imm(Reg64 reg, int imm, FILE *file) {
     // Check the registers- if its one of the 64-bit ones, we need a prefix
     if (reg > RDI)
         amd64_64prefix(1, 1, 0, file);
@@ -115,8 +112,7 @@ void amd64_mov_reg64_imm(Reg64 reg, int imm, FILE *file)
 }
 
 // Move one register to another (32-bit)
-void amd64_mov_rr32(Reg32 r1, Reg32 r2, FILE *file)
-{
+void amd64_mov_rr32(Reg32 r1, Reg32 r2, FILE *file) {
     //Write the prefix
     int dest_sz = r1 > EDI;
     int src_sz = r2 > EDI;
@@ -127,12 +123,11 @@ void amd64_mov_rr32(Reg32 r1, Reg32 r2, FILE *file)
     fputc(0x89, file);
     
     //Now encode the registers
-    amd64_rr32(r1, r2, file);
+    amd64_rr(r1, r2, file);
 }
 
 // Move one register to another (64-bit)
-void amd64_mov_rr64(Reg64 r1, Reg64 r2, FILE *file)
-{
+void amd64_mov_rr64(Reg64 r1, Reg64 r2, FILE *file) {
     //Write the prefix
     int dest_sz = r1 > RDI;
     int src_sz = r2 > RDI;
@@ -147,8 +142,7 @@ void amd64_mov_rr64(Reg64 r1, Reg64 r2, FILE *file)
 
 // Move an integer immediate to a memory location
 // Format: C7 <reg> <displacement> <immediate>
-void amd64_mov_m_int(Reg64 dest, int dsp, int imm, FILE *file)
-{
+void amd64_mov_m_int(Reg64 dest, int dsp, int imm, FILE *file) {
     // Write the instruction
     fputc(0xC7, file);
     
@@ -161,8 +155,7 @@ void amd64_mov_m_int(Reg64 dest, int dsp, int imm, FILE *file)
 
 // Move a 32-bit register to memory location
 // Format: 89 
-void amd64_mov_m_reg32(Reg64 dest, int dsp, Reg32 src, FILE *file)
-{
+void amd64_mov_m_reg32(Reg64 dest, int dsp, Reg32 src, FILE *file) {
     // Write the instruction
     fputc(0x89, file);
     
@@ -172,8 +165,7 @@ void amd64_mov_m_reg32(Reg64 dest, int dsp, Reg32 src, FILE *file)
 
 // Move a 64-bit register to memory location
 // Format: <prefix> 89
-void amd64_mov_m_reg64(Reg64 dest, int dsp, Reg64 src, FILE *file)
-{
+void amd64_mov_m_reg64(Reg64 dest, int dsp, Reg64 src, FILE *file) {
     // Write the prefix
     // TODO: This needs to be properly generated
     fputc(0x48, file);
@@ -182,18 +174,16 @@ void amd64_mov_m_reg64(Reg64 dest, int dsp, Reg64 src, FILE *file)
     fputc(0x89, file);
     
     // And the registers
-    amd64_dsp16_64(dest, src, dsp, file);
+    amd64_dsp16(dest, src, dsp, file);
 }
 
 // Move memory location to 8-bit half register using reg+reg indexing
-void amd64_mov_r8_mrr(Reg16H dest, Reg64 src1, Reg64 src2, FILE *file)
-{
+void amd64_mov_r8_mrr(Reg16H dest, Reg64 src1, Reg64 src2, FILE *file) {
     // Write the instruction
     fputc(0x8A, file);
 
     // Write the destination
-    switch (dest)
-    {
+    switch (dest) {
         case AL: fputc(0x04, file); break;
         case CL: fputc(0x0C, file); break;
         case DL: fputc(0x14, file); break;
@@ -209,8 +199,7 @@ void amd64_mov_r8_mrr(Reg16H dest, Reg64 src1, Reg64 src2, FILE *file)
     unsigned char reg2 = 0;
     
     // Index
-    switch (src1)
-    {
+    switch (src1) {
         case RAX: reg1 = 0b00111000; break;
         case RCX: reg1 = 0b00111001; break;
         case RDX: reg1 = 0b00111011; break;
@@ -222,8 +211,7 @@ void amd64_mov_r8_mrr(Reg16H dest, Reg64 src1, Reg64 src2, FILE *file)
     }
     
     // Base
-    switch (src2)
-    {
+    switch (src2) {
         case RAX: reg2 = 0b00000111; break;
         case RCX: reg2 = 0b00001111; break;
         case RDX: reg2 = 0b00010111; break;
@@ -241,8 +229,7 @@ void amd64_mov_r8_mrr(Reg16H dest, Reg64 src1, Reg64 src2, FILE *file)
 
 // Move memory location to a register
 // Format: 8B <registers> <displacement>
-void amd64_mov_reg32_mem(Reg32 dest, Reg64 src, int dsp, FILE *file)
-{
+void amd64_mov_reg32_mem(Reg32 dest, Reg64 src, int dsp, FILE *file) {
     // Write the instruction
     fputc(0x8B, file);
     
@@ -252,19 +239,17 @@ void amd64_mov_reg32_mem(Reg32 dest, Reg64 src, int dsp, FILE *file)
 
 // Move memory location to 64-bit register
 // Its exactly the same as moving to 32-bit, except for the 64-bit prefix
-void amd64_mov_reg64_mem(Reg64 dest, Reg64 src, int dsp, FILE *file)
-{
+void amd64_mov_reg64_mem(Reg64 dest, Reg64 src, int dsp, FILE *file) {
     // Write the prefix
     fputc(0x48, file);
     
     // Write the rest
     fputc(0x8B, file);
-    amd64_dsp16_64(src, dest, dsp, file);
+    amd64_dsp16(src, dest, dsp, file);
 }
 
 // Load effective address to 64-bit register
-void amd64_lea64(Reg64 dest, Reg64 src, int dsp, FILE *file)
-{
+void amd64_lea64(Reg64 dest, Reg64 src, int dsp, FILE *file) {
     // Write the prefix
     // TODO: Add checking if the registers are extended
     amd64_64prefix(1, 0, 0, file);
@@ -273,5 +258,6 @@ void amd64_lea64(Reg64 dest, Reg64 src, int dsp, FILE *file)
     fputc(0x8D, file);
     
     //Write the registers
-    amd64_dsp16_64(src, dest, dsp, file);
+    amd64_dsp16(src, dest, dsp, file);
 }
+

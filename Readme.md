@@ -1,6 +1,6 @@
-## Asmx86
+## AS
 
-Asmx86 is somewhat simple x86-64 assembler. It can assemble a variety of instructions (with it being easy to add more), and generates relocatable ELF object files. Asmx86 is written in C and doesn't use any libraries; I wrote the entire thing myself, except for the parser which uses Flex and Bison.
+Asmx86 is somewhat simple x86-64 assembler. It can assemble a variety of instructions (with it being easy to add more), and generates relocatable ELF object files. Asmx86 is written in C++ and doesn't use any libraries; I wrote the entire thing myself, except for the parser which uses Flex and Bison.
 
 ### Why?
 
@@ -8,11 +8,7 @@ The purpose of this project is really a learning exercise. I'm really interested
 
 ### Syntax
 
-Asmx86 uses the Intel syntax. Its very close to the NASM syntax, but there are a few differences. Please note that I may change some of this as time goes on, but I'll try not to make large breaking changes.
-
-Although there are separate .data and .text sections generated, you don't specify that in your source. At this point, the only thing supported in the data section are strings, so the assembler will take care of parsing and determining that. Strings are declared like this: ```MyString .string "Hello!\n"```.
-
-I'm still having issues getting external functions working, but the syntax is in place. For telling the assembler that you wish to use an external function, use ```extern MyFunc```. To make a function visible outside the compilation unit, use ```global MyFunc:```. Purely local functions are written as ```MyFunc:```.
+Asmx86 uses the Intel syntax. Its very close to the NASM syntax, but there are a few differences. I'll write more on the syntax as the project matures; for now, please see the test folder for examples.
 
 ### Instructions
 
@@ -42,6 +38,3 @@ Asmx86 should work on any x86-64 Unix-like system that uses the ELF format. I've
 
 As far as i386 goes, in theory this should work without any issues, but Asmx86 won't stop you from generating x86-64 instructions. So pretty much if you wish to use it on i386, just avoid the x86-64 instructions and it should work.
 
-### Known Bugs
-
-In order to track symbol positions, I use a home-made hashing symbol table. That said, it is not perfect. There are a few instances where it hashes out to the same value despite the strings being different, so if you notice odd behaviour, this might be it. (For example, I had issues with two strings named ```str1``` and ```str2```. Changing it to ```STR1``` and ```STR2``` seemed to work though).

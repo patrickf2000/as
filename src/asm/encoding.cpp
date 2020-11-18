@@ -70,6 +70,12 @@ void amd64_rr(Reg32 r1, Reg32 r2, FILE *file) {
     amd64_rr(r64_1, r64_2, file);
 }
 
+void amd64_rr(Reg16 r1, Reg16 r2, FILE *file) {
+    auto r64_1 = amd64_r16_to_r64(r1);
+    auto r64_2 = amd64_r16_to_r64(r2);
+    amd64_rr(r64_1, r64_2, file);
+}
+
 // A utility function for converting a 32-bit register to a 64-bit one
 Reg64 amd64_r32_to_r64(Reg32 reg) {
     switch (reg) {
@@ -89,6 +95,30 @@ Reg64 amd64_r32_to_r64(Reg32 reg) {
         case R14D: return R14;
         case EDI: return RDI;
         case R15D: return R15;
+    }
+    
+    return RAX;
+}
+
+// A utility function for converting a 16-bit register to a 64-bit one
+Reg64 amd64_r16_to_r64(Reg16 reg) {
+    switch (reg) {
+        case AX: return RAX;
+        case R8W: return R8;
+        case CX: return RCX;
+        case R9W: return R9;
+        case DX: return RDX;
+        case R10W: return R10;
+        case BX: return RBX;
+        case R11W: return R11;
+        case SP: return RSP;
+        case R12W: return R12;
+        case BP: return RBP;
+        case R13W: return R13;
+        case SI: return RSI;
+        case R14W: return R14;
+        case DI: return RDI;
+        case R15W: return R15;
     }
     
     return RAX;

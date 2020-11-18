@@ -18,8 +18,7 @@
 
 #include <stdio.h>
 
-enum Reg64
-{
+enum Reg64 {
     RAX,
     RBX,
     RCX,
@@ -39,8 +38,7 @@ enum Reg64
     R15
 };
 
-enum Reg32
-{
+enum Reg32 {
     EAX,
     EBX,
     ECX,
@@ -58,6 +56,26 @@ enum Reg32
     R13D,
     R14D,
     R15D
+};
+
+enum Reg16 {
+    AX,
+    BX,
+    CX,
+    DX,
+    SP,
+    BP,
+    SI,
+    DI,
+    
+    R8W,
+    R9W,
+    R10W,
+    R11W,
+    R12W,
+    R13W,
+    R14W,
+    R15W
 };
 
 enum Reg16H

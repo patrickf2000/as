@@ -67,6 +67,7 @@ void yyerror(const char *s);
 	int itype;
 	float ftype;
 	Reg16H r8type;
+	Reg16 r16type;
 	Reg32 r32type;
 	Reg64 r64type;
 	Jmp jmp_type;
@@ -79,6 +80,7 @@ void yyerror(const char *s);
 %token NL
 
 %token <r8type> REG16H
+%token <r16type> REG16
 %token <r32type> REG32
 %token <r64type> REG64
 %token <jmp_type> JUMP
@@ -289,7 +291,17 @@ lea:
     ;
     
 mov:
-      MOV REG32 ',' REG32 NL                            { 
+      MOV REG16 ',' REG16 NL                            {
+                                                            lc += 3;
+                                                            if ($2 > DI || $4 > DI) ++lc;
+                                                            if (pass_num == 2) amd64_mov_rr16($2, $4, file);
+                                                        }
+    | MOV REG16 ',' INTEGER NL                          {
+                                                            lc += 4;
+                                                            if ($2 > DI) ++lc;
+                                                            if (pass_num == 2) amd64_mov_r16_imm($2, $4, file);
+                                                        }
+    | MOV REG32 ',' REG32 NL                            { 
                                                             lc += 2; 
                                                             if ($2 > EDI || $4 > EDI) ++lc;
                                                             if (pass_num == 2) amd64_mov_rr32($2, $4, file); 

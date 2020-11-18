@@ -45,6 +45,24 @@ ch                         { yylval.r8type = CH; return REG16H; }
 dh                         { yylval.r8type = DH; return REG16H; }
 bh                         { yylval.r8type = BH; return REG16H; }
 
+ax                         { yylval.r16type = AX; return REG16; }
+bx                         { yylval.r16type = BX; return REG16; }
+cx                         { yylval.r16type = CX; return REG16; }
+dx                         { yylval.r16type = DX; return REG16; }
+bp                         { yylval.r16type = BP; return REG16; }
+sp                         { yylval.r16type = SP; return REG16; }
+di                         { yylval.r16type = DI; return REG16; }
+si                         { yylval.r16type = SI; return REG16; }
+
+r8w                        { yylval.r16type = R8W; return REG16; }
+r9w                        { yylval.r16type = R9W; return REG16; }
+r10w                       { yylval.r16type = R10W; return REG16; }
+r11w                       { yylval.r16type = R11W; return REG16; }
+r12w                       { yylval.r16type = R12W; return REG16; }
+r13w                       { yylval.r16type = R13W; return REG16; }
+r14w                       { yylval.r16type = R14W; return REG16; }
+r15w                       { yylval.r16type = R15W; return REG16; }
+
 eax                        { yylval.r32type = EAX; return REG32; }
 ebx                        { yylval.r32type = EBX; return REG32; }
 ecx                        { yylval.r32type = ECX; return REG32; }

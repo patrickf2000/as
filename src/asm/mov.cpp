@@ -19,52 +19,8 @@
 #include "asm.hpp"
 #include <asm/amd64.hpp>
 
-// Move integer immediate to 32-bit register
-// Format: <op> <imm>
-void amd64_mov_r32_imm(Reg32 reg, int imm, FILE *file) {
-    // Check the registers- if its one of the 64-bit ones, we need a prefix
-    if (reg > EDI)
-        amd64_rex_prefix(false, false, true, file);
-
-    // Write the instruction
-    // The instruction is different per register
-    switch (reg) {
-        case EAX: 
-        case R8D: fputc(0xB8, file); break;
-        
-        case ECX:
-        case R9D: fputc(0xB9, file); break;
-        
-        case EDX:
-        case R10D: fputc(0xBA, file); break;
-        
-        case EBX:
-        case R11D: fputc(0xBB, file); break;
-        
-        case ESP:
-        case R12D: fputc(0xBC, file); break;
-        
-        case EBP:
-        case R13D: fputc(0xBD, file); break;
-        
-        case ESI:
-        case R14D: fputc(0xBE, file); break;
-        
-        case EDI: 
-        case R15D: fputc(0xBF, file); break;
-    }
-    
-    // Write the immediate value
-    fwrite(&imm, sizeof(int), 1, file);
-}
-
-// Move integer immediate to 64-bit register
-// Format: <prefix> <op> <imm>
-void amd64_mov_r64_imm(Reg64 reg, int imm, FILE *file) {
-    // Check the registers- if its one of the 64-bit ones, we need a prefix
-    bool reg_size = (reg > RDI);
-    amd64_rex_prefix(true, false, reg_size, file);
-
+// Writes the opcode for the move-immediate instructions
+void amd64_mov_imm(Reg64 reg, FILE *file) {
     // Write the instruction
     // The instruction is different per register
     switch (reg) {
@@ -92,10 +48,62 @@ void amd64_mov_r64_imm(Reg64 reg, int imm, FILE *file) {
         case RDI: 
         case R15: fputc(0xBF, file); break;
     }
+}
+
+// Move integer immediate to 16-bit register
+// Format: 66 <rex> <op> <imm>
+void amd64_mov_r16_imm(Reg16 reg, int imm, FILE *file) {
+    fputc(0x66, file);
+    
+    if (reg > DI)
+        amd64_rex_prefix(false, false, true, file);
+        
+    auto reg64 = amd64_r16_to_r64(reg);
+    amd64_mov_imm(reg64, file);
+    
+    short imm2 = (short)imm;
+    fwrite(&imm2, sizeof(short), 1, file);
+}
+
+// Move integer immediate to 32-bit register
+// Format: <op> <imm>
+void amd64_mov_r32_imm(Reg32 reg, int imm, FILE *file) {
+    if (reg > EDI)
+        amd64_rex_prefix(false, false, true, file);
+
+    // Write the instruction
+    auto reg64 = amd64_r32_to_r64(reg);
+    amd64_mov_imm(reg64, file);
+    
+    // Write the immediate value
+    fwrite(&imm, sizeof(int), 1, file);
+}
+
+// Move integer immediate to 64-bit register
+// Format: <prefix> <op> <imm>
+void amd64_mov_r64_imm(Reg64 reg, int imm, FILE *file) {
+    bool reg_size = (reg > RDI);
+    amd64_rex_prefix(true, false, reg_size, file);
+
+    amd64_mov_imm(reg, file);
     
     // Write the immediate value
     int64_t imm64 = (int64_t)imm;
     fwrite(&imm64, sizeof(int64_t), 1, file);
+}
+
+// Move one register to another (16-bit)
+// Syntax: 66 <rex> 89 <reg>
+void amd64_mov_rr16(Reg16 r1, Reg16 r2, FILE *file) {
+    fputc(0x66, file);
+    
+    bool dest_extend = r1 > DI;
+    bool src_extend = r2 > DI;
+    if (dest_extend || src_extend)
+        amd64_rex_prefix(false, dest_extend, src_extend, file);
+        
+    fputc(0x89, file);
+    amd64_rr(r1, r2, file);
 }
 
 // Move one register to another (32-bit)

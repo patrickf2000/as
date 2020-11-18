@@ -8,6 +8,7 @@ ADD_FLEX_BISON_DEPENDENCY(scanner parser)
 set(ASM_SRC
     asm/cmp.cpp
     asm/data.cpp
+    asm/encoding.cpp
     asm/func.cpp
     asm/logic.cpp
     asm/math.cpp

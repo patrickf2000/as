@@ -34,6 +34,7 @@
 #include <elf.h>
 
 #include <asm/asm.hpp>
+#include <asm/amd64.hpp>
 #include <elf/elf_bin.hpp>
 
 FILE *file;
@@ -295,11 +296,11 @@ mov:
                                                         }
     | MOV REG64 ',' REG64 NL                            { lc += 3; if (pass_num == 2) amd64_mov_rr64($2, $4, file); }
     | MOV REG32 ',' INTEGER NL                          { 
-                                                            lc += 5; 
+                                                            lc += 5;
                                                             if ($2 > EDI) ++lc;
-                                                            if (pass_num == 2) amd64_mov_reg32_imm($2, $4, file); 
+                                                            if (pass_num == 2) amd64_mov_r32_imm($2, $4, file); 
                                                         }
-    | MOV REG64 ',' INTEGER NL                          { lc += 10; if (pass_num == 2) amd64_mov_reg64_imm($2, $4, file); }
+    | MOV REG64 ',' INTEGER NL                          { lc += 10; if (pass_num == 2) amd64_mov_r64_imm($2, $4, file); }
     | MOV REG64 ',' ID NL                               { 
                                                           if (pass_num == 1) {
                                                               int code_offset = lc + 2;
@@ -308,7 +309,7 @@ mov:
                                                               
                                                               elf_rela_add(elf_rela_tab, code_offset, data_offset);
                                                           } else {
-                                                              amd64_mov_reg64_imm($2, 0, file);
+                                                              amd64_mov_r64_imm($2, 0, file);
                                                           }
                                                           lc += 10;
                                                         }

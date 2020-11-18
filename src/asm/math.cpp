@@ -15,6 +15,7 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include "asm.hpp"
+#include <asm/amd64.hpp>
 
 // The common functions for math register-register operations
 void amd64_math_rr32(Reg32 dest, Reg32 src, unsigned char opcode, FILE *file)

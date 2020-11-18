@@ -17,13 +17,14 @@
 #include <inttypes.h>
 
 #include "asm.hpp"
+#include <asm/amd64.hpp>
 
 // Move integer immediate to 32-bit register
 // Format: <op> <imm>
-void amd64_mov_reg32_imm(Reg32 reg, int imm, FILE *file) {
+void amd64_mov_r32_imm(Reg32 reg, int imm, FILE *file) {
     // Check the registers- if its one of the 64-bit ones, we need a prefix
     if (reg > EDI)
-        amd64_64prefix(0, 1, 0, file);
+        amd64_rex_prefix(false, false, true, file);
 
     // Write the instruction
     // The instruction is different per register
@@ -59,17 +60,14 @@ void amd64_mov_reg32_imm(Reg32 reg, int imm, FILE *file) {
 
 // Move integer immediate to 64-bit register
 // Format: <prefix> <op> <imm>
-void amd64_mov_reg64_imm(Reg64 reg, int imm, FILE *file) {
+void amd64_mov_r64_imm(Reg64 reg, int imm, FILE *file) {
     // Check the registers- if its one of the 64-bit ones, we need a prefix
-    if (reg > RDI)
-        amd64_64prefix(1, 1, 0, file);
-    else
-        amd64_64prefix(1, 0, 0, file);
+    bool reg_size = (reg > RDI);
+    amd64_rex_prefix(true, false, reg_size, file);
 
     // Write the instruction
     // The instruction is different per register
-    switch (reg)
-    {
+    switch (reg) {
         case RAX: 
         case R8: fputc(0xB8, file); break;
         

@@ -2,12 +2,12 @@
 #include <asm/amd64.hpp>
 
 // Writes the REX prefix
-void amd64_rex_prefix(bool size64, bool extend_src, bool extend_dest, FILE *file) {
-    int mask = 0b01001101;
+void amd64_rex_prefix(bool size64, bool extend_dest, bool extend_src, FILE *file) {
+    int mask = 0b01000000;
     
-    if (!size64) mask &= 0b01000101;
-    if (!extend_src) mask &= 0b01001001;
-    if (!extend_dest) mask &= 0b01001100;
+    if (size64) mask |= 0b01001000;
+    if (extend_dest) mask |= 0b01000001;
+    if (extend_src) mask |= 0b01000100;
     
     fputc(mask, file);
 }

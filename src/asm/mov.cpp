@@ -56,7 +56,7 @@ void amd64_mov_r16_imm(Reg16 reg, int imm, FILE *file) {
     fputc(0x66, file);
     
     if (reg > DI)
-        amd64_rex_prefix(false, false, true, file);
+        amd64_rex_prefix(false, true, false, file);
         
     auto reg64 = amd64_r16_to_r64(reg);
     amd64_mov_imm(reg64, file);
@@ -69,13 +69,11 @@ void amd64_mov_r16_imm(Reg16 reg, int imm, FILE *file) {
 // Format: <op> <imm>
 void amd64_mov_r32_imm(Reg32 reg, int imm, FILE *file) {
     if (reg > EDI)
-        amd64_rex_prefix(false, false, true, file);
-
-    // Write the instruction
+        amd64_rex_prefix(false, true, false, file);
+    
     auto reg64 = amd64_r32_to_r64(reg);
     amd64_mov_imm(reg64, file);
     
-    // Write the immediate value
     fwrite(&imm, sizeof(int), 1, file);
 }
 
@@ -83,11 +81,10 @@ void amd64_mov_r32_imm(Reg32 reg, int imm, FILE *file) {
 // Format: <prefix> <op> <imm>
 void amd64_mov_r64_imm(Reg64 reg, int imm, FILE *file) {
     bool reg_size = (reg > RDI);
-    amd64_rex_prefix(true, false, reg_size, file);
+    amd64_rex_prefix(true, reg_size, false, file);
 
     amd64_mov_imm(reg, file);
     
-    // Write the immediate value
     int64_t imm64 = (int64_t)imm;
     fwrite(&imm64, sizeof(int64_t), 1, file);
 }
@@ -108,30 +105,23 @@ void amd64_mov_rr16(Reg16 r1, Reg16 r2, FILE *file) {
 
 // Move one register to another (32-bit)
 void amd64_mov_rr32(Reg32 r1, Reg32 r2, FILE *file) {
-    //Write the prefix
-    int dest_sz = r1 > EDI;
-    int src_sz = r2 > EDI;
-    if (dest_sz || src_sz)
-        amd64_64prefix(0, dest_sz, src_sz, file);
+    bool dest_extend = r1 > EDI;
+    bool src_extend = r2 > EDI;
+    if (dest_extend || src_extend)
+        amd64_rex_prefix(false, dest_extend, src_extend, file);
     
-    //Write the instruction
     fputc(0x89, file);
-    
-    //Now encode the registers
     amd64_rr(r1, r2, file);
 }
 
 // Move one register to another (64-bit)
 void amd64_mov_rr64(Reg64 r1, Reg64 r2, FILE *file) {
     //Write the prefix
-    int dest_sz = r1 > RDI;
-    int src_sz = r2 > RDI;
-    amd64_64prefix(1, dest_sz, src_sz, file);
+    bool dest_extend = r1 > RDI;
+    bool src_extend = r2 > RDI;
+    amd64_rex_prefix(true, dest_extend, src_extend, file);
     
-    //Write the instruction
     fputc(0x89, file);
-    
-    //Now encode the registers
     amd64_rr(r1, r2, file);
 }
 

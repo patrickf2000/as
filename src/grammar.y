@@ -291,6 +291,8 @@ lea:
     ;
     
 mov:
+    // ==================================================
+    // 16-bit operations
       MOV REG16 ',' REG16 NL                            {
                                                             lc += 3;
                                                             if ($2 > DI || $4 > DI) ++lc;
@@ -301,17 +303,21 @@ mov:
                                                             if ($2 > DI) ++lc;
                                                             if (pass_num == 2) amd64_mov_r16_imm($2, $4, file);
                                                         }
+    // ==================================================
+    // 32-bit operations
     | MOV REG32 ',' REG32 NL                            { 
                                                             lc += 2; 
                                                             if ($2 > EDI || $4 > EDI) ++lc;
                                                             if (pass_num == 2) amd64_mov_rr32($2, $4, file); 
                                                         }
-    | MOV REG64 ',' REG64 NL                            { lc += 3; if (pass_num == 2) amd64_mov_rr64($2, $4, file); }
     | MOV REG32 ',' INTEGER NL                          { 
                                                             lc += 5;
                                                             if ($2 > EDI) ++lc;
                                                             if (pass_num == 2) amd64_mov_r32_imm($2, $4, file); 
                                                         }
+    // ==================================================
+    // 64-bit operations
+    | MOV REG64 ',' REG64 NL                            { lc += 3; if (pass_num == 2) amd64_mov_rr64($2, $4, file); }
     | MOV REG64 ',' INTEGER NL                          { lc += 10; if (pass_num == 2) amd64_mov_r64_imm($2, $4, file); }
     | MOV REG64 ',' ID NL                               { 
                                                           if (pass_num == 1) {

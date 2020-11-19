@@ -113,13 +113,13 @@ r15                        { yylval.r64type = R15; return REG64; }
 0x[A-Fa-f0-9]*             { yylval.itype = (int)strtol(yytext, NULL, 16); return HEX; }
 [-+]?[0-9]+                { yylval.itype = atoi(yytext); return INTEGER;}
 [-]?([0-9]*[.])?[0-9]+     { yylval.ftype = atof(yytext); return FLOAT;}
-[_]?[A-Za-z]*([0-9]+)?:		   {
+[_]?[A-Za-z_]*([0-9]+)?:   {
                               char *lbl = strdup(yytext);
                               lbl[strlen(lbl)-1] = '\0';
                               yylval.stype = lbl; 
                               return LABEL;
                            }
-[_]?[A-Za-z]*([0-9]+)?	   { yylval.stype = strdup(yytext); return ID;}
+[_]?[A-Za-z_]*([0-9]+)?    { yylval.stype = strdup(yytext); return ID;}
 %%
 
 int yywrap() { return 1; }

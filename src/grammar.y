@@ -75,7 +75,7 @@ void yyerror(const char *s);
 
 %token T_STRING GLOBAL EXTERN
 %token CMP CALL RET PUSH LEA MOV ADD SUB IMUL SYSCALL LEAVE
-%token XOR
+%token AND XOR SHR
 %token DWORD
 %token NL
 
@@ -103,7 +103,9 @@ statement:
     | add
     | sub
     | imul
+    | and
     | xor
+    | shift
 	| syscall
     | leave
     | lea
@@ -273,9 +275,25 @@ imul:
     | IMUL REG64 ',' INTEGER NL               { lc += 7; if (pass_num == 2) amd64_imul_r64_imm($2, $2, $4, file); }
     | IMUL REG64 ',' REG64 ',' INTEGER NL     { lc += 7; if (pass_num == 2) amd64_imul_r64_imm($2, $4, $6, file); }
     ;
+
+and:
+      AND REG32 ',' INTEGER NL      {
+                                        lc += 3;
+                                        if ($2 > EDI) ++lc;
+                                        if (pass_num == 2) amd64_and_r32_imm($2, $4, file);
+                                    }
+    ;
     
 xor:
       XOR REG32 ',' REG32 NL        { lc += 2; if (pass_num == 2) amd64_xor_rr32($2, $4, file); }
+    ;
+    
+shift:
+      SHR REG32 ',' INTEGER NL      {
+                                        lc += 3;
+                                        if ($2 > EDI) ++lc;
+                                        if (pass_num == 2) amd64_shr_r32_imm($2, $4, file);
+                                    }
     ;
     
 syscall:
@@ -387,6 +405,7 @@ void pass2(std::string data, FILE *f) {
 void yyerror(const char *s)
 {
 	printf("Syntax error: %s\n", s);
+	printf("LC at: %d\n", lc);
 }
 
 int yywrap() { return 1; }

@@ -32,7 +32,9 @@ add                        { return ADD; }
 sub                        { return SUB; }
 imul                       { return IMUL; }
 
+and                        { return AND; }
 xor                        { return XOR; }
+shr                        { return SHR; }
 
 dword                      { return DWORD; }
 

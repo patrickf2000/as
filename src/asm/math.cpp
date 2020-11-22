@@ -179,7 +179,7 @@ void amd64_sub_r32_imm(Reg32 reg, int imm, FILE *file)
     fputc(0x83, file);
     
     // Encode the register
-    amd64_r1(reg, file);
+    amd64_r1(reg, 5, file);
     
     // Write the immediate
     fputc(imm, file);
@@ -198,7 +198,7 @@ void amd64_sub_r64_imm(Reg64 reg, int imm, FILE *file)
     fputc(0x83, file);
     
     // Encode the register
-    amd64_r1(reg, file);
+    amd64_r1(reg, 5, file);
     
     // Write the immediate
     fputc(imm, file);
@@ -248,7 +248,7 @@ void amd64_imul_r32(Reg32 reg, FILE *file)
     fputc(0xF7, file);
     
     // Encode the registers
-    amd64_r1(reg, file);
+    amd64_r1(reg, 5, file);
 }
 
 // Signed multiply register with rax value
@@ -262,7 +262,7 @@ void amd64_imul_r64(Reg64 reg, FILE *file)
     fputc(0xF7, file);
     
     // Encode the registers
-    amd64_r1(reg, file);
+    amd64_r1(reg, 5, file);
 }
 
 // Signed multiply 32-bit register and immediate

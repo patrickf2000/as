@@ -19,8 +19,8 @@
 
 // 32-bit AND with register and immediate
 void amd64_and_r32_imm(Reg32 reg, int imm, FILE *file) {
-    //if (reg > EDI)
-    //    amd64_rex_prefix(false, true, false, file);
+    if (reg > EDI)
+        amd64_rex_prefix(false, true, false, file);
 
     fputc(0x83, file);
     amd64_r1(reg, 4, file);
@@ -41,8 +41,8 @@ void amd64_xor_rr32(Reg32 dest, Reg32 src, FILE *file) {
 
 // 32-bit shift right with a register and immediate
 void amd64_shr_r32_imm(Reg32 reg, int imm, FILE *file) {
-    //if (reg > EDI)
-    //    amd64_rex_prefix(false, true, false, file);
+    if (reg > EDI)
+        amd64_rex_prefix(false, true, false, file);
 
     fputc(0xC1, file);
     amd64_r1(reg, 5, file);

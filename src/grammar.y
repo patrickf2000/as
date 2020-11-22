@@ -162,7 +162,8 @@ label:
                                 int pos = get_str_pos(strtab, $1);
                                 
                                 symtab[$1] = lc;
-                                elf_add_symbol(elf_symtab, pos, lc, 0, sym_type);
+                                if (sym_type == 1)
+                                    elf_add_symbol(elf_symtab, pos, lc, 0, sym_type);
                             }
                         }
     | GLOBAL ID NL      {
@@ -266,6 +267,11 @@ imul:
                                                   lc += 6;
                                                   if ($2 > EDI) ++lc;
                                                   if (pass_num == 2) amd64_imul_r32_imm($2, $2, $4, file);
+                                              }
+    | IMUL REG32 ',' '[' REG64 INTEGER ']' NL {
+                                                  lc += 4;
+                                                  if ($2 > EDI) ++lc;
+                                                  if (pass_num == 2) amd64_imul_r32_mem($2, $5, $6, file);
                                               }
     | IMUL REG32 ',' REG32 ',' INTEGER NL     {
                                                   lc += 6;

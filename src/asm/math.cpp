@@ -300,3 +300,10 @@ void amd64_imul_r64_imm(Reg64 dest, Reg64 src, int imm, FILE *file)
     // Write the immediate
     fwrite(&imm, sizeof(int), 1, file);
 }
+
+// Add a register and memory location
+void amd64_imul_r32_mem(Reg32 reg, Reg64 src, int dsp, FILE *file) {
+    fputc(0x0F, file);
+    fputc(0xAF, file);
+    amd64_dsp16(src, reg, dsp, file);
+}

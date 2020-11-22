@@ -14,6 +14,9 @@ void amd64_mov_rr64(Reg64 r1, Reg64 r2, FILE *file);
 void amd64_and_r32_imm(Reg32 reg, int imm, FILE *file);
 void amd64_shr_r32_imm(Reg32 reg, int imm, FILE *file);
 
+// Math functions
+void amd64_imul_r32_mem(Reg32 reg, Reg64 src, int dsp, FILE *file);
+
 // Utility functions
 void amd64_rex_prefix(bool size64, bool extend_dest, bool extend_src, FILE *file);
 void amd64_r1(Reg64 reg, int digit, FILE *file);

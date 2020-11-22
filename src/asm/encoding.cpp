@@ -15,44 +15,65 @@ void amd64_rex_prefix(bool size64, bool extend_dest, bool extend_src, FILE *file
 // Encodes a single register instruction
 void amd64_r1(Reg64 reg, int digit, FILE *file) {
     switch (digit) {
+        case 0: {
+            switch (reg) {
+                case RAX:
+                case R8:  fputc(0xC0, file); break;
+                case RCX:
+                case R9:  fputc(0xC1, file); break;
+                case RDX:
+                case R10: fputc(0xC2, file); break;
+                case RBX:
+                case R11: fputc(0xC3, file); break;
+                case RSP:
+                case R12: fputc(0xC4, file); break;
+                case RBP:
+                case R13: fputc(0xC5, file); break;
+                case RSI:
+                case R14: fputc(0xC6, file); break;
+                case RDI:
+                case R15: fputc(0xC7, file); break;
+            }
+        } break;
+
         case 4: {
             switch (reg) {
-                case RAX: 
+                case RAX:
                 case R8:  fputc(0xE0, file); break;
-                case RCX: 
+                case RCX:
                 case R9:  fputc(0xE1, file); break;
-                case RDX: 
+                case RDX:
                 case R10: fputc(0xE2, file); break;
-                case RBX: 
+                case RBX:
                 case R11: fputc(0xE3, file); break;
-                case RSP: 
+                case RSP:
                 case R12: fputc(0xE4, file); break;
-                case RBP: 
+                case RBP:
                 case R13: fputc(0xE5, file); break;
-                case RSI: 
+                case RSI:
                 case R14: fputc(0xE6, file); break;
-                case RDI: 
+                case RDI:
                 case R15: fputc(0xE7, file); break;
             }
         } break;
 
         case 5: {
             switch (reg) {
-                case RAX: 
+                case RAX:
                 case R8:  fputc(0xE8, file); break;
-                case RCX: 
+                case RCX:
                 case R9:  fputc(0xE9, file); break;
-                case RDX: 
+                case RDX:
                 case R10: fputc(0xEA, file); break;
-                case RBX: 
+                case RBX:
                 case R11: fputc(0xEB, file); break;
-                case RSP: 
+                case RSP:
                 case R12: fputc(0xEC, file); break;
-                case RBP: 
+                case RBP:
                 case R13: fputc(0xED, file); break;
-                case RSI: 
+                case RSI:
                 case R14: fputc(0xEE, file); break;
-                case RDI: 
+                case RDI:
                 case R15: fputc(0xEF, file); break;
             }
         } break;

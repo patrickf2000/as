@@ -14,6 +14,19 @@ void amd64_mov_rr64(Reg64 r1, Reg64 r2, FILE *file);
 void amd64_and_r32_imm(Reg32 reg, int imm, FILE *file);
 void amd64_shr_r32_imm(Reg32 reg, int imm, FILE *file);
 
+// Add and sub instructions
+void amd64_add_rr32(Reg32 dest, Reg32 src, FILE *file);
+void amd64_add_rr64(Reg64 dest, Reg64 src, FILE *file);
+void amd64_add_r32_imm(Reg32 reg, int imm, FILE *file);
+void amd64_add_r64_imm(Reg64 reg, int imm, FILE *file);
+void amd64_add_r32_mem(Reg32 reg, Reg64 src, int dsp, FILE *file);
+void amd64_add_r64_mem(Reg64 reg, Reg64 src, int dsp, FILE *file);
+void amd64_add_dw_mem_imm(Reg64 dest, int dsp, int imm, FILE *file);
+void amd64_sub_rr32(Reg32 dest, Reg32 src, FILE *file);
+void amd64_sub_rr64(Reg64 dest, Reg64 src, FILE *file);
+void amd64_sub_r32_imm(Reg32 reg, int imm, FILE *file);
+void amd64_sub_r64_imm(Reg64 reg, int imm, FILE *file);
+
 // Signed multiplication instructions
 void amd64_imul_rr32(Reg32 dest, Reg32 src, FILE *file);
 void amd64_imul_rr64(Reg64 dest, Reg64 src, FILE *file);

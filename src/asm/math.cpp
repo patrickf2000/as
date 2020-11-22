@@ -14,192 +14,100 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#include "asm.hpp"
 #include <asm/amd64.hpp>
 
 // The common functions for math register-register operations
-void amd64_math_rr32(Reg32 dest, Reg32 src, unsigned char opcode, FILE *file)
-{
-    // Check the prefix
-    int dest_sz = dest > EDI;
-    int src_sz = src > EDI;
-    amd64_64prefix(0, dest_sz, src_sz, file);
+void amd64_math_rr32(Reg32 dest, Reg32 src, unsigned char opcode, FILE *file) {
+    bool extend_dest = dest > EDI;
+    bool extend_src = src > EDI;
+    if (extend_dest || extend_src)
+        amd64_rex_prefix(false, extend_dest, extend_src, file);
 
-    // Write the instruction
-    fputc(opcode, file);
-    
-    //Now encode the registers
+    fputc(opcode, file);            // Opcode
     amd64_rr(dest, src, file);
 }
 
-void amd64_math_rr64(Reg64 dest, Reg64 src, unsigned char opcode, FILE *file)
-{
-    // Check the prefix
-    int dest_sz = dest > RDI;
-    int src_sz = src > RDI;
-    amd64_64prefix(1, dest_sz, src_sz, file);
+void amd64_math_rr64(Reg64 dest, Reg64 src, unsigned char opcode, FILE *file) {
+    bool extend_dest = dest > RDI;
+    bool extend_src = src > RDI;
+    amd64_rex_prefix(true, extend_dest, extend_src, file);
 
-    // Write the instruction
-    fputc(opcode, file);
-    
-    //Now encode the registers
+    fputc(opcode, file);            // Opcode
     amd64_rr(dest, src, file);
 }
 
 // Add two registers
 // Format 01 (11 <src> <dest>)
-void amd64_add_rr32(Reg32 dest, Reg32 src, FILE *file)
-{
+void amd64_add_rr32(Reg32 dest, Reg32 src, FILE *file) {
     amd64_math_rr32(dest, src, 0x01, file);
 }
 
-void amd64_add_rr64(Reg64 dest, Reg64 src, FILE *file)
-{
+void amd64_add_rr64(Reg64 dest, Reg64 src, FILE *file) {
     amd64_math_rr64(dest, src, 0x01, file);
 }
 
-// Used by the two add register,immediate instructions
-void amd64_add_ri(Reg64 reg, FILE *file)
-{
-    // The register
-    switch (reg)
-    {
-        case RAX: fputc(0xC0, file); break;
-        case RCX: fputc(0xC1, file); break;
-        case RDX: fputc(0xC2, file); break;
-        case RBX: fputc(0xC3, file); break;
-        case RSP: fputc(0xC4, file); break;
-        case RBP: fputc(0xC5, file); break;
-        case RSI: fputc(0xC6, file); break;
-        case RDI: fputc(0xC7, file); break;
-    }
-}
-
-void amd64_add_ri32(Reg32 reg, FILE *file)
-{
-    // The register
-    switch (reg)
-    {
-        case EAX: fputc(0xC0, file); break;
-        case ECX: fputc(0xC1, file); break;
-        case EDX: fputc(0xC2, file); break;
-        case EBX: fputc(0xC3, file); break;
-        case ESP: fputc(0xC4, file); break;
-        case EBP: fputc(0xC5, file); break;
-        case ESI: fputc(0xC6, file); break;
-        case EDI: fputc(0xC7, file); break;
-    }
-}
-
 // Add a 32-bit register and an immediate
-void amd64_add_r32_imm(Reg32 reg, int imm, FILE *file)
-{
-    // Write the instruction
-    fputc(0x83, file);
-    
-    // Encode the register
-    amd64_add_ri32(reg, file);
-    
-    // Write the immediate value
+// Format: 83 /0
+void amd64_add_r32_imm(Reg32 reg, int imm, FILE *file) {
+    fputc(0x83, file);          // The opcode
+    amd64_r1(reg, 0, file);
     fputc(imm, file);
 }
 
-void amd64_add_r64_imm(Reg64 reg, int imm, FILE *file)
-{
-    // Write the prefix
-    if (reg > RDI)
-        amd64_64prefix(1, 1, 0, file);
-    else
-        amd64_64prefix(1, 0, 0, file);
-    
-    // Write the instruction
-    fputc(0x83, file);
-    
-    // Encode the register
-    amd64_add_ri(reg, file);
-    
-    // Write the immediate value
+// Format: <rex> 83 /0
+void amd64_add_r64_imm(Reg64 reg, int imm, FILE *file) {
+    bool extend_reg = reg > RDI;
+    amd64_rex_prefix(true, extend_reg, false, file);
+
+    fputc(0x83, file);          // The opcode
+    amd64_r1(reg, 0, file);
     fputc(imm, file);
 }
 
 // Add a register and memory location
-void amd64_add_r32_mem(Reg32 reg, Reg64 src, int dsp, FILE *file)
-{
-    // Write the instruction
+void amd64_add_r32_mem(Reg32 reg, Reg64 src, int dsp, FILE *file) {
     fputc(0x03, file);
-    
-    // The registers
     amd64_dsp16(src, reg, dsp, file);
 }
 
 // Add a 64-bit register and a memory location
-void amd64_add_r64_mem(Reg64 reg, Reg64 src, int dsp, FILE *file)
-{
-    // Write the prefix
-    if (reg > RDI)
-        amd64_64prefix(1, 1, 0, file);
-    else
-        amd64_64prefix(1, 0, 0, file);
-        
-    // Write the instruction
-    fputc(0x03, file);
-    
-    // The registers
+void amd64_add_r64_mem(Reg64 reg, Reg64 src, int dsp, FILE *file) {
+    bool extend_reg = reg > RDI;
+    amd64_rex_prefix(true, extend_reg, false, file);
+
+    fputc(0x03, file);                      // The opcode
     amd64_dsp16(src, reg, dsp, file);
 }
 
 // Add an immediate with a 32-bit memory location
-void amd64_add_dw_mem_imm(Reg64 dest, int dsp, int imm, FILE *file)
-{
-    // Write the instruction
-    fputc(0x83, file);
-    
-    // Encode the destination
+void amd64_add_dw_mem_imm(Reg64 dest, int dsp, int imm, FILE *file) {
+    fputc(0x83, file);                  // The opcode
     amd64_mem_imm(dest, dsp, file);
-    
-    // Write the immediate
     fputc(imm, file);
 }
 
 // Subtract one register value from another
-void amd64_sub_rr32(Reg32 dest, Reg32 src, FILE *file)
-{
+void amd64_sub_rr32(Reg32 dest, Reg32 src, FILE *file) {
     amd64_math_rr32(dest, src, 0x29, file);
 }
 
-void amd64_sub_rr64(Reg64 dest, Reg64 src, FILE *file)
-{
+void amd64_sub_rr64(Reg64 dest, Reg64 src, FILE *file) {
     amd64_math_rr64(dest, src, 0x29, file);
 }
 
 // Subtract an immediate from a 32-bit register value
-void amd64_sub_r32_imm(Reg32 reg, int imm, FILE *file)
-{
-    // Write the instruction
-    fputc(0x83, file);
-    
-    // Encode the register
+void amd64_sub_r32_imm(Reg32 reg, int imm, FILE *file) {
+    fputc(0x83, file);              // Opcode
     amd64_r1(reg, 5, file);
-    
-    // Write the immediate
     fputc(imm, file);
 }
 
 // Subtract an immediate from a 64-bit register value
-void amd64_sub_r64_imm(Reg64 reg, int imm, FILE *file)
-{
-    // Write the prefix
-    if (reg > RDI)
-        amd64_64prefix(1, 1, 0, file);
-    else
-        amd64_64prefix(1, 0, 0, file);
+void amd64_sub_r64_imm(Reg64 reg, int imm, FILE *file) {
+    bool extend_reg = reg > RDI;
+    amd64_rex_prefix(true, extend_reg, false, file);
 
-    // Write the instruction
-    fputc(0x83, file);
-    
-    // Encode the register
+    fputc(0x83, file);              // Opcode
     amd64_r1(reg, 5, file);
-    
-    // Write the immediate
     fputc(imm, file);
 }

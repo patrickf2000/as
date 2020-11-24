@@ -74,7 +74,7 @@ void yyerror(const char *s);
 }
 
 %token T_STRING GLOBAL EXTERN
-%token CMP CALL RET PUSH LEA MOV ADD SUB IMUL SYSCALL LEAVE
+%token CMP CALL RET PUSH LEA MOV ADD SUB IMUL SYSCALL LEAVE CDQE
 %token AND XOR SHR
 %token DWORD
 %token NL
@@ -106,8 +106,7 @@ statement:
     | and
     | xor
     | shift
-	| syscall
-    | leave
+	| simple
     | lea
     | mov
     | empty
@@ -309,13 +308,11 @@ shift:
                                         if (pass_num == 2) amd64_shr_r32_imm($2, $4, file);
                                     }
     ;
-    
-syscall:
-      SYSCALL NL        { lc += 2; if (pass_num == 2) amd64_syscall(file); }
-    ;
-    
-leave:
-      LEAVE NL          { lc += 1; if (pass_num == 2) amd64_leave(file); }
+
+simple:
+      CDQE NL           { lc += 2; if (pass_num == 2) amd64_cdqe(file); }
+    | SYSCALL NL        { lc += 2; if (pass_num == 2) amd64_syscall(file); }
+    | LEAVE NL          { lc += 1; if (pass_num == 2) amd64_leave(file); }
     ;
     
 lea:

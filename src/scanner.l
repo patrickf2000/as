@@ -27,6 +27,7 @@ mov                        { return MOV; }
 lea                        { return LEA; }
 syscall                    { return SYSCALL; }
 leave                      { return LEAVE; }
+cdqe                       { return CDQE; }
 
 add                        { return ADD; }
 sub                        { return SUB; }

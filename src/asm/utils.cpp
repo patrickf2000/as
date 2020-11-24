@@ -53,19 +53,3 @@ void amd64_mem_imm(Reg64 dest, int dsp, FILE *file)
     
     fputc(dsp, file);
 }
-
-// Write the syscall instruction
-// 0F 05
-void amd64_syscall(FILE *file)
-{
-    fputc(0x0F, file);
-    fputc(0x05, file);
-}
-
-// Write the leave instruction
-// C9
-void amd64_leave(FILE *file)
-{
-    fputc(0xC9, file);
-}
-

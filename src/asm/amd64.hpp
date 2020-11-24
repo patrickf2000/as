@@ -41,6 +41,11 @@ void amd64_imul_r32_imm(Reg32 dest, Reg32 src, int imm, FILE *file);
 void amd64_imul_r64_imm(Reg64 dest, Reg64 src, int imm, FILE *file);
 void amd64_imul_r32_mem(Reg32 reg, Reg64 src, int dsp, FILE *file);
 
+// Simple functions (no operands)
+void amd64_cdqe(FILE *file);
+void amd64_syscall(FILE *file);
+void amd64_leave(FILE *file);
+
 // Utility functions
 void amd64_rex_prefix(bool size64, bool extend_dest, bool extend_src, FILE *file, bool sib=false);
 void amd64_r1(Reg64 reg, int digit, FILE *file);

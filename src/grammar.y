@@ -136,7 +136,7 @@ data:
       							        str += c;
       							    }
       							    
-      							    lc += str.length();
+      							    lc += str.length() + 1;
       							    data_list->push_back(str);
       							    
       							    strtab->push_back($1);
@@ -355,7 +355,6 @@ mov:
                                                           if (pass_num == 1) {
                                                               int code_offset = lc + 2;
                                                               int data_offset = symtab[$4];
-                                                              if (data_offset > 0) ++data_offset;
                                                               
                                                               elf_rela_add(elf_rela_tab, code_offset, data_offset);
                                                           } else {

@@ -85,13 +85,31 @@ void amd64_r1(Reg32 reg, int digit, FILE *file) {
     amd64_r1(reg64, digit, file);
 }
 
+// Encodes effective addressing of a register with 0-displacment
+void amd64_dsp0(Reg64 mem, FILE *file) {
+    switch (mem) {
+        case RAX:
+        case R8:  fputc(0x00, file); break;
+        case RCX:
+        case R9:  fputc(0x01, file); break;
+        case RDX:
+        case R10: fputc(0x02, file); break;
+        case RBX:
+        case R11: fputc(0x03, file); break;
+        case RSP:
+        case R12: fputc(0x04, file); break;
+        case RBP:
+        case R13: fputc(0x05, file); break;
+        case RSI:
+        case R14: fputc(0x06, file); break;
+        case RDI:
+        case R15: fputc(0x07, file); break;
+    }
+}
+
 // Encodes registers that have either a source/destination effective address
 // with a displacement, and a source/destination 32-bit register
 void amd64_dsp16(Reg64 mem, Reg64 src, int dsp, FILE *file) {
-    // Write the registers
-    // Binary format: 1 <dest> <src>
-    int reg1, reg2;
-
     switch (mem) {
         case RBP: {
             switch (src) {
@@ -111,6 +129,28 @@ void amd64_dsp16(Reg64 mem, Reg64 src, int dsp, FILE *file) {
                 case R14: fputc(0x75, file); break;
                 case RDI:
                 case R15: fputc(0x7D, file); break;
+            }
+        } break;
+
+        case RDI:
+        case R15: {
+            switch (src) {
+                case RAX:
+                case R8:  fputc(0x47, file); break;
+                case RCX:
+                case R9:  fputc(0x4F, file); break;
+                case RDX:
+                case R10: fputc(0x57, file); break;
+                case RBX:
+                case R11: fputc(0x5F, file); break;
+                case RSP:
+                case R12: fputc(0x67, file); break;
+                case RBP:
+                case R13: fputc(0x6F, file); break;
+                case RSI:
+                case R14: fputc(0x77, file); break;
+                case RDI:
+                case R15: fputc(0x7F, file); break;
             }
         } break;
 

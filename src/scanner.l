@@ -108,6 +108,7 @@ r15                        { yylval.r64type = R15; return REG64; }
 ","                        { return ','; }
 "-"                        { return '-'; }
 "+"                        { return '+'; }
+"*"                        { return '*'; }
 
 \n                         { return NL; }
 \"(\\.|[^"\\])*\"          { yylval.stype = strdup(yytext); return STRING;}

@@ -319,7 +319,12 @@ leave:
     ;
     
 lea:
-      LEA REG64 ',' '[' REG64 INTEGER ']' NL            { lc += 4; if (pass_num == 2) amd64_lea64($2, $5, $6, file); }
+        LEA REG64 ',' '[' REG64 INTEGER ']' NL              { lc += 4; if (pass_num == 2) amd64_lea64($2, $5, $6, file); }
+      | LEA REG64 ',' '[' REG64 INTEGER '*' INTEGER ']' NL  {
+                                                                lc += 7;
+                                                                if ($2 > RDI || $5 > RDI) ++lc;
+                                                                if (pass_num == 2) amd64_lea64_scale($2, $5, $6, $8, file);
+                                                            }
     ;
     
 mov:

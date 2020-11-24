@@ -11,6 +11,7 @@ set(ASM_SRC
     asm/encoding.cpp
     asm/func.cpp
     asm/imul.cpp
+    asm/lea.cpp
     asm/logic.cpp
     asm/math.cpp
     asm/mov.cpp

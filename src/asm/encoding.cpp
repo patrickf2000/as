@@ -2,11 +2,12 @@
 #include <asm/amd64.hpp>
 
 // Writes the REX prefix
-void amd64_rex_prefix(bool size64, bool extend_dest, bool extend_src, FILE *file) {
+void amd64_rex_prefix(bool size64, bool extend_dest, bool extend_src, FILE *file, bool sib) {
     int mask = 0b01000000;
     
     if (size64) mask |= 0b01001000;
-    if (extend_dest) mask |= 0b01000001;
+    if (extend_dest && sib) mask |= 0b01000010;
+    if (extend_dest && !sib) mask |= 0b01000001;
     if (extend_src) mask |= 0b01000100;
     
     fputc(mask, file);
@@ -233,6 +234,58 @@ void amd64_rr(Reg16 r1, Reg16 r2, FILE *file) {
     auto r64_1 = amd64_r16_to_r64(r1);
     auto r64_2 = amd64_r16_to_r64(r2);
     amd64_rr(r64_1, r64_2, file);
+}
+
+// Encodes the SIB byte
+void amd64_sib(Reg64 mem, Reg64 src, int dsp, int scale, FILE *file) {
+    if (scale != 0 && scale != 2 && scale != 4 && scale != 8) {
+        //TODO: Error
+        return;
+    }
+
+    unsigned char byte = 0x00;
+
+    switch (src) {
+        case RSI:
+        case R14: {
+            switch (mem) {
+                case RAX:
+                case R8: byte = 0x05; break;
+                case RCX:
+                case R9: byte = 0x0D; break;
+                case RDX:
+                case R10: byte = 0x15; break;
+                case RBX:
+                case R11: byte = 0x1D; break;
+                case RSP:
+                case R12: byte = 0x25; break;
+                case RBP:
+                case R13: byte = 0x2D; break;
+                case RSI:
+                case R14: byte = 0x35; break;
+                case RDI:
+                case R15: byte = 0x3D; break;
+            }
+        } break;
+
+        // TODO: Add the rest
+    }
+
+    switch (scale) {
+        case 2: byte += 0x40; break;
+        case 4: byte += 0x80; break;
+        case 8: byte += 0xC0; break;
+    }
+
+    fputc(byte, file);
+
+    // Determine the displacement
+    if (dsp < 0) {
+        dsp = dsp * -1;
+        dsp = 256 - dsp;
+    }
+
+    fwrite(&dsp, sizeof(int), 1, file);
 }
 
 // A utility function for converting a 32-bit register to a 64-bit one

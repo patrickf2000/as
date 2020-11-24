@@ -120,7 +120,6 @@ void amd64_mov_m_reg64(Reg64 dest, int dsp, Reg64 src, FILE *file);
 void amd64_mov_r8_mrr(Reg16H dest, Reg64 src1, Reg64 src2, FILE *file);
 void amd64_mov_reg32_mem(Reg32 dest, Reg64 src, int dsp, FILE *file);
 void amd64_mov_reg64_mem(Reg64 dest, Reg64 src, int dsp, FILE *file);
-void amd64_lea64(Reg64 dest, Reg64 src, int dsp, FILE *file);
 
 void amd64_xor_rr32(Reg32 dest, Reg32 src, FILE *file);
 

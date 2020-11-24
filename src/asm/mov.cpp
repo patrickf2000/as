@@ -138,6 +138,16 @@ void amd64_mov_m_int(Reg64 dest, int dsp, int imm, FILE *file) {
     fwrite(&imm, sizeof(int), 1, file);
 }
 
+void amd64_mov_m64_imm(Reg64 dest, int dsp, int imm, FILE *file) {
+    bool dest_extend = dest > RDI;
+    amd64_rex_prefix(true, dest_extend, false, file);
+
+    fputc(0xC7, file);      //Opcode
+    amd64_mem_imm(dest, dsp, file);
+
+    fwrite(&imm, sizeof(int), 1, file);
+}
+
 // Move a 32-bit register to memory location
 // Format: 89 
 void amd64_mov_m_reg32(Reg64 dest, int dsp, Reg32 src, FILE *file) {
@@ -224,10 +234,12 @@ void amd64_mov_reg32_mem(Reg32 dest, Reg64 src, int dsp, FILE *file) {
 
 // Move memory location to 64-bit register
 // Its exactly the same as moving to 32-bit, except for the 64-bit prefix
+// TODO: Most of the body to this needs to go elsewhere
 void amd64_mov_reg64_mem(Reg64 dest, Reg64 src, int dsp, FILE *file) {
     // Write the prefix
-    fputc(0x48, file);
-    
+    bool extend_dest = dest > RDI;
+    amd64_rex_prefix(true, false, extend_dest, file);
+
     // Write the rest
     fputc(0x8B, file);
     amd64_dsp16(src, dest, dsp, file);

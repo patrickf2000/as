@@ -125,8 +125,6 @@ void amd64_lea64(Reg64 dest, Reg64 src, int dsp, FILE *file);
 void amd64_xor_rr32(Reg32 dest, Reg32 src, FILE *file);
 
 void amd64_64prefix(int size64, int dest64, int src64, FILE *file);
-void amd64_dsp16(Reg64 mem, Reg64 src, int dsp, FILE *file);
-void amd64_dsp16(Reg64 mem, Reg32 src, int dsp, FILE *file);
 void amd64_mem_imm(Reg64 dest, int dsp, FILE *file);
 void amd64_syscall(FILE *file);
 

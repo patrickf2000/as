@@ -29,57 +29,6 @@ void amd64_64prefix(int size64, int dest64, int src64, FILE *file)
     fputc(mask, file);
 }
 
-// Encodes registers that have either a source/destination effective address
-// with a displacement, and a source/destination 32-bit register
-void amd64_dsp16(Reg64 mem, Reg64 src, int dsp, FILE *file) {
-    // Write the registers
-    // Binary format: 1 <dest> <src>
-    int reg1, reg2;
-    
-    // The destination
-    switch (mem)
-    {
-        case RAX: reg1 = 0b1111000; break;
-        case RCX: reg1 = 0b1111001; break;
-        case RDX: reg1 = 0b1111011; break;
-        case RBX: reg1 = 0b1111011; break;
-        case RSP: reg1 = 0b1111100; break;
-        case RBP: reg1 = 0b1111101; break;
-        case RSI: reg1 = 0b1111110; break;
-        case RDI: reg1 = 0b1111111; break;
-    }
-    
-    // The source
-    switch (src)
-    {
-        case RAX: reg2 = 0b1000111; break;
-        case RCX: reg2 = 0b1001111; break;
-        case RDX: reg2 = 0b1010111; break;
-        case RBX: reg2 = 0b1011111; break;
-        case RSP: reg2 = 0b1100111; break;
-        case RBP: reg2 = 0b1101111; break;
-        case RSI: reg2 = 0b1110111; break;
-        case RDI: reg2 = 0b1111111; break;
-    }
-    
-    // Do the math and write
-    int mask = reg1 & reg2;
-    fputc(mask, file);
-    
-    // Determine the displacement
-    if (dsp < 0) {
-        dsp = dsp * -1;
-        dsp = 256 - dsp;
-    }
-    
-    fputc(dsp, file);
-}
-
-void amd64_dsp16(Reg64 mem, Reg32 src, int dsp, FILE *file) {
-    auto src64 = amd64_r32_to_r64(src);
-    amd64_dsp16(mem, src64, dsp, file);
-}
-
 // Used for instructions that perform operations on immediates to memory
 void amd64_mem_imm(Reg64 dest, int dsp, FILE *file)
 {

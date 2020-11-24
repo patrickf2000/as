@@ -242,7 +242,10 @@ void amd64_mov_reg32_mem(Reg32 dest, Reg64 src, int dsp, FILE *file) {
         amd64_rex_prefix(false, extend_mem, extend_dest, file);
 
     fputc(0x8B, file);
-    amd64_dsp16(src, dest, dsp, file);
+    if (dsp == 0)
+        amd64_dsp0(src, dest, file);
+    else
+        amd64_dsp16(src, dest, dsp, file);
 }
 
 // Move memory location to 64-bit register

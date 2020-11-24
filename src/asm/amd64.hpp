@@ -46,6 +46,8 @@ void amd64_rex_prefix(bool size64, bool extend_dest, bool extend_src, FILE *file
 void amd64_r1(Reg64 reg, int digit, FILE *file);
 void amd64_r1(Reg32 reg, int digit, FILE *file);
 void amd64_dsp0(Reg64 mem, FILE *file);
+void amd64_dsp0(Reg64 mem, Reg64 dest, FILE *file);
+void amd64_dsp0(Reg64 mem, Reg32 dest, FILE *file);
 void amd64_dsp16(Reg64 mem, Reg64 src, int dsp, FILE *file);
 void amd64_dsp16(Reg64 mem, Reg32 src, int dsp, FILE *file);
 void amd64_rr(Reg64 r1, Reg64 r2, FILE *file);

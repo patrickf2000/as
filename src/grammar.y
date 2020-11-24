@@ -357,6 +357,11 @@ mov:
                                                             if ($2 > EDI || $5 > RDI) ++lc;
                                                             if (pass_num == 2) amd64_mov_reg32_mem($2, $5, $6, file);
                                                         }
+    | MOV REG32 ',' '[' REG64 ']' NL                    {
+                                                            lc += 2;
+                                                            if ($2 > EDI || $5 > RDI) ++lc;
+                                                            if (pass_num == 2) amd64_mov_reg32_mem($2, $5, 0, file);
+                                                        }
     | MOV DWORD '[' REG64 INTEGER ']' ',' INTEGER NL    { lc += 7; if (pass_num == 2) amd64_mov_m_int($4, $5, $8, file); }
     | MOV DWORD '[' REG64 ']' ',' INTEGER NL            {
                                                             lc += 6;

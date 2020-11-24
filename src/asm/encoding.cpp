@@ -108,6 +108,55 @@ void amd64_dsp0(Reg64 mem, FILE *file) {
     }
 }
 
+void amd64_dsp0(Reg64 mem, Reg64 dest, FILE *file) {
+    unsigned char byte = 0x00;
+
+    switch (mem) {
+        case RAX:
+        case R8:  byte = 0x00; break;
+        case RCX:
+        case R9:  byte = 0x01; break;
+        case RDX:
+        case R10: byte = 0x02; break;
+        case RBX:
+        case R11: byte = 0x03; break;
+        case RSP:
+        case R12: byte = 0x04; break;
+        case RBP:
+        case R13: byte = 0x05; break;
+        case RSI:
+        case R14: byte = 0x06; break;
+        case RDI:
+        case R15: byte = 0x07; break;
+    }
+
+    switch (dest) {
+        case RAX:
+        case R8:  byte += 0x00; break;
+        case RCX:
+        case R9:  byte += 0x08; break;
+        case RDX:
+        case R10: byte += 0x10; break;
+        case RBX:
+        case R11: byte += 0x18; break;
+        case RSP:
+        case R12: byte += 0x20; break;
+        case RBP:
+        case R13: byte += 0x28; break;
+        case RSI:
+        case R14: byte += 0x30; break;
+        case RDI:
+        case R15: byte += 0x38; break;
+    }
+
+    fputc(byte, file);
+}
+
+void amd64_dsp0(Reg64 mem, Reg32 dest, FILE *file) {
+    Reg64 dest64 = amd64_r32_to_r64(dest);
+    amd64_dsp0(mem, dest64, file);
+}
+
 // Encodes registers that have either a source/destination effective address
 // with a displacement, and a source/destination 32-bit register
 void amd64_dsp16(Reg64 mem, Reg64 src, int dsp, FILE *file) {

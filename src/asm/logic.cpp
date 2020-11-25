@@ -27,6 +27,26 @@ void amd64_and_r32_imm(Reg32 reg, int imm, FILE *file) {
     fputc(imm, file);
 }
 
+// 32-bit OR with register and immediate
+void amd64_or_r32_imm(Reg32 reg, int imm, FILE *file) {
+    if (reg > EDI)
+        amd64_rex_prefix(false, true, false, file);
+
+    fputc(0x81, file);
+    amd64_r1(reg, 1, file);
+    fwrite(&imm, sizeof(int), 1, file);
+}
+
+// 32-bit XOR with register and immediate
+void amd64_xor_r32_imm(Reg32 reg, int imm, FILE *file) {
+    if (reg > EDI)
+        amd64_rex_prefix(false, true, false, file);
+
+    fputc(0x81, file);
+    amd64_r1(reg, 6, file);
+    fwrite(&imm, sizeof(int), 1, file);
+}
+
 // 32-bit XOR with two registers
 // 31 <encoding>
 // TODO: Fix register encoding
@@ -47,6 +67,16 @@ void amd64_xor_rr64(Reg64 dest, Reg64 src, FILE *file) {
 
     fputc(0x31, file);
     amd64_rr(dest, src, file);
+}
+
+// 32-bit shift left with a register and immediate
+void amd64_shl_r32_imm(Reg32 reg, int imm, FILE *file) {
+    if (reg > EDI)
+        amd64_rex_prefix(false, true, false, file);
+
+    fputc(0xC1, file);
+    amd64_r1(reg, 4, file);
+    fputc(imm, file);
 }
 
 // 32-bit shift right with a register and immediate

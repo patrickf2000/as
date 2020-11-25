@@ -76,7 +76,7 @@ void yyerror(const char *s);
 %token T_STRING GLOBAL EXTERN
 %token CMP CALL RET PUSH LEA MOV ADD SUB IMUL IDIV
 %token SYSCALL LEAVE CDQE
-%token AND XOR SHR
+%token AND OR XOR SHL SHR
 %token DWORD
 %token NL
 
@@ -106,6 +106,7 @@ statement:
     | imul
     | div
     | and
+    | or
     | xor
     | shift
 	| simple
@@ -317,14 +318,32 @@ and:
                                         if (pass_num == 2) amd64_and_r32_imm($2, $4, file);
                                     }
     ;
+
+or:
+      OR REG32 ',' INTEGER NL       {
+                                        lc += 6;
+                                        if ($2 > EDI) ++lc;
+                                        if (pass_num == 2) amd64_or_r32_imm($2, $4, file);
+                                    }
+    ;
     
 xor:
       XOR REG32 ',' REG32 NL        { lc += 2; if (pass_num == 2) amd64_xor_rr32($2, $4, file); }
+    | XOR REG32 ',' INTEGER NL      {
+                                        lc += 6;
+                                        if ($2 > EDI) ++lc;
+                                        if (pass_num == 2) amd64_xor_r32_imm($2, $4, file);
+                                    }
     | XOR REG64 ',' REG64 NL        { lc += 3; if (pass_num == 2) amd64_xor_rr64($2, $4, file); }
     ;
     
 shift:
-      SHR REG32 ',' INTEGER NL      {
+      SHL REG32 ',' INTEGER NL      {
+                                        lc += 3;
+                                        if ($2 > EDI) ++lc;
+                                        if (pass_num == 2) amd64_shl_r32_imm($2, $4, file);
+                                    }
+    | SHR REG32 ',' INTEGER NL      {
                                         lc += 3;
                                         if ($2 > EDI) ++lc;
                                         if (pass_num == 2) amd64_shr_r32_imm($2, $4, file);

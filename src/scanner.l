@@ -35,7 +35,9 @@ imul                       { return IMUL; }
 idiv                       { return IDIV; }
 
 and                        { return AND; }
+or                         { return OR; }
 xor                        { return XOR; }
+shl                        { return SHL; }
 shr                        { return SHR; }
 
 dword                      { return DWORD; }

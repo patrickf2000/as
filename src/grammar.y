@@ -248,9 +248,17 @@ add:
                                                             if (pass_num == 2) amd64_add_rr32($2, $4, file);
                                                         }
     | ADD REG64 ',' REG64 NL                            { lc += 3; if (pass_num == 2) amd64_add_rr64($2, $4, file); }
-    | ADD REG32 ',' INTEGER NL                          { lc += 3; if (pass_num == 2) amd64_add_r32_imm($2, $4, file); }
+    | ADD REG32 ',' INTEGER NL                          {
+                                                            lc += 3;
+                                                            if ($2 > EDI) ++lc;
+                                                            if (pass_num == 2) amd64_add_r32_imm($2, $4, file);
+                                                        }
     | ADD REG64 ',' INTEGER NL                          { lc += 4; if (pass_num == 2) amd64_add_r64_imm($2, $4, file); }
-    | ADD REG32 ',' '[' REG64 INTEGER ']' NL            { lc += 3; if (pass_num == 2) amd64_add_r32_mem($2, $5, $6, file); }
+    | ADD REG32 ',' '[' REG64 INTEGER ']' NL            {
+                                                            lc += 3;
+                                                            if ($2 > EDI) ++lc;
+                                                            if (pass_num == 2) amd64_add_r32_mem($2, $5, $6, file);
+                                                        }
     | ADD REG64 ',' '[' REG64 INTEGER ']' NL            { lc += 4; if (pass_num == 2) amd64_add_r64_mem($2, $5, $6, file); }
     | ADD DWORD '[' REG64 INTEGER ']' ',' INTEGER NL    { lc += 4; if (pass_num == 2) amd64_add_dw_mem_imm($4, $5, $8, file); }
     ;

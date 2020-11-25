@@ -49,6 +49,10 @@ void amd64_add_rr64(Reg64 dest, Reg64 src, FILE *file) {
 // Add a 32-bit register and an immediate
 // Format: 83 /0
 void amd64_add_r32_imm(Reg32 reg, int imm, FILE *file) {
+    bool extend_reg = reg > EDI;
+    if (extend_reg)
+        amd64_rex_prefix(false, extend_reg, false, file);
+
     fputc(0x83, file);          // The opcode
     amd64_r1(reg, 0, file);
     fputc(imm, file);
@@ -66,6 +70,11 @@ void amd64_add_r64_imm(Reg64 reg, int imm, FILE *file) {
 
 // Add a register and memory location
 void amd64_add_r32_mem(Reg32 reg, Reg64 src, int dsp, FILE *file) {
+    bool extend_dest = reg > EDI;
+    bool extend_src = src > RDI;
+    if (extend_dest || extend_src)
+        amd64_rex_prefix(false, extend_src, extend_dest, file);
+
     fputc(0x03, file);
     amd64_dsp16(src, reg, dsp, file);
 }

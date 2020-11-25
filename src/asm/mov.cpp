@@ -70,11 +70,14 @@ void amd64_mov_r16_imm(Reg16 reg, int imm, FILE *file) {
 void amd64_mov_r32_imm(Reg32 reg, int imm, FILE *file) {
     if (reg > EDI)
         amd64_rex_prefix(false, true, false, file);
-    
+
     auto reg64 = amd64_r32_to_r64(reg);
     amd64_mov_imm(reg64, file);
-    
-    fwrite(&imm, sizeof(int), 1, file);
+
+    fputc(imm & 0xFF, file);
+    fputc((imm >> 8) & 0xFF, file);
+    fputc((imm >> 16) & 0xFF, file);
+    fputc((imm >> 24) & 0xFF, file);
 }
 
 // Move integer immediate to 64-bit register

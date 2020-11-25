@@ -20,6 +20,9 @@ void amd64_lea64_scale(Reg64 dest, Reg64 src, int dsp, int scale, FILE *file);
 void amd64_and_r32_imm(Reg32 reg, int imm, FILE *file);
 void amd64_shr_r32_imm(Reg32 reg, int imm, FILE *file);
 
+// Comparison instructions
+void amd64_cmp_reg32_mem(Reg32 dest, Reg64 src, int dsp, FILE *file);
+
 // Add and sub instructions
 void amd64_add_rr32(Reg32 dest, Reg32 src, FILE *file);
 void amd64_add_rr64(Reg64 dest, Reg64 src, FILE *file);

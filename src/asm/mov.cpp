@@ -144,7 +144,10 @@ void amd64_mov_mem32_r32(Reg64 dest, int dsp, Reg32 src, FILE *file) {
         amd64_rex_prefix(false, extend_dest, false, file);
 
     fputc(0x89, file);
-    amd64_dsp0(dest, src, file);
+    if (dsp == 0)
+        amd64_dsp0(dest, src, file);
+    else
+        amd64_dsp16(dest, src, dsp, file);
 }
 
 // Move an integer immediate to a memory location

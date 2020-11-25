@@ -136,6 +136,17 @@ void amd64_mov_mem32_imm32(Reg64 dest, int dsp, int imm, FILE *file) {
     fwrite(&imm, sizeof(int), 1, file);
 }
 
+// Moves 32-bit register to a 32-bit memory location
+void amd64_mov_mem32_r32(Reg64 dest, int dsp, Reg32 src, FILE *file) {
+    bool extend_dest = dest > RDI;
+    bool extend_src = src > EDI;
+    if (extend_dest || extend_src)
+        amd64_rex_prefix(false, extend_dest, false, file);
+
+    fputc(0x89, file);
+    amd64_dsp0(dest, src, file);
+}
+
 // Move an integer immediate to a memory location
 // Format: C7 <reg> <displacement> <immediate>
 void amd64_mov_m_int(Reg64 dest, int dsp, int imm, FILE *file) {

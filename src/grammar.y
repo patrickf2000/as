@@ -365,6 +365,11 @@ mov:
                                                             if ($4 > RDI) ++lc;
                                                             if (pass_num == 2) amd64_mov_mem32_imm32($4, 0, $7, file);
                                                         }
+    | MOV '[' REG64 ']' ',' REG32 NL                    {
+                                                            lc += 2;
+                                                            if ($3 > RDI || $6 > EDI) ++lc;
+                                                            if (pass_num == 2) amd64_mov_mem32_r32($3, 0, $6, file);
+                                                        }
     // ==================================================
     // 64-bit operations
     | MOV REG64 ',' REG64 NL                            { lc += 3; if (pass_num == 2) amd64_mov_rr64($2, $4, file); }

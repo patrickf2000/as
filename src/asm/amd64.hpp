@@ -10,6 +10,7 @@ void amd64_mov_rr16(Reg16 r1, Reg16 r2, FILE *file);
 void amd64_mov_rr32(Reg32 r1, Reg32 r2, FILE *file);
 void amd64_mov_rr64(Reg64 r1, Reg64 r2, FILE *file);
 void amd64_mov_mem32_imm32(Reg64 dest, int dsp, int imm, FILE *file);
+void amd64_mov_mem32_r32(Reg64 dest, int dsp, Reg32 src, FILE *file);
 
 // LEA instructions
 void amd64_lea64(Reg64 dest, Reg64 src, int dsp, FILE *file);

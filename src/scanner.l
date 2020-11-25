@@ -32,6 +32,7 @@ cdqe                       { return CDQE; }
 add                        { return ADD; }
 sub                        { return SUB; }
 imul                       { return IMUL; }
+idiv                       { return IDIV; }
 
 and                        { return AND; }
 xor                        { return XOR; }

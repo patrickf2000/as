@@ -18,6 +18,7 @@ void amd64_lea64_scale(Reg64 dest, Reg64 src, int dsp, int scale, FILE *file);
 
 // Logic functions
 void amd64_and_r32_imm(Reg32 reg, int imm, FILE *file);
+void amd64_xor_rr64(Reg64 dest, Reg64 src, FILE *file);
 void amd64_shr_r32_imm(Reg32 reg, int imm, FILE *file);
 
 // Comparison instructions
@@ -45,6 +46,9 @@ void amd64_imul_r64(Reg64 reg, FILE *file);
 void amd64_imul_r32_imm(Reg32 dest, Reg32 src, int imm, FILE *file);
 void amd64_imul_r64_imm(Reg64 dest, Reg64 src, int imm, FILE *file);
 void amd64_imul_r32_mem(Reg32 reg, Reg64 src, int dsp, FILE *file);
+
+// Division instructions
+void amd64_idiv_mem32(Reg64 src, int dsp, FILE *file);
 
 // Simple functions (no operands)
 void amd64_cdqe(FILE *file);

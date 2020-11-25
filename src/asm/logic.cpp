@@ -39,6 +39,16 @@ void amd64_xor_rr32(Reg32 dest, Reg32 src, FILE *file) {
     amd64_rr(dest, src, file);
 }
 
+// 64-bit XOR with two registers
+void amd64_xor_rr64(Reg64 dest, Reg64 src, FILE *file) {
+    bool extend_dest = dest > RDI;
+    bool extend_src = src > RDI;
+    amd64_rex_prefix(true, extend_dest, extend_src, file);
+
+    fputc(0x31, file);
+    amd64_rr(dest, src, file);
+}
+
 // 32-bit shift right with a register and immediate
 void amd64_shr_r32_imm(Reg32 reg, int imm, FILE *file) {
     if (reg > EDI)

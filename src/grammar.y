@@ -304,7 +304,12 @@ imul:
     ;
 
 div:
-      IDIV DWORD '[' REG64 INTEGER ']' NL         {
+      IDIV REG32 NL                             {
+                                                    lc += 2;
+                                                    if ($2 > EDI) ++lc;
+                                                    if (pass_num == 2) amd64_idiv_r32($2, file);
+                                                }
+    | IDIV DWORD '[' REG64 INTEGER ']' NL       {
                                                     lc += 3;
                                                     if ($4 > RDI) ++lc;
                                                     if (pass_num == 2) amd64_idiv_mem32($4, $5, file);

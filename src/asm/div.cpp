@@ -31,6 +31,16 @@ void amd64_idiv_dsp(Reg64 src, int dsp, FILE *file) {
     fputc(dsp, file);
 }
 
+// Encodes division on 32-bit register
+void amd64_idiv_r32(Reg32 src, FILE *file) {
+    bool extend_src = src > EDI;
+    if (extend_src)
+        amd64_rex_prefix(false, extend_src, false, file);
+
+    fputc(0xF7, file);
+    amd64_r1(src, 6, file);
+}
+
 // Encodes division on 32-bit memory location
 void amd64_idiv_mem32(Reg64 src, int dsp, FILE *file) {
     bool extend_src = src > RDI;

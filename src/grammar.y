@@ -119,12 +119,13 @@ data:
       							    
       							    std::string str_original = $3;
       							    std::string str = "";
-      							    for (int i = 1; i<str_original.length()-2; i++) {
+      							    for (int i = 1; i<str_original.length()-1; i++) {
       							        char c = str_original[i];
       							        if (c == '\\') {
       							            c = str_original[i+1];
       							            if (c == 'n') {
       							                str += '\n';
+      							                i += 1;
       							            } else {
       							                str += c;
       							            }

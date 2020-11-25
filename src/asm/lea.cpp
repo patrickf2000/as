@@ -18,7 +18,7 @@ void amd64_lea64(Reg64 dest, Reg64 src, int dsp, FILE *file) {
 void amd64_lea64_scale(Reg64 dest, Reg64 src, int dsp, int scale, FILE *file) {
     bool extend_dest = dest > RDI;
     bool extend_src = src > RDI;
-    amd64_rex_prefix(true, extend_dest, extend_src, file, true);
+    amd64_rex_prefix(true, extend_src, extend_dest, file, true);
 
     fputc(0x8D, file);
     fputc(0x34, file);  // TODO: This RBP specific, which is wrong

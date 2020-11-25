@@ -253,14 +253,19 @@ add:
     ;
     
 sub:
-      SUB REG32 ',' REG32 NL          {
-                                          lc += 2;
-                                          if ($2 > EDI || $4 > EDI) ++lc;
-                                          if (pass_num == 2) amd64_sub_rr32($2, $4, file);
-                                      }
-    | SUB REG64 ',' REG64 NL          { lc += 3; if (pass_num == 2) amd64_sub_rr64($2, $4, file); }
-    | SUB REG32 ',' INTEGER NL        { lc += 3; if (pass_num == 2) amd64_sub_r32_imm($2, $4, file); }
-    | SUB REG64 ',' INTEGER NL        { lc += 4; if (pass_num == 2) amd64_sub_r64_imm($2, $4, file); }
+    SUB REG32 ',' REG32 NL                      {
+                                                    lc += 2;
+                                                    if ($2 > EDI || $4 > EDI) ++lc;
+                                                    if (pass_num == 2) amd64_sub_rr32($2, $4, file);
+                                                }
+    | SUB REG64 ',' REG64 NL                    { lc += 3; if (pass_num == 2) amd64_sub_rr64($2, $4, file); }
+    | SUB REG32 ',' INTEGER NL                  { lc += 3; if (pass_num == 2) amd64_sub_r32_imm($2, $4, file); }
+    | SUB REG64 ',' INTEGER NL                  { lc += 4; if (pass_num == 2) amd64_sub_r64_imm($2, $4, file); }
+    | SUB REG32 ',' '[' REG64 INTEGER ']' NL    {
+                                                    lc += 3;
+                                                    if ($2 > EDI || $5 > RDI) ++lc;
+                                                    if (pass_num == 2) amd64_sub_r32_mem($2, $5, $6, file);
+                                                }
     ;
     
 imul:

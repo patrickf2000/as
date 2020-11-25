@@ -111,3 +111,13 @@ void amd64_sub_r64_imm(Reg64 reg, int imm, FILE *file) {
     amd64_r1(reg, 5, file);
     fputc(imm, file);
 }
+
+void amd64_sub_r32_mem(Reg32 dest, Reg64 src, int dsp, FILE *file) {
+    bool extend_dest = dest > EDI;
+    bool extend_src = src > RDI;
+    if (extend_dest || extend_src)
+        amd64_rex_prefix(true, extend_dest, extend_src, file);
+
+    fputc(0x2B, file);                  //Opcode
+    amd64_dsp16(src, dest, dsp, file);
+}

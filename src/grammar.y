@@ -74,7 +74,7 @@ void yyerror(const char *s);
 }
 
 %token T_STRING GLOBAL EXTERN
-%token CMP CALL RET PUSH LEA MOV ADD SUB IMUL IDIV
+%token CMP CALL RET PUSH LEA MOV ADD SUB IMUL DIV IDIV
 %token SYSCALL LEAVE CDQE
 %token AND OR XOR SHL SHR
 %token DWORD
@@ -312,7 +312,17 @@ imul:
     ;
 
 div:
-      IDIV REG32 NL                             {
+      DIV REG32 NL                              {
+                                                    lc += 2;
+                                                    if ($2 > EDI) ++lc;
+                                                    if (pass_num == 2) amd64_div_r32($2, file);
+                                                }
+    | DIV DWORD '[' REG64 INTEGER ']' NL        {
+                                                    lc += 3;
+                                                    if ($4 > RDI) ++lc;
+                                                    if (pass_num == 2) amd64_div_mem32($4, $5, file);
+                                                }
+    | IDIV REG32 NL                             {
                                                     lc += 2;
                                                     if ($2 > EDI) ++lc;
                                                     if (pass_num == 2) amd64_idiv_r32($2, file);

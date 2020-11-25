@@ -51,6 +51,8 @@ void amd64_imul_r64_imm(Reg64 dest, Reg64 src, int imm, FILE *file);
 void amd64_imul_r32_mem(Reg32 reg, Reg64 src, int dsp, FILE *file);
 
 // Division instructions
+void amd64_div_r32(Reg32 src, FILE *file);
+void amd64_div_mem32(Reg64 src, int dsp, FILE *file);
 void amd64_idiv_r32(Reg32 src, FILE *file);
 void amd64_idiv_mem32(Reg64 src, int dsp, FILE *file);
 

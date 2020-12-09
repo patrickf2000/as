@@ -65,6 +65,19 @@ void amd64_mov_r16_imm(Reg16 reg, int imm, FILE *file) {
     fwrite(&imm2, sizeof(short), 1, file);
 }
 
+// Move integer immediate to 16-bit memory location
+void amd64_mov_m16_imm(Reg64 reg, int dsp, short imm, FILE *file) {
+    fputc(0x66, file);
+    
+    if (reg > RDI)
+        amd64_rex_prefix(false, true, false, file);
+        
+    fputc(0xC7, file);
+    amd64_mem_imm(reg, dsp, file);
+    
+    fwrite(&imm, sizeof(short), 1, file);
+}
+
 // Move integer immediate to 32-bit register
 // Format: <op> <imm>
 void amd64_mov_r32_imm(Reg32 reg, int imm, FILE *file) {
@@ -277,3 +290,16 @@ void amd64_mov_reg64_mem(Reg64 dest, Reg64 src, int dsp, FILE *file) {
     fputc(0x8B, file);
     amd64_dsp16(src, dest, dsp, file);
 }
+
+// Move with zero-extend
+void amd64_movzx_r32_m16(Reg32 dest, Reg64 src, int dsp, FILE *file) {
+    bool extend_dest = dest > EDI;
+    bool extend_mem = src > RDI;
+    if (extend_dest || extend_mem)
+        amd64_rex_prefix(false, extend_mem, extend_dest, file);
+        
+    fputc(0x0F, file);
+    fputc(0xB7, file);
+    amd64_dsp16(src, dest, dsp, file);
+}
+

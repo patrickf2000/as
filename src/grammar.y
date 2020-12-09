@@ -74,10 +74,10 @@ void yyerror(const char *s);
 }
 
 %token T_STRING GLOBAL EXTERN
-%token CMP CALL RET PUSH LEA MOV ADD SUB IMUL DIV IDIV
+%token CMP CALL RET PUSH LEA MOV MOVZX ADD SUB IMUL DIV IDIV
 %token SYSCALL LEAVE CDQE
 %token AND OR XOR SHL SHR
-%token DWORD
+%token WORD DWORD
 %token NL
 
 %token <r8type> REG16H
@@ -406,6 +406,11 @@ mov:
                                                             if ($2 > DI) ++lc;
                                                             if (pass_num == 2) amd64_mov_r16_imm($2, $4, file);
                                                         }
+    | MOV WORD '[' REG64 INTEGER ']' ',' INTEGER NL     {
+                                                            lc += 6;
+                                                            if ($4 > RDI) ++lc;
+                                                            if (pass_num == 2) amd64_mov_m16_imm($4, $5, $8, file);
+                                                        }
     // ==================================================
     // 32-bit operations
     | MOV REG32 ',' REG32 NL                            { 
@@ -463,6 +468,14 @@ mov:
     | MOV REG64 ',' '[' REG64 INTEGER ']' NL            { lc += 4; if (pass_num == 2) amd64_mov_reg64_mem($2, $5, $6, file); }
     | MOV '[' REG64 INTEGER ']' ',' REG32 NL            { lc += 3; if (pass_num == 2) amd64_mov_m_reg32($3, $4, $7, file); }
     | MOV '[' REG64 INTEGER ']' ',' REG64 NL            { lc += 4; if (pass_num == 2) amd64_mov_m_reg64($3, $4, $7, file); }
+    
+    // ==================================================
+    // MOVZX
+    | MOVZX REG32 ',' WORD '[' REG64 INTEGER ']' NL     {
+                                                            lc += 4;
+                                                            if ($2 > EDI || $6 > RDI) ++lc;
+                                                            if (pass_num == 2) amd64_movzx_r32_m16($2, $6, $7, file);
+                                                        }
     ;
     
 empty:

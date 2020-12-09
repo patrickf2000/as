@@ -4,6 +4,7 @@
 
 // Move functions
 void amd64_mov_r16_imm(Reg16 reg, int imm, FILE *file);
+void amd64_mov_m16_imm(Reg64 reg, int dsp, short imm, FILE *file);
 void amd64_mov_r32_imm(Reg32 reg, int imm, FILE *file);
 void amd64_mov_r64_imm(Reg64 reg, int imm, FILE *file);
 void amd64_mov_rr16(Reg16 r1, Reg16 r2, FILE *file);
@@ -11,6 +12,7 @@ void amd64_mov_rr32(Reg32 r1, Reg32 r2, FILE *file);
 void amd64_mov_rr64(Reg64 r1, Reg64 r2, FILE *file);
 void amd64_mov_mem32_imm32(Reg64 dest, int dsp, int imm, FILE *file);
 void amd64_mov_mem32_r32(Reg64 dest, int dsp, Reg32 src, FILE *file);
+void amd64_movzx_r32_m16(Reg32 dest, Reg64 src, int dsp, FILE *file);
 
 // LEA instructions
 void amd64_lea64(Reg64 dest, Reg64 src, int dsp, FILE *file);

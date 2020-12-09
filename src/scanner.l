@@ -24,6 +24,7 @@ jge                        { yylval.jmp_type = JGE; return JUMP; }
 jle                        { yylval.jmp_type = JLE; return JUMP; }
 push                       { return PUSH; }
 mov                        { return MOV; }
+movzx                      { return MOVZX; }
 lea                        { return LEA; }
 syscall                    { return SYSCALL; }
 leave                      { return LEAVE; }
@@ -41,6 +42,7 @@ xor                        { return XOR; }
 shl                        { return SHL; }
 shr                        { return SHR; }
 
+word                       { return WORD; }
 dword                      { return DWORD; }
 
 al                         { yylval.r8type = AL; return REG16H; }

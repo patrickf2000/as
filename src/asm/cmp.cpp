@@ -96,6 +96,17 @@ void amd64_cmp_reg64_imm(Reg64 op1, int op2, FILE *file)
     fputc(op2, file);
 }
 
+// Encode 32-bit register and register
+void amd64_cmp_rr32(Reg32 dest, Reg32 src, FILE *file) {
+    bool extend_dest = dest > EDI;
+    bool extend_src = src > EDI;
+    if (extend_dest || extend_src)
+        amd64_rex_prefix(false, extend_dest, extend_src, file);
+        
+    fputc(0x3B, file);
+    amd64_rr(dest, src, file);
+}
+
 // Encode 32-bit register and memory
 // Format: <prefix> 3B <reg> <dsp>
 void amd64_cmp_reg32_mem(Reg32 dest, Reg64 src, int dsp, FILE *file) {
@@ -107,3 +118,4 @@ void amd64_cmp_reg32_mem(Reg32 dest, Reg64 src, int dsp, FILE *file) {
     fputc(0x3B, file);
     amd64_dsp16(src, dest, dsp, file);
 }
+

@@ -190,6 +190,11 @@ cmp:
       CMP REG16H ',' INTEGER NL                 { lc += 3; if (pass_num == 2) amd64_cmp_reg16h_imm($2, $4, file); }
     | CMP REG16H ',' HEX NL                     { lc += 3; if (pass_num == 2) amd64_cmp_reg16h_imm($2, $4, file); }
     | CMP REG32 ',' INTEGER NL                  { lc += 3; if (pass_num == 2) amd64_cmp_reg32_imm($2, $4, file); }
+    | CMP REG32 ',' REG32 NL                    {
+                                                    lc += 2;
+                                                    if ($2 > EDI || $4 > EDI) ++lc;
+                                                    if (pass_num == 2) amd64_cmp_rr32($2, $4, file);
+                                                }
     | CMP REG32 ',' '[' REG64 INTEGER ']' NL    {
                                                     lc += 3;
                                                     if ($2 > EDI || $5 > RDI) ++lc;

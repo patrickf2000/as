@@ -38,6 +38,31 @@ void amd64_mod_rm(Reg64 reg, int digit, unsigned char start, FILE *file) {
     fputc(start, file);
 }
 
+int amd64_mod_rm_digit(Reg64 reg) {
+    int digit = 0;
+    
+    switch (reg) {
+        case RAX:
+        case R8: break;
+        case RCX:
+        case R9:  digit = 1; break;
+        case RDX:
+        case R10: digit = 2; break;
+        case RBX:
+        case R11: digit = 3; break;
+        case RSP:
+        case R12: digit = 4; break;
+        case RBP:
+        case R13: digit = 5; break;
+        case RSI:
+        case R14: digit = 6; break;
+        case RDI:
+        case R15: digit = 7; break;
+    }
+    
+    return digit;
+}
+
 // Encodes a single register instruction
 // Use these in examples like this: 80 /7 imm
 void amd64_r1(Reg64 reg, int digit, FILE *file) {
@@ -113,6 +138,21 @@ void amd64_rr(Reg16 r1, Reg16 r2, FILE *file) {
     amd64_rr(r64_1, r64_2, file);
 }
 
+// Encodes a register effective address
+void amd64_dsp0(Reg64 mem, FILE *file) {
+    amd64_mod_rm(mem, 0, 0x00, file);
+}
+
+void amd64_dsp0(Reg64 mem, Reg64 dest, FILE *file) {
+    int digit = amd64_mod_rm_digit(dest);
+    amd64_mod_rm(mem, digit, 0x00, file);
+}
+
+void amd64_dsp0(Reg64 mem, Reg32 dest, FILE *file) {
+    Reg64 dest64 = amd64_r32_to_r64(dest);
+    amd64_dsp0(mem, dest64, file);
+}
+
 // Encodes an 8-bit displacement
 void amd64_dsp8(Reg64 src, int dsp, int digit, FILE *file) {
     amd64_mod_rm(src, digit, 0x40, file);
@@ -127,27 +167,7 @@ void amd64_dsp8(Reg64 src, int dsp, int digit, FILE *file) {
 }
 
 void amd64_rr_dsp8(Reg64 dest, Reg64 src, int dsp, FILE *file) {
-    int digit = 0;
-    
-    switch (dest) {
-        case RAX:
-        case R8: break;
-        case RCX:
-        case R9:  digit = 1; break;
-        case RDX:
-        case R10: digit = 2; break;
-        case RBX:
-        case R11: digit = 3; break;
-        case RSP:
-        case R12: digit = 4; break;
-        case RBP:
-        case R13: digit = 5; break;
-        case RSI:
-        case R14: digit = 6; break;
-        case RDI:
-        case R15: digit = 7; break;
-    }
-    
+    int digit = amd64_mod_rm_digit(dest);
     amd64_dsp8(src, dsp, digit, file);
 }
 

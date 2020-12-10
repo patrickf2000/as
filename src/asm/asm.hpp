@@ -102,10 +102,6 @@ enum Jmp
     JLE
 };
 
-void amd64_cmp_reg16h_imm(Reg16H op1, int op2, FILE *file);
-void amd64_cmp_reg32_imm(Reg32 op1, int op2, FILE *file);
-void amd64_cmp_reg64_imm(Reg64 op1, int op2, FILE *file);
-
 void amd64_write_string(const char *str, FILE *file);
 
 void amd64_jmp(Jmp jtype, int loco, FILE *file);

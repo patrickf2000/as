@@ -27,6 +27,9 @@ void amd64_shl_r32_imm(Reg32 reg, int imm, FILE *file);
 void amd64_shr_r32_imm(Reg32 reg, int imm, FILE *file);
 
 // Comparison instructions
+void amd64_cmp_reg16h_imm(Reg16H op1, int op2, FILE *file);
+void amd64_cmp_reg32_imm(Reg32 op1, int op2, FILE *file);
+void amd64_cmp_reg64_imm(Reg64 op1, int op2, FILE *file);
 void amd64_cmp_rr32(Reg32 dest, Reg32 src, FILE *file);
 void amd64_cmp_reg32_mem(Reg32 dest, Reg64 src, int dsp, FILE *file);
 

@@ -16,6 +16,7 @@ set(ASM_SRC
     asm/logic.cpp
     asm/math.cpp
     asm/mov.cpp
+    asm/operand.cpp
     asm/push.cpp
     asm/simple.cpp
     asm/utils.cpp

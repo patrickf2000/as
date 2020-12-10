@@ -76,7 +76,7 @@ void amd64_add_r32_mem(Reg32 reg, Reg64 src, int dsp, FILE *file) {
         amd64_rex_prefix(false, extend_src, extend_dest, file);
 
     fputc(0x03, file);
-    amd64_dsp16(src, reg, dsp, file);
+    amd64_rr_dsp8(reg, src, dsp, file);
 }
 
 // Add a 64-bit register and a memory location
@@ -85,7 +85,7 @@ void amd64_add_r64_mem(Reg64 reg, Reg64 src, int dsp, FILE *file) {
     amd64_rex_prefix(true, extend_reg, false, file);
 
     fputc(0x03, file);                      // The opcode
-    amd64_dsp16(src, reg, dsp, file);
+    amd64_rr_dsp8(reg, src, dsp, file);
 }
 
 // Add an immediate with a 32-bit memory location
@@ -128,5 +128,5 @@ void amd64_sub_r32_mem(Reg32 dest, Reg64 src, int dsp, FILE *file) {
         amd64_rex_prefix(true, extend_dest, extend_src, file);
 
     fputc(0x2B, file);                  //Opcode
-    amd64_dsp16(src, dest, dsp, file);
+    amd64_rr_dsp8(dest, src, dsp, file);
 }

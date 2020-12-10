@@ -9,9 +9,7 @@ void amd64_lea64(Reg64 dest, Reg64 src, int dsp, FILE *file) {
     
     // Write the instruction
     fputc(0x8D, file);
-    
-    //Write the registers
-    amd64_dsp16(src, dest, dsp, file);
+    amd64_rr_dsp8(dest, src, dsp, file);
 }
 
 // Load effective address with a scale to a 64-bit register

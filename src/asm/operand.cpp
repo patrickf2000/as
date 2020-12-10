@@ -126,3 +126,33 @@ void amd64_dsp8(Reg64 src, int dsp, int digit, FILE *file) {
     fputc(dsp, file);
 }
 
+void amd64_rr_dsp8(Reg64 dest, Reg64 src, int dsp, FILE *file) {
+    int digit = 0;
+    
+    switch (dest) {
+        case RAX:
+        case R8: break;
+        case RCX:
+        case R9:  digit = 1; break;
+        case RDX:
+        case R10: digit = 2; break;
+        case RBX:
+        case R11: digit = 3; break;
+        case RSP:
+        case R12: digit = 4; break;
+        case RBP:
+        case R13: digit = 5; break;
+        case RSI:
+        case R14: digit = 6; break;
+        case RDI:
+        case R15: digit = 7; break;
+    }
+    
+    amd64_dsp8(src, dsp, digit, file);
+}
+
+void amd64_rr_dsp8(Reg32 dest, Reg64 src, int dsp, FILE *file) {
+    auto dest64 = amd64_r32_to_r64(dest);
+    amd64_rr_dsp8(dest64, src, dsp, file);
+}
+

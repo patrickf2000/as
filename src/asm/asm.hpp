@@ -39,6 +39,8 @@ enum Reg64 {
 };
 
 enum Reg32 {
+    NONE,
+    
     EAX,
     EBX,
     ECX,

@@ -88,6 +88,11 @@ void amd64_sib(Reg64 mem, Reg64 src, int dsp, int scale, FILE *file);
 void amd64_mem_imm(Reg64 dest, int dsp, FILE *file);
 
 // Utility functions
-Reg64 amd64_r32_to_r64(Reg32 reg);
+void amd64_write_prefix(int size, Reg64 r1, Reg64 r2, FILE *file);
+void amd64_write_prefix(Reg64 r1, Reg64 r2, FILE *file);
+void amd64_write_prefix(Reg32 r1, Reg32 r2, FILE *file);
+void amd64_write_prefix(Reg32 r1, Reg64 r2, FILE *file);
+void amd64_write_prefix(Reg16 r1, Reg16 r2, FILE *file);
 Reg64 amd64_r16_to_r64(Reg16 reg);
+Reg64 amd64_r32_to_r64(Reg32 reg);
 

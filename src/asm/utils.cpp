@@ -17,6 +17,46 @@
 #include "asm.hpp"
 #include <asm/amd64.hpp>
 
+void amd64_write_prefix(int size, Reg64 r1, Reg64 r2, FILE *file) {
+    bool extend_r1 = r1 > RDI;
+    bool extend_r2 = r2 > RDI;
+    
+    switch (size) {
+        case 8:
+        case 16: fputc(0x66, file);
+        case 32: {
+            if (extend_r1 || extend_r2) {
+                amd64_rex_prefix(false, extend_r1, extend_r2, file);
+            }
+        } break;
+        
+        case 64: {
+            amd64_rex_prefix(true, extend_r1, extend_r2, file);
+        } break;
+    }
+}
+
+void amd64_write_prefix(Reg64 r1, Reg64 r2, FILE *file) {
+    amd64_write_prefix(64, r1, r2, file);
+}
+
+void amd64_write_prefix(Reg32 r1, Reg32 r2, FILE *file) {
+    auto r1_64 = amd64_r32_to_r64(r1);
+    auto r2_64 = amd64_r32_to_r64(r2);
+    amd64_write_prefix(32, r1_64, r2_64, file);
+}
+
+void amd64_write_prefix(Reg32 r1, Reg64 r2, FILE *file) {
+    auto r1_64 = amd64_r32_to_r64(r1);
+    amd64_write_prefix(32, r1_64, r2, file);
+}
+
+void amd64_write_prefix(Reg16 r1, Reg16 r2, FILE *file) {
+    auto r1_64 = amd64_r16_to_r64(r1);
+    auto r2_64 = amd64_r16_to_r64(r2);
+    amd64_write_prefix(8, r1_64, r2_64, file);
+}
+
 // A utility function for converting a 32-bit register to a 64-bit one
 Reg64 amd64_r32_to_r64(Reg32 reg) {
     switch (reg) {

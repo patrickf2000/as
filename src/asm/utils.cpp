@@ -17,39 +17,51 @@
 #include "asm.hpp"
 #include <asm/amd64.hpp>
 
-// Writes the 64-bit prefix
-void amd64_64prefix(int size64, int dest64, int src64, FILE *file)
-{
-    int mask = 0b01001101;
+// A utility function for converting a 32-bit register to a 64-bit one
+Reg64 amd64_r32_to_r64(Reg32 reg) {
+    switch (reg) {
+        case EAX: return RAX;
+        case R8D: return R8;
+        case ECX: return RCX;
+        case R9D: return R9;
+        case EDX: return RDX;
+        case R10D: return R10;
+        case EBX: return RBX;
+        case R11D: return R11;
+        case ESP: return RSP;
+        case R12D: return R12;
+        case EBP: return RBP;
+        case R13D: return R13;
+        case ESI: return RSI;
+        case R14D: return R14;
+        case EDI: return RDI;
+        case R15D: return R15;
+    }
     
-    if (!size64) mask &= 0b01000101;
-    if (!src64) mask &= 0b01001001;
-    if (!dest64) mask &= 0b01001100;
-    
-    fputc(mask, file);
+    return RAX;
 }
 
-// Used for instructions that perform operations on immediates to memory
-void amd64_mem_imm(Reg64 dest, int dsp, FILE *file)
-{
-    // Determine the register
-    switch (dest)
-    {
-        case RAX: fputc(0x40, file); break;
-        case RCX: fputc(0x41, file); break;
-        case RDX: fputc(0x42, file); break;
-        case RBX: fputc(0x43, file); break;
-        case RSP: break; //TODO: Error
-        case RBP: fputc(0x45, file); break;
-        case RSI: fputc(0x46, file); break;
-        case RDI: fputc(0x47, file); break;
+// A utility function for converting a 16-bit register to a 64-bit one
+Reg64 amd64_r16_to_r64(Reg16 reg) {
+    switch (reg) {
+        case AX: return RAX;
+        case R8W: return R8;
+        case CX: return RCX;
+        case R9W: return R9;
+        case DX: return RDX;
+        case R10W: return R10;
+        case BX: return RBX;
+        case R11W: return R11;
+        case SP: return RSP;
+        case R12W: return R12;
+        case BP: return RBP;
+        case R13W: return R13;
+        case SI: return RSI;
+        case R14W: return R14;
+        case DI: return RDI;
+        case R15W: return R15;
     }
     
-    // Determine the displacement
-    if (dsp < 0) {
-        dsp = dsp * -1;
-        dsp = 256 - dsp;
-    }
-    
-    fputc(dsp, file);
+    return RAX;
 }
+

@@ -102,8 +102,6 @@ enum Jmp
     JLE
 };
 
-void amd64_write_string(const char *str, FILE *file);
-
 void amd64_jmp(Jmp jtype, int loco, FILE *file);
 void amd64_call(int loco, FILE *file);
 void amd64_ret(FILE *file);
@@ -119,5 +117,3 @@ void amd64_mov_reg64_mem(Reg64 dest, Reg64 src, int dsp, FILE *file);
 
 void amd64_xor_rr32(Reg32 dest, Reg32 src, FILE *file);
 
-void amd64_64prefix(int size64, int dest64, int src64, FILE *file);
-void amd64_mem_imm(Reg64 dest, int dsp, FILE *file);

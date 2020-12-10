@@ -12,33 +12,36 @@ void amd64_rex_prefix(bool size64, bool extend_dest, bool extend_src, FILE *file
     fputc(mask, file);
 }
 
-// Encodes a single register instruction
-// Use these in examples like this: 80 /7 imm
-void amd64_r1(Reg64 reg, int digit, FILE *file) {
-    unsigned char byte = 0xC0;
-
+// An internal function to help calculate the mod-rm byte
+void amd64_mod_rm(Reg64 reg, int digit, unsigned char start, FILE *file) {
     switch (reg) {
         case RAX:
-        case R8:  byte = 0xC0; break;
+        case R8: break;
         case RCX:
-        case R9:  byte = 0xC1; break;
+        case R9:  start += 0x01; break;
         case RDX:
-        case R10: byte = 0xC2; break;
+        case R10: start += 0x02; break;
         case RBX:
-        case R11: byte = 0xC3; break;
+        case R11: start += 0x03; break;
         case RSP:
-        case R12: byte = 0xC4; break;
+        case R12: start += 0x04; break;
         case RBP:
-        case R13: byte = 0xC5; break;
+        case R13: start += 0x05; break;
         case RSI:
-        case R14: byte = 0xC6; break;
+        case R14: start += 0x06; break;
         case RDI:
-        case R15: byte = 0xC7; break;
+        case R15: start += 0x07; break;
     }
 
     int size = digit * 8;
-    byte += (unsigned char)size;
-    fputc(byte, file);
+    start += (unsigned char)size;
+    fputc(start, file);
+}
+
+// Encodes a single register instruction
+// Use these in examples like this: 80 /7 imm
+void amd64_r1(Reg64 reg, int digit, FILE *file) {
+    amd64_mod_rm(reg, digit, 0xC0, file);
 }
 
 void amd64_r1(Reg32 reg, int digit, FILE *file) {
@@ -108,5 +111,18 @@ void amd64_rr(Reg16 r1, Reg16 r2, FILE *file) {
     auto r64_1 = amd64_r16_to_r64(r1);
     auto r64_2 = amd64_r16_to_r64(r2);
     amd64_rr(r64_1, r64_2, file);
+}
+
+// Encodes an 8-bit displacement
+void amd64_dsp8(Reg64 src, int dsp, int digit, FILE *file) {
+    amd64_mod_rm(src, digit, 0x40, file);
+    
+    // Determine the displacement
+    if (dsp < 0) {
+        dsp = dsp * -1;
+        dsp = 256 - dsp;
+    }
+
+    fputc(dsp, file);
 }
 

@@ -1,67 +1,20 @@
+// This file is part of the "as" assembler.
+// Copyright (C) 2020 Patrick Flynn
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; version 2.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <asm/amd64.hpp>
-
-// TODO: Combine theses
-
-// Encodes the displacement for the division instructions
-void amd64_div_dsp(Reg64 src, int dsp, FILE *file) {
-    switch (src) {
-        case RAX:
-        case R8:  fputc(0x70, file); break;
-        case RCX:
-        case R9:  fputc(0x71, file); break;
-        case RDX:
-        case R10: fputc(0x72, file); break;
-        case RBX:
-        case R11: fputc(0x73, file); break;
-        case RSP:
-        case R12: fputc(0x74, file); break;
-        case RBP:
-        case R13: fputc(0x75, file); break;
-        case RSI:
-        case R14: fputc(0x76, file); break;
-        case RDI:
-        case R15: fputc(0x77, file); break;
-    }
-
-    // Determine the displacement
-    if (dsp < 0) {
-        dsp = dsp * -1;
-        dsp = 256 - dsp;
-    }
-
-    fputc(dsp, file);
-}
-
-// Encodes the displacement for the division instructions
-void amd64_idiv_dsp(Reg64 src, int dsp, FILE *file) {
-    switch (src) {
-        case RAX:
-        case R8:  fputc(0x78, file); break;
-        case RCX:
-        case R9:  fputc(0x79, file); break;
-        case RDX:
-        case R10: fputc(0x7A, file); break;
-        case RBX:
-        case R11: fputc(0x7B, file); break;
-        case RSP:
-        case R12: fputc(0x7C, file); break;
-        case RBP:
-        case R13: fputc(0x7D, file); break;
-        case RSI:
-        case R14: fputc(0x7E, file); break;
-        case RDI:
-        case R15: fputc(0x7F, file); break;
-    }
-
-    // Determine the displacement
-    if (dsp < 0) {
-        dsp = dsp * -1;
-        dsp = 256 - dsp;
-    }
-
-    fputc(dsp, file);
-}
 
 // Encodes unsigned division on a 32-bit register
 void amd64_div_r32(Reg32 src, FILE *file) {
@@ -80,7 +33,7 @@ void amd64_div_mem32(Reg64 src, int dsp, FILE *file) {
         amd64_rex_prefix(false, extend_src, false, file);
 
     fputc(0xF7, file);
-    amd64_div_dsp(src, dsp, file);
+    amd64_dsp8(src, dsp, 6, file);
 }
 
 // Encodes division on 32-bit register
@@ -100,5 +53,5 @@ void amd64_idiv_mem32(Reg64 src, int dsp, FILE *file) {
         amd64_rex_prefix(false, extend_src, false, file);
 
     fputc(0xF7, file);
-    amd64_idiv_dsp(src, dsp, file);
+    amd64_dsp8(src, dsp, 7, file);
 }

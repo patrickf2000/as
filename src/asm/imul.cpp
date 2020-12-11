@@ -81,10 +81,19 @@ void amd64_imul_r64_imm(Reg64 dest, Reg64 src, int imm, FILE *file) {
     fwrite(&imm, sizeof(int), 1, file);
 }
 
-// Add a register and memory location
+// Signed-multiply a register and memory location
 void amd64_imul_r32_mem(Reg32 reg, Reg64 src, int dsp, FILE *file) {
     fputc(0x0F, file);      // Opcode
     fputc(0xAF, file);
     amd64_rr_dsp8(reg, src, dsp, file);
+}
+
+// Signed-multiply register and memory location
+void amd64_imul_r64_m64(Reg64 dest, Reg64 src, int dsp, FILE *file) {
+    amd64_write_prefix(dest, src, file);
+    
+    fputc(0x0F, file);
+    fputc(0xAF, file);
+    amd64_rr_dsp8(dest, src, dsp, file);
 }
 

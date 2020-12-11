@@ -282,6 +282,7 @@ sub:
                                                     if ($2 > EDI || $5 > RDI) ++lc;
                                                     if (pass_num == 2) amd64_sub_r32_mem($2, $5, $6, file);
                                                 }
+    | SUB REG64 ',' '[' REG64 INTEGER ']' NL    { lc += 4; if (pass_num == 2) amd64_sub_r64_m64($2, $5, $6, file); }
     ;
     
 imul:
@@ -307,6 +308,7 @@ imul:
                                                   if ($2 > EDI) ++lc;
                                                   if (pass_num == 2) amd64_imul_r32_mem($2, $5, $6, file);
                                               }
+    | IMUL REG64 ',' '[' REG64 INTEGER ']' NL { lc += 5; if (pass_num == 2) amd64_imul_r64_m64($2, $5, $6, file); }
     | IMUL REG32 ',' REG32 ',' INTEGER NL     {
                                                   lc += 6;
                                                   if ($2 > EDI || $4 > EDI) ++lc;
@@ -337,6 +339,7 @@ div:
                                                     if ($4 > RDI) ++lc;
                                                     if (pass_num == 2) amd64_idiv_mem32($4, $5, file);
                                                 }
+    | IDIV QWORD '[' REG64 INTEGER ']' NL       { lc += 4; if (pass_num == 2) amd64_idiv_mem64($4, $5, file); }
     ;
 
 and:

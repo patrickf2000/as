@@ -130,3 +130,12 @@ void amd64_sub_r32_mem(Reg32 dest, Reg64 src, int dsp, FILE *file) {
     fputc(0x2B, file);                  //Opcode
     amd64_rr_dsp8(dest, src, dsp, file);
 }
+
+// Subtract 64-bit register from memory location
+void amd64_sub_r64_m64(Reg64 dest, Reg64 src, int dsp, FILE *file) {
+    amd64_write_prefix(dest, src, file);
+    
+    fputc(0x2B, file);
+    amd64_rr_dsp8(dest, src, dsp, file);
+}
+

@@ -55,3 +55,12 @@ void amd64_idiv_mem32(Reg64 src, int dsp, FILE *file) {
     fputc(0xF7, file);
     amd64_dsp8(src, dsp, 7, file);
 }
+
+// Encodes division on 64-bit memory location
+void amd64_idiv_mem64(Reg64 src, int dsp, FILE *file) {
+    amd64_write_prefix(src, RAX, file);
+    
+    fputc(0xF7, file);
+    amd64_dsp8(src, dsp, 7, file);
+}
+

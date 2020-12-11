@@ -44,6 +44,7 @@ shr                        { return SHR; }
 
 word                       { return WORD; }
 dword                      { return DWORD; }
+qword                      { return QWORD; }
 
 al                         { yylval.r8type = AL; return REG16H; }
 cl                         { yylval.r8type = CL; return REG16H; }

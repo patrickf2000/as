@@ -179,16 +179,6 @@ void amd64_mov_m_int(Reg64 dest, int dsp, int imm, FILE *file) {
     fwrite(&imm, sizeof(int), 1, file);
 }
 
-void amd64_mov_m64_imm(Reg64 dest, int dsp, int imm, FILE *file) {
-    bool dest_extend = dest > RDI;
-    amd64_rex_prefix(true, dest_extend, false, file);
-
-    fputc(0xC7, file);      //Opcode
-    amd64_mem_imm(dest, dsp, file);
-
-    fwrite(&imm, sizeof(int), 1, file);
-}
-
 // Move a 32-bit register to memory location
 // Format: 89 
 void amd64_mov_m_reg32(Reg64 dest, int dsp, Reg32 src, FILE *file) {
@@ -203,14 +193,16 @@ void amd64_mov_m_reg32(Reg64 dest, int dsp, Reg32 src, FILE *file) {
 // Format: <prefix> 89
 void amd64_mov_m_reg64(Reg64 dest, int dsp, Reg64 src, FILE *file) {
     // Write the prefix
-    // TODO: This needs to be properly generated
-    fputc(0x48, file);
+    amd64_write_prefix(dest, src, file);
     
     // Write the instruction
     fputc(0x89, file);
     
     // And the registers
-    amd64_dsp16(dest, src, dsp, file);
+    if (dsp == 0)
+        amd64_dsp0(dest, src, file);
+    else
+        amd64_dsp16(dest, src, dsp, file);
 }
 
 // Move memory location to 8-bit half register using reg+reg indexing
@@ -283,12 +275,39 @@ void amd64_mov_reg32_mem(Reg32 dest, Reg64 src, int dsp, FILE *file) {
 // TODO: Most of the body to this needs to go elsewhere
 void amd64_mov_reg64_mem(Reg64 dest, Reg64 src, int dsp, FILE *file) {
     // Write the prefix
+    bool extend_src = src > RDI;
     bool extend_dest = dest > RDI;
-    amd64_rex_prefix(true, false, extend_dest, file);
+    amd64_rex_prefix(true, extend_src, extend_dest, file);
 
     // Write the rest
     fputc(0x8B, file);
     amd64_dsp16(src, dest, dsp, file);
+}
+
+// Move immediate to 64-bit memory location
+void amd64_mov_m64_imm(Reg64 dest, int dsp, int imm, FILE *file) {
+    amd64_write_prefix(dest, RAX, file);
+    
+    fputc(0xC7, file);
+    
+    if (dsp == 0)
+        amd64_dsp0(dest, file);
+    else
+        amd64_dsp8(dest, dsp, 0, file);
+    
+    fwrite(&imm, sizeof(int), 1, file);
+}
+
+// Move 64-bit memory location to 64-bit register
+void amd64_mov_r64_m64(Reg64 dest, Reg64 src, int dsp, FILE *file) {
+    amd64_write_prefix(dest, src, file);
+    
+    fputc(0x8B, file);
+    
+    if (dsp == 0)
+        amd64_dsp0(src, dest, file);
+    else
+        amd64_dsp8(dest, src, dsp, file);
 }
 
 // Move with zero-extend

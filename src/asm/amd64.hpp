@@ -22,11 +22,16 @@ void amd64_lea64_scale(Reg64 dest, Reg64 src, int dsp, int scale, FILE *file);
 
 // Logic functions
 void amd64_and_r32_imm(Reg32 reg, int imm, FILE *file);
+void amd64_and_r64_imm(Reg64 reg, int imm, FILE *file);
 void amd64_or_r32_imm(Reg32 reg, int imm, FILE *file);
+void amd64_or_r64_imm(Reg64 reg, int imm, FILE *file);
 void amd64_xor_r32_imm(Reg32 reg, int imm, FILE *file);
+void amd64_xor_r64_imm(Reg64 reg, int imm, FILE *file);
 void amd64_xor_rr64(Reg64 dest, Reg64 src, FILE *file);
 void amd64_shl_r32_imm(Reg32 reg, int imm, FILE *file);
+void amd64_shl_r64_imm(Reg64 reg, int imm, FILE *file);
 void amd64_shr_r32_imm(Reg32 reg, int imm, FILE *file);
+void amd64_shr_r64_imm(Reg64 reg, int imm, FILE *file);
 
 // Comparison instructions
 void amd64_cmp_reg16h_imm(Reg16H op1, int op2, FILE *file);

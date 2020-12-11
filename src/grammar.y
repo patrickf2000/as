@@ -348,6 +348,7 @@ and:
                                         if ($2 > EDI) ++lc;
                                         if (pass_num == 2) amd64_and_r32_imm($2, $4, file);
                                     }
+    | AND REG64 ',' INTEGER NL      { lc += 4; if (pass_num == 2) amd64_and_r64_imm($2, $4, file); }
     ;
 
 or:
@@ -356,6 +357,7 @@ or:
                                         if ($2 > EDI) ++lc;
                                         if (pass_num == 2) amd64_or_r32_imm($2, $4, file);
                                     }
+    | OR REG64 ',' INTEGER NL       { lc += 4; if (pass_num == 2) amd64_or_r64_imm($2, $4, file); }
     ;
     
 xor:
@@ -366,6 +368,7 @@ xor:
                                         if (pass_num == 2) amd64_xor_r32_imm($2, $4, file);
                                     }
     | XOR REG64 ',' REG64 NL        { lc += 3; if (pass_num == 2) amd64_xor_rr64($2, $4, file); }
+    | XOR REG64 ',' INTEGER NL      { lc += 4; if (pass_num == 2) amd64_xor_r64_imm($2, $4, file); }
     ;
     
 shift:
@@ -374,11 +377,13 @@ shift:
                                         if ($2 > EDI) ++lc;
                                         if (pass_num == 2) amd64_shl_r32_imm($2, $4, file);
                                     }
+    | SHL REG64 ',' INTEGER NL      { lc += 4; if (pass_num == 2) amd64_shl_r64_imm($2, $4, file); }
     | SHR REG32 ',' INTEGER NL      {
                                         lc += 3;
                                         if ($2 > EDI) ++lc;
                                         if (pass_num == 2) amd64_shr_r32_imm($2, $4, file);
                                     }
+    | SHR REG64 ',' INTEGER NL      { lc += 4; if (pass_num == 2) amd64_shr_r64_imm($2, $4, file); }
     ;
 
 simple:

@@ -27,6 +27,15 @@ void amd64_and_r32_imm(Reg32 reg, int imm, FILE *file) {
     fputc(imm, file);
 }
 
+// 64-bit AND with register and immediate
+void amd64_and_r64_imm(Reg64 reg, int imm, FILE *file) {
+    amd64_write_prefix(reg, RAX, file);
+    
+    fputc(0x83, file);
+    amd64_r1(reg, 4, file);
+    fputc(imm, file);
+}
+
 // 32-bit OR with register and immediate
 void amd64_or_r32_imm(Reg32 reg, int imm, FILE *file) {
     if (reg > EDI)
@@ -37,6 +46,15 @@ void amd64_or_r32_imm(Reg32 reg, int imm, FILE *file) {
     fwrite(&imm, sizeof(int), 1, file);
 }
 
+// 64-bit OR with register and immediate
+void amd64_or_r64_imm(Reg64 reg, int imm, FILE *file) {
+    amd64_write_prefix(reg, RAX, file);
+    
+    fputc(0x83, file);
+    amd64_r1(reg, 1, file);
+    fputc(imm, file);
+}
+
 // 32-bit XOR with register and immediate
 void amd64_xor_r32_imm(Reg32 reg, int imm, FILE *file) {
     if (reg > EDI)
@@ -45,6 +63,15 @@ void amd64_xor_r32_imm(Reg32 reg, int imm, FILE *file) {
     fputc(0x81, file);
     amd64_r1(reg, 6, file);
     fwrite(&imm, sizeof(int), 1, file);
+}
+
+// 64-bit XOR with register and immediate
+void amd64_xor_r64_imm(Reg64 reg, int imm, FILE *file) {
+    amd64_write_prefix(reg, RAX, file);
+    
+    fputc(0x83, file);
+    amd64_r1(reg, 6, file);
+    fputc(imm, file);
 }
 
 // 32-bit XOR with two registers
@@ -79,11 +106,29 @@ void amd64_shl_r32_imm(Reg32 reg, int imm, FILE *file) {
     fputc(imm, file);
 }
 
+// 64-bit shift left with a register and immediate
+void amd64_shl_r64_imm(Reg64 reg, int imm, FILE *file) {
+    amd64_write_prefix(reg, RAX, file);
+    
+    fputc(0xC1, file);
+    amd64_r1(reg, 4, file);
+    fputc(imm, file);
+}
+
 // 32-bit shift right with a register and immediate
 void amd64_shr_r32_imm(Reg32 reg, int imm, FILE *file) {
     if (reg > EDI)
         amd64_rex_prefix(false, true, false, file);
 
+    fputc(0xC1, file);
+    amd64_r1(reg, 5, file);
+    fputc(imm, file);
+}
+
+// 64-bit shift right with a register and immediate
+void amd64_shr_r64_imm(Reg64 reg, int imm, FILE *file) {
+    amd64_write_prefix(reg, RAX, file);
+    
     fputc(0xC1, file);
     amd64_r1(reg, 5, file);
     fputc(imm, file);

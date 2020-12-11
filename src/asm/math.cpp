@@ -81,8 +81,9 @@ void amd64_add_r32_mem(Reg32 reg, Reg64 src, int dsp, FILE *file) {
 
 // Add a 64-bit register and a memory location
 void amd64_add_r64_mem(Reg64 reg, Reg64 src, int dsp, FILE *file) {
-    bool extend_reg = reg > RDI;
-    amd64_rex_prefix(true, extend_reg, false, file);
+    bool extend_dest = reg > RDI;
+    bool extend_src = src > RDI;
+    amd64_rex_prefix(true, extend_src, extend_dest, file);
 
     fputc(0x03, file);                      // The opcode
     amd64_rr_dsp8(reg, src, dsp, file);

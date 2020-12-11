@@ -26,6 +26,14 @@ void amd64_div_r32(Reg32 src, FILE *file) {
     amd64_r1(src, 6, file);
 }
 
+// Encodes unsigned division on a 64-bit register
+void amd64_div_r64(Reg64 src, FILE *file) {
+    amd64_write_prefix(src, RAX, file);
+    
+    fputc(0xF7, file);
+    amd64_r1(src, 6, file);
+}
+
 // Encodes unsigned division on a 32-bit register
 void amd64_div_mem32(Reg64 src, int dsp, FILE *file) {
     bool extend_src = src > RDI;
@@ -42,6 +50,14 @@ void amd64_idiv_r32(Reg32 src, FILE *file) {
     if (extend_src)
         amd64_rex_prefix(false, extend_src, false, file);
 
+    fputc(0xF7, file);
+    amd64_r1(src, 7, file);
+}
+
+// Encodes signed division on a 64-bit register
+void amd64_idiv_r64(Reg64 src, FILE *file) {
+    amd64_write_prefix(src, RAX, file);
+    
     fputc(0xF7, file);
     amd64_r1(src, 7, file);
 }

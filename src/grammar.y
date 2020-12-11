@@ -325,6 +325,7 @@ div:
                                                     if ($2 > EDI) ++lc;
                                                     if (pass_num == 2) amd64_div_r32($2, file);
                                                 }
+    | DIV REG64 NL                              { lc += 3; if (pass_num == 2) amd64_div_r64($2, file); }
     | DIV DWORD '[' REG64 INTEGER ']' NL        {
                                                     lc += 3;
                                                     if ($4 > RDI) ++lc;
@@ -335,6 +336,7 @@ div:
                                                     if ($2 > EDI) ++lc;
                                                     if (pass_num == 2) amd64_idiv_r32($2, file);
                                                 }
+    | IDIV REG64 NL                             { lc += 3; if (pass_num == 2) amd64_idiv_r64($2, file); }
     | IDIV DWORD '[' REG64 INTEGER ']' NL       {
                                                     lc += 3;
                                                     if ($4 > RDI) ++lc;

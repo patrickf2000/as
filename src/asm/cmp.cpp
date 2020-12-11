@@ -62,11 +62,19 @@ void amd64_cmp_reg64_imm(Reg64 op1, int op2, FILE *file) {
     fputc(op2, file);
 }
 
-// Encode 32-bit register and register
+// 32-bit register-register comparison
 void amd64_cmp_rr32(Reg32 dest, Reg32 src, FILE *file) {  
     amd64_write_prefix(dest, src, file);
         
     fputc(0x3B, file);
+    amd64_rr(dest, src, file);
+}
+
+// 64-bit register-register comparison
+void amd64_cmp_rr64(Reg64 dest, Reg64 src, FILE *file) {
+    amd64_write_prefix(dest, src, file);
+    
+    fputc(0x39, file);
     amd64_rr(dest, src, file);
 }
 

@@ -37,7 +37,7 @@ SymTab *symtab_create()
     sym->st_name = 0;
     sym->st_info = 3;       // Symbol table index
     sym->st_other = 0;
-    sym->st_shndx = 4;      // .data index
+    sym->st_shndx = 5;      // .data index
     sym->st_value = 0;
     sym->st_size = 0;
     symtab->table[2] = sym;
@@ -47,7 +47,7 @@ SymTab *symtab_create()
     sym->st_name = 0;
     sym->st_info = 3;           // Symbol table index
     sym->st_other = 0;
-    sym->st_shndx = 5;          // .text index
+    sym->st_shndx = 6;          // .text index
     sym->st_value = 0;
     sym->st_size = 0;
     symtab->table[3] = sym;
@@ -65,8 +65,8 @@ void symtab_add_symbol(SymTab *symtab, RelaTab *rela_tab, int name_pos, int loca
     
     switch (type)
     {
-        case Data_Sym: shndx = 4; break;
-        case Func_Dec: shndx = 5; break;
+        case Data_Sym: shndx = 5; break;
+        case Func_Dec: shndx = 6; break;
         case Func_Call: shndx = SHN_UNDEF; break;
     }
 

@@ -80,6 +80,28 @@ void elf_add_section(char *name, Elf *builder)
     builder->offset = offset;
 }
 
+// A utility function to add all the needed headers
+void elf_add_all_sections(Elf *builder)
+{
+    // Create the section string header
+    elf_add_section(".shstrtab", builder);
+    
+    // Create the string table (which other sections use)
+    elf_add_section(".strtab", builder);
+    
+    // Create the symbol table header
+    elf_add_section(".symtab", builder);
+    
+    // Create the .rela.text section
+    elf_add_section(".rela.text", builder);
+    
+    // Create the data section
+    elf_add_section(".data", builder);
+    
+    // Create the code (.text) section
+    elf_add_section(".text", builder);
+}
+
 // Adds a global function declaration
 void elf_add_global_function(char *name, int position, Elf *builder)
 {
@@ -109,6 +131,53 @@ void elf_add_data_symbol(char *name, int code_offset, int data_offset, Elf *buil
     symtab_add_symbol(builder->symtab, builder->rela_tab, name_pos, 0, Data_Sym, false);
     
     rela_tab_add_data(builder->rela_tab, code_offset, data_offset);
+}
+
+// Writes the whole thing out
+// Call this function, then write your .data and .text in that order
+void elf_write(Elf *builder, FILE *file)
+{
+    SHList *headers = builder->section_list;
+    
+    // Write the ELF header
+    unsigned char e_ident[16] = {
+        0x7F, 'E', 'L', 'F', 2, 1, 1, 3,
+        1, 0, 0, 0, 0, 0, 0, 0
+    };
+
+    Elf64_Ehdr header;
+    memcpy(header.e_ident, e_ident, 16);
+    
+    header.e_type = 1;
+    header.e_machine = EM_X86_64;
+    header.e_version = 1;
+    header.e_entry = 0;
+    header.e_phoff = 0;
+    header.e_shoff = 64;
+    header.e_flags = 0;
+    header.e_ehsize = 64;
+    header.e_phentsize = 0;
+    header.e_phnum = 0;
+    header.e_shentsize = 64;
+    header.e_shnum = headers->size;
+    header.e_shstrndx = 1;
+    
+    fwrite(&header, sizeof(Elf64_Ehdr), 1, file);
+    
+    // Write the section headers
+    for (int i = 0; i<headers->size; i++)
+    {
+        Elf64_Shdr *current = headers->headers[i];
+        fwrite(current, sizeof(Elf64_Shdr), 1, file);
+    }
+    
+    // Write the ELF-specific data
+    str_list_write(builder->shstrlist, true, file);
+    str_list_write(builder->strtab, true, file);
+    
+    symtab_write(builder->symtab, file);
+    
+    rela_tab_write(builder->rela_tab, file);
 }
 
 // Deallocate the ELF builder

@@ -79,7 +79,7 @@ void sh_create_rela_text(SHList *list, int offset, int size, int name_pos)
     header->sh_offset = offset;
     header->sh_size = size;
     header->sh_link = 3;            // Link to the symbol table
-    header->sh_info = 5;            // Link to the .text section
+    header->sh_info = 6;            // Link to the .text section
     header->sh_addralign = 8;
     header->sh_entsize = sizeof(Elf64_Rela);
     

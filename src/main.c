@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <elf.h>
 
+#include "elf_builder.h"
 #include "sh_list.h"
 #include "str_list.h"
 #include "symtab.h"
@@ -60,54 +61,11 @@ int main(int argc, char *argv[])
     FILE *file;
     file = fopen("a.out", "wb");
     
-    // Determine all data sizes and locations
-    // Create the section header string table
-    StrList *shstrlist = str_list_create();
-    str_list_add(shstrlist, ".shstrtab");
-    str_list_add(shstrlist, ".symtab");
-    str_list_add(shstrlist, ".strtab");
-    str_list_add(shstrlist, ".rela.text");
-    str_list_add(shstrlist, ".data");
-    str_list_add(shstrlist, ".text");
+    // Create the ELF builder
+    Elf *builder = elf_builder_create("first.asm");
     
-    int shstrlist_size = str_list_size(shstrlist);
-    
-    // The string table
-    StrList *strtab = str_list_create();
-    str_list_add(strtab, "first.asm");
-    str_list_add(strtab, "main");
-    str_list_add(strtab, "puts");
-    str_list_add(strtab, "STR");
-    
-    int strtab_size = str_list_size(strtab);
-    
-    // The symbol table
-    SymTab *symtab = symtab_create();
-    
-    int start_name_pos = str_list_get_pos(strtab, "main");
-    symtab_add_symbol(symtab, start_name_pos, 0, Func_Dec, true);
-    
-    int puts_pos = str_list_get_pos(strtab, "puts");
-    symtab_add_symbol(symtab, puts_pos, 0, Func_Call, true);
-    
-    int str_pos = str_list_get_pos(strtab, "STR");
-    symtab_add_symbol(symtab, str_pos, 0, Data_Sym, false);
-    
-    symtab_sort(symtab);
-    int symtab_size = symtab_get_size(symtab);
-    int symtab_start = symtab_get_start(symtab);
-    
-    // The .rela.text table
-    RelaTab *rela_tab = rela_tab_create();
-    
-    int data_offset = 0;
-    rela_tab_add_data(rela_tab, 3, data_offset);
-    
-    puts_pos = str_list_get_pos(strtab, "puts");
-    int sym_puts_pos = symtab_get_pos(symtab, puts_pos);
-    rela_tab_add_function(rela_tab, 8, sym_puts_pos);
-    
-    int rela_size = rela_tab_get_size(rela_tab);
+    //////////////////////////////////////////////////////////////////////
+    // Pass 1
     
     // The data size
     // TODO: Run pass 1 on the data section here
@@ -115,55 +73,48 @@ int main(int argc, char *argv[])
     StrList *data_section = str_list_create();
     str_list_add(data_section, "Hello!");
     
-    int data_size = str_list_size(data_section) - 1;
+    builder->data_size = str_list_size(data_section) - 1;
     
     // The code size
     // TODO: Run pass 1 on the code section here
-    int code_size = 13;
+    builder->code_size = 13;
     
-    // Create the sections
-    int offset = 64 * 8;
-    int name_pos = 0;
+    // The symbol table
+    elf_add_global_function("main", 0, builder);
     
-    SHList *section_list = sh_list_create();
+    int data_offset = 0;
+    elf_add_data_symbol("STR", 3, data_offset, builder);
+    
+    elf_add_extern_function("puts", 8, builder);
+    
+    //////////////////////////////////////////////////////////////////////
+    // Pass 2
     
     // Create the section string header
-    name_pos = str_list_get_pos(shstrlist, ".shstrtab");
-    sh_create_strtab(section_list, offset, shstrlist_size, name_pos);
-    offset += shstrlist_size;
+    elf_add_section(".shstrtab", builder);
     
     // Create the string table (which other sections use)
-    name_pos = str_list_get_pos(shstrlist, ".strtab");
-    sh_create_strtab(section_list, offset, strtab_size, name_pos);
-    offset += strtab_size;
+    elf_add_section(".strtab", builder);
     
     // Create the symbol table header
-    name_pos = str_list_get_pos(shstrlist, ".symtab");
-    sh_create_symtab(section_list, offset, symtab_size, name_pos, symtab_start);
-    offset += symtab_size;
+    elf_add_section(".symtab", builder);
     
     // Create the data section
-    name_pos = str_list_get_pos(shstrlist, ".data");
-    sh_create_data(section_list, offset, data_size, name_pos);
-    offset += data_size;
+    elf_add_section(".data", builder);
     
     // Create the code (.text) section
-    name_pos = str_list_get_pos(shstrlist, ".text");
-    sh_create_text(section_list, offset, code_size, name_pos);
-    offset += code_size;
+    elf_add_section(".text", builder);
     
     // Create the .rela.text section
-    name_pos = str_list_get_pos(shstrlist, ".rela.text");
-    sh_create_rela_text(section_list, offset, rela_size, name_pos);
-    offset += rela_size;
+    elf_add_section(".rela.text", builder);
     
     // Write
-    elf_write_header(file, section_list);
+    elf_write_header(file, builder->section_list);
     
-    str_list_write(shstrlist, true, file);
-    str_list_write(strtab, true, file);
+    str_list_write(builder->shstrlist, true, file);
+    str_list_write(builder->strtab, true, file);
     
-    symtab_write(symtab, file);
+    symtab_write(builder->symtab, file);
     
     // .data
     str_list_write(data_section, false, file);
@@ -190,15 +141,11 @@ int main(int argc, char *argv[])
     
     fputc(0xC3, file);
     
-    rela_tab_write(rela_tab, file);
+    rela_tab_write(builder->rela_tab, file);
     
     // Cleanup
-    rela_tab_destroy(rela_tab);
-    symtab_destroy(symtab);
     str_list_destroy(data_section);
-    str_list_destroy(strtab);
-    str_list_destroy(shstrlist);
-    sh_list_destroy(section_list);
+    elf_builder_destroy(builder);
     
     fclose(file);
 

@@ -56,13 +56,10 @@ SymTab *symtab_create()
 }
 
 // Adds to the symbol table
-void symtab_add_symbol(SymTab *symtab, int name_pos, int location, SymType type, int is_global)
+void symtab_add_symbol(SymTab *symtab, RelaTab *rela_tab, int name_pos, int location, SymType type, int is_global)
 {
     int scope = STB_LOCAL;
     if (is_global) scope = STB_GLOBAL;
-    
-    //int shndx = 5;
-    //if (is_data) shndx = 4;
     
     int shndx;
     
@@ -81,43 +78,44 @@ void symtab_add_symbol(SymTab *symtab, int name_pos, int location, SymType type,
     sym->st_value = location;
     sym->st_size = 0;
     
-    symtab->table[symtab->size] = sym;
-    symtab->size += 1;
-}
-
-// Sorts the symbol table so all the local symbols come before the global ones
-void symtab_sort(SymTab *symtab)
-{
-    int size = symtab->size / 2;
-    Elf64_Sym *local_symbols[size];
-    Elf64_Sym *global_symbols[size];
-    
-    int local_count = 0;
-    int global_count = 0;
-    int index = 0;
-    
-    for (int i = 0; i<symtab->size; i++)
+    if (is_global)
     {
-        Elf64_Sym *current = symtab->table[i];
-        symtab->table[i] = NULL;
+        symtab->table[symtab->size] = sym;
+        symtab->size += 1;
+    }
+    else
+    {
+        symtab->size += 1;
+        int found_global = 0;
         
-        if (ELF64_ST_BIND(current->st_info) == STB_GLOBAL)
+        for (int i = 0; i<symtab->size; i++)
         {
-            global_symbols[global_count] = current;
-            ++global_count;
+            Elf64_Sym *current = symtab->table[i];
+            
+            if (ELF64_ST_BIND(current->st_info) == STB_GLOBAL)
+            {
+                for (int j = symtab->size; j>=i; j--)
+                {
+                    symtab->table[j] = symtab->table[j-1];
+                }
+                
+                symtab->table[i] = sym;
+                
+                break;
+            }
         }
-        else
+                
+        for (int i = 0; i<rela_tab->size; i++)
         {
-            local_symbols[local_count] = current;
-            ++local_count;
+            Elf64_Rela *current = rela_tab->table[i];
+            
+            if (current->r_addend == -4)
+            {
+                int old_pos = ELF64_R_SYM(current->r_info);
+                current->r_info = ELF64_R_INFO(old_pos + 1, 2);
+            }
         }
     }
-    
-    for (int i = 0; i<local_count; i++, index++)
-        symtab->table[index] = local_symbols[i];
-        
-    for (int i = 0; i<global_count; i++, index++)
-        symtab->table[index] = global_symbols[i];
 }
 
 // Gets the position of a symbol in the table based on the name index

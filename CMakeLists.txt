@@ -10,6 +10,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(src)
 
 set(SRC
+    src/elf_builder.c
     src/main.c
     src/rela_tab.c
     src/sh_list.c

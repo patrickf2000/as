@@ -195,6 +195,7 @@ int main(int argc, char *argv[])
     // Cleanup
     rela_tab_destroy(rela_tab);
     symtab_destroy(symtab);
+    str_list_destroy(data_section);
     str_list_destroy(strtab);
     str_list_destroy(shstrlist);
     sh_list_destroy(section_list);

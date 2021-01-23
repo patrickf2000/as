@@ -1,40 +1,5 @@
 ## AS
 
-Asmx86 is somewhat simple x86-64 assembler. It can assemble a variety of instructions (with it being easy to add more), and generates relocatable ELF object files. Asmx86 is written in C++ and doesn't use any libraries; I wrote the entire thing myself, except for the parser which uses Flex and Bison.
+This is my simple assembler for the x86-64 platform.
 
-### Why?
-
-The purpose of this project is really a learning exercise. I'm really interested in computer architecture and compilers; I have written several toy compilers, and once I learned how to get from a high level language to assembly, I wanted to learn how to get from assembly to the final binary form. I also wanted to learn more about OS executables and the linking process, which is why I'm generating ELF files. In addition, I'm thinking about integrating this with one of my compilers. This project was actually part of a new compiler I started (which is why there's a gap in the early commit history), but I separated it into its own project when it actually began to work.
-
-### Syntax
-
-Asmx86 uses the Intel syntax. Its very close to the NASM syntax, but there are a few differences. I'll write more on the syntax as the project matures; for now, please see the test folder for examples.
-
-### Instructions
-
-The x86-64 architecture is huge- even without the extensions. It is highly unlikely I'm going to add support for every single instruction. That said, it is important to understand that you don't need support for every single instruction for the majority of programs. I'm trying to add support for the most commonly used instructions first, and then I'll add others on an as-needed basis. 
-
-If you want to add an instruction, its actually super easy. All instructions are first specified in the "grammar.y" file. To add your instruction, simply add the syntax, the size of the instruction, and the if statement checking the pass (you can use what's there as an example). Then, create a function in the "asm" folder and header to generate the binary for it.
-
-### ELF Objects
-
-Asmx86 generates relocatable ELF object files. These files can be turned into working executables, static libraries, or simply a bunch of objects, and then passed to your system linker. I haven't tested dynamic libraries yet, but they may work.
-
-### Standard Library
-
-You'll notice there is a folder and a script entitled ```stdlib```. This is meant to be a small, simple standard library primarily for testing linkage. The script generates a static library from the sources in the folder which can be linked and used from other programs. I haven't tested it outside of my assembler, but it should work. The library is tested by the rest of the testing system, which I detail below.
-
-### Testing and Development
-
-I use test-driven development for this project. Even though its a hobby project, I've found this is a good method as a whole to use. The test system is really simple to use; the ```test.sh``` script runs all the tests, and the ```test.py``` script runs the test for a particular file (its called by test.sh). The tests are currently conducted based on return code and output. Output is primarily used for testing things like functions, strings, jumps, and so forth. The return code is used for testing numerical instructions, data moves, logical instructions, and so forth. That said, I use Linux system calls, so if you use a different Unix-like platform, you may have to adjust this part. As long as ELF is supported, this should be all you have to change.
-
-The entire assembler is in the ```src``` folder. The files in the ```src``` root are for the parser. The files in ```src/elf``` are for generating the ELF objects. The files in ```src/asm``` are for generating x86 binary. The ```src/asm/utils.c``` contains several useful functions used across the binary generating part of the program.
-
-### Building and Running
-
-To build, all you need is a C compiler, Flex, Bison, and CMake.
-
-Asmx86 should work on any x86-64 Unix-like system that uses the ELF format. I've only tested it on Linux, but it should work on the BSD systems and Solaris. In both cases, you'll probably have to change the system calls in the tests.
-
-As far as i386 goes, in theory this should work without any issues, but Asmx86 won't stop you from generating x86-64 instructions. So pretty much if you wish to use it on i386, just avoid the x86-64 instructions and it should work.
-
+NOTE: This is a new version I'm working on. I'm doing a complete rewrite from the original; currently the ELF generators are mostly in place, which is why I'm publishing it. If you wish to see the original sources, check out the "original" branch.
